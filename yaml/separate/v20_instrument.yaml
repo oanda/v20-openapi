@@ -1,0 +1,382 @@
+swagger: '2.0'
+info:
+  title: OANDA v20 Instrument API
+  description: >-
+    Instrument-related definitions and endpoints made available to clients
+    through the v20 REST API.
+  contact:
+    name: OANDA API Support
+    url: http://developer.oanda.com/rest-live-v20/introduction/
+    email: api@oanda.com
+  license:
+    name: MIT
+    url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
+  version: 3.0.13
+basePath: /v3
+produces:
+- application/json
+consumes:
+- application/json
+paths:
+  /instruments/{instrument}/candles:
+    get:
+      summary: Get Candlesticks
+      description: Fetch candlestick data for an instrument.
+      operationId: candles
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/instrumentNamePathParam'
+      - name: price
+        despcription: >-
+          The Price component(s) to get candlestick data for. Can contain
+          any combination of the characters "M" (midpoint candles) "B" (bid
+          candles) and "A" (ask candles).
+        in: query
+        type: string
+      - name: granularity
+        despcription: The granularity of the candlesticks to fetch
+        in: query
+        type: string
+      - name: count
+        despcription: >-
+          The number of candlesticks to return in the reponse. Count should
+          not be specified if both the start and end parameters are provided,
+          as the time range combined with the graularity will determine
+          the number of candlesticks to return.
+        in: query
+        type: integer
+      - name: from
+        despcription: The start of the time range to fetch candlesticks
+          for.
+        in: query
+        type: string
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      - name: to
+        despcription: The end of the time range to fetch candlesticks for.
+        in: query
+        type: string
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      - name: smooth
+        despcription: >-
+          A flag that controls whether the candlestick is "smoothed" or
+          not.  A smoothed candlestick uses the previous candle's close
+          price as its open price, while an unsmoothed candlestick uses
+          the first price from its time range as its open price.
+        in: query
+        type: boolean
+      - name: includeFirst
+        despcription: >-
+          A flag that controls whether the candlestick that is covered by
+          the from time should be included in the results. This flag enables
+          clients to use the timestamp of the last completed candlestick
+          received to poll for future candlesticks but avoid receiving the
+          previous candlestick repeatedly.
+        in: query
+        type: boolean
+      - name: dailyAlignment
+        despcription: >-
+          The hour of the day (in the specified timezone) to use for granularities
+          that have daily alignments.
+        in: query
+        type: integer
+      - name: alignmentTimezone
+        despcription: >-
+          The timezone to use for the dailyAlignment parameter. Candlesticks
+          with daily alignment will be aligned to the dailyAlignment hour
+          within the alignmentTimezone.
+        in: query
+        type: string
+      - name: weeklyAlignment
+        despcription: >-
+          The day of the week used for granularities that have weekly alignment.
+        in: query
+        type: string
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          schema:
+            type: object
+            properties:
+              instrument:
+                type: string
+                description: >-
+                  The instrument whose Prices are represented by the candlesticks.
+                format: >-
+                  A string containing the base currency and quote currency
+                  delimited by a "_".
+              granularity:
+                type: string
+                description: The granularity of the candlesticks provided.
+                enum:
+                - S5
+                - S10
+                - S15
+                - S30
+                - M1
+                - M2
+                - M4
+                - M5
+                - M10
+                - M15
+                - M30
+                - H1
+                - H2
+                - H3
+                - H4
+                - H6
+                - H8
+                - H12
+                - D
+                - W
+                - M
+              candles:
+                type: array
+                description: The list of candlesticks that satisfy the request.
+                items:
+                  $ref: '#/definitions/Candlestick'
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
+definitions:
+  CandlestickGranularity:
+    type: string
+    description: The granularity of a candlestick
+    enum:
+    - S5
+    - S10
+    - S15
+    - S30
+    - M1
+    - M2
+    - M4
+    - M5
+    - M10
+    - M15
+    - M30
+    - H1
+    - H2
+    - H3
+    - H4
+    - H6
+    - H8
+    - H12
+    - D
+    - W
+    - M
+  WeeklyAlignment:
+    type: string
+    description: >-
+      The day of the week to use for candlestick granularities with weekly
+      alignment.
+    enum:
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+  Candlestick:
+    type: object
+    description: The Candlestick representation
+    properties:
+      time:
+        type: string
+        description: The start time of the candlestick
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      bid:
+        $ref: '#/definitions/CandlestickData'
+        description: >-
+          The candlestick data based on bids. Only provided if bid-based
+          candles were requested.
+      ask:
+        $ref: '#/definitions/CandlestickData'
+        description: >-
+          The candlestick data based on asks. Only provided if ask-based
+          candles were requested.
+      mid:
+        $ref: '#/definitions/CandlestickData'
+        description: >-
+          The candlestick data based on midpoints. Only provided if midpoint-based
+          candles were requested.
+      volume:
+        type: integer
+        description: >-
+          The number of prices created during the time-range represented
+          by the candlestick.
+      complete:
+        type: boolean
+        description: >-
+          A flag indicating if the candlestick is complete. A complete candlestick
+          is one whose ending time is not in the future.
+  CandlestickData:
+    type: object
+    description: >-
+      The price data (open, high, low, close) for the Candlestick representation.
+    properties:
+      o:
+        type: string
+        description: >-
+          The first (open) price in the time-range represented by the candlestick.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      h:
+        type: string
+        description: >-
+          The highest price in the time-range represented by the candlestick.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      l:
+        type: string
+        description: >-
+          The lowest price in the time-range represented by the candlestick.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      c:
+        type: string
+        description: >-
+          The last (closing) price in the time-range represented by the
+          candlestick.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+parameters:
+  instrumentNamePathParam:
+    name: instrument
+    despcription: Name of the Instrument
+    in: path
+    type: string
+    format: >-
+      A string containing the base currency and quote currency delimited
+      by a "_".
+    required: true
+responses:
+  '400':
+    description: >-
+      Bad Request. The client has provided invalid data to be processed
+      by the server.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '401':
+    description: >-
+      Unauthorized. The endpoint being access required the client to authenticated,
+      however the the authentication token is invalid or has not been provided.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '403':
+    description: >-
+      Forbidden. The client has provided a token that does not authorize
+      them to perform the action implemented by teh API endpoint.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '404':
+    description: >-
+      Not Found. The client has attempted to access an entity that does
+      not exist.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '405':
+    description: >-
+      Method Not Allowed. The client has attempted to access an endpoint
+      using an HTTP method that is not supported.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '416':
+    description: >-
+      Range Not Satisfiable. The client has specified a range that is invalid
+      or cannot be processed.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+

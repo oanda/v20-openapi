@@ -1,0 +1,128 @@
+swagger: '2.0'
+info:
+  title: OANDA v20 User PI
+  description: Definitions and endpoints related to v20 Users.
+  contact:
+    name: OANDA API Support
+    url: http://developer.oanda.com/rest-live-v20/introduction/
+    email: api@oanda.com
+  license:
+    name: MIT
+    url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
+  version: 3.0.13
+basePath: /v3
+produces:
+- application/json
+consumes:
+- application/json
+paths:
+  /users/{userSpecifier}:
+    get:
+      summary: User Info
+      description: >-
+        Fetch the user information for the specified user. This endpoint
+        is intended to be used by the user themself to obtain their own
+        information.
+      operationId: getInfo
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/userSpecifierPathParam'
+      responses:
+        '200':
+          description: The user information has been provided
+          schema:
+            type: object
+            properties:
+              userInfo:
+                $ref: '#/definitions/UserInfo'
+                description: The user information for the specifier user.
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '403':
+          $ref: primitives.yaml#/responses/403
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /users/{userSpecifier}/externalInfo:
+    get:
+      summary: External User Info
+      description: >-
+        Fetch the externally-available user information for the specified
+        user. This endpoint is intended to be used by 3rd parties that have
+        been authorized by a user to view their personal information.
+      operationId: getExternalInfo
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/userSpecifierPathParam'
+      responses:
+        '200':
+          description: The external user information has been provided
+          schema:
+            type: object
+            properties:
+              userInfo:
+                $ref: '#/definitions/UserInfoExternal'
+                description: The user information for the specifier user.
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '403':
+          $ref: primitives.yaml#/responses/403
+        '405':
+          $ref: primitives.yaml#/responses/405
+definitions:
+  UserSpecifier:
+    type: string
+    description: The specifier that refers to a User
+    format: >-
+      A user specifier may have one of 3 formats: the OANDA-assigned User
+      ID (numerical), the client-provided username prefixed by the "@" symbol
+      (e.g. "@myusername"), or the "@" symbol. The "@" symbol on its own
+      acts as an alias for the username of the user accessing the endpoint
+      (as inferred from the token provided).
+  UserInfo:
+    type: object
+    description: >-
+      A representation of user information, as provided to the user themself.
+    properties:
+      username:
+        type: string
+        description: The user-provided username.
+      userID:
+        type: integer
+        description: The user's OANDA-assigned user ID.
+      country:
+        type: string
+        description: The country that the user is based in.
+      emailAddress:
+        type: string
+        description: The user's email address.
+  UserInfoExternal:
+    type: object
+    description: >-
+      A representation of user information, as available to external (3rd
+      party) clients.
+    properties:
+      userID:
+        type: integer
+        description: The user's OANDA-assigned user ID.
+      country:
+        type: string
+        description: The country that the user is based in.
+      FIFO:
+        type: boolean
+        description: >-
+          Flag indicating if the the user's Accounts adhere to FIFO execution
+          rules.
+parameters:
+  userSpecifierPathParam:
+    name: userSpecifier
+    despcription: The User Specifier
+    in: path
+    type: string
+    format: >-
+      A user specifier may have one of 3 formats: the OANDA-assigned User
+      ID (numerical), the client-provided username prefixed by the "@" symbol
+      (e.g. "@myusername"), or the "@" symbol. The "@" symbol on its own
+      acts as an alias for the username of the user accessing the endpoint
+      (as inferred from the token provided).
+    required: true
+

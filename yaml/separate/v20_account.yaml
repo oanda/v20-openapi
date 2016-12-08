@@ -1,0 +1,927 @@
+swagger: '2.0'
+info:
+  title: OANDA v20 Account REST API
+  description: v20 Account-related Definitions and Endpoints
+  contact:
+    name: OANDA API Support
+    url: http://developer.oanda.com/rest-live-v20/introduction/
+    email: api@oanda.com
+  license:
+    name: MIT
+    url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
+  version: 3.0.13
+basePath: /v3
+produces:
+- application/json
+consumes:
+- application/json
+paths:
+  /accounts:
+    get:
+      summary: List Accounts
+      description: >-
+        Get a list of all Accounts authorized for the provided token.
+      operationId: list
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      responses:
+        '200':
+          description: The list of authorized Accounts has been provided.
+          schema:
+            type: object
+            properties:
+              accounts:
+                type: array
+                description: >-
+                  The list of Accounts the client is authorized to access
+                  and their associated properties.
+                items:
+                  $ref: '#/definitions/AccountProperties'
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /accounts/{accountID}:
+    get:
+      summary: Account Details
+      description: >-
+        Get the full details for a single Account that a client has access
+        to. Full pending Order, open Trade and open Position representations
+        are provided.
+      operationId: get
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/accountIDPathParam'
+      responses:
+        '200':
+          description: The full Account details are provided
+          schema:
+            type: object
+            properties:
+              account:
+                $ref: '#/definitions/Account'
+                description: The full details of the requested Account.
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account.
+                example: '1523'
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /accounts/{accountID}/summary:
+    get:
+      summary: Account Summary
+      description: >-
+        Get a summary for a single Account that a client has access to.
+      operationId: summary
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/accountIDPathParam'
+      responses:
+        '200':
+          description: The Account summary  are provided
+          schema:
+            type: object
+            properties:
+              account:
+                $ref: '#/definitions/AccountSummary'
+                description: The summary of the requested Account.
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account.
+                example: '1523'
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /accounts/{accountID}/instruments:
+    get:
+      summary: Account Instruments
+      description: >-
+        Get the list of tradeable instruments for the given Account. The
+        list of tradeable instruments is dependent on the regulatory division
+        that the Account is located in, thus should be the same for all
+        Accounts owned by a single user.
+      operationId: instruments
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/accountIDPathParam'
+      - name: instruments
+        despcription: List of instruments to query specifically.
+        in: query
+        type: array
+        items:
+          type: string
+          format: >-
+            A string containing the base currency and quote currency delimited
+            by a "_".
+        collectionFormat: csv
+      responses:
+        '200':
+          description: >-
+            The list of tradeable instruments for the Account has been provided.
+          schema:
+            type: object
+            properties:
+              instruments:
+                type: array
+                description: The requested list of instruments.
+                items:
+                  $ref: primitives.yaml#/definitions/Instrument
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /accounts/{accountID}/configuration:
+    patch:
+      summary: Configure Account
+      description: Set the client-configurable portions of an Account.
+      operationId: configure
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/accountIDPathParam'
+      - name: configureAccountBody
+        despcription: Representation of the Account configuration to set
+        in: body
+        schema:
+          type: object
+          properties:
+            alias:
+              type: string
+              description: Client-defined alias (name) for the Account
+            marginRate:
+              type: string
+              description: The string representation of a decimal number.
+              format: >-
+                A decimal number encoded as a string. The amount of precision
+                provided depends on what the number represents.
+      responses:
+        '200':
+          description: The Account was configured successfully.
+          schema:
+            type: object
+            properties:
+              configureTransaction:
+                $ref: transaction.yaml#/definitions/ClientConfigureTransaction
+                description: The transaction that configures the Account.
+              lastTransactionID:
+                type: string
+                description: The ID of the last Transaction created for
+                  the Account.
+                example: '1523'
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '400':
+          description: The Account could not be configured successfully.
+          schema:
+            type: object
+            properties:
+              configureRejectTransaction:
+                $ref: >-
+                  transaction.yaml#/definitions/ClientConfigureRejectTransaction
+                description: >-
+                  The transaction that rejects the configuration of the
+                  Account.
+              lastTransactionID:
+                type: string
+                description: The ID of the last Transaction created for
+                  the Account.
+                example: '1523'
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+              errorCode:
+                type: string
+                description: >-
+                  The code of the error that has occurred. This field may
+                  not be returned for some errors.
+                required: false
+              errorMessage:
+                type: string
+                description: >-
+                  The human-readable description of the error that has occurred.
+                required: true
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /accounts/{accountID}/changes:
+    get:
+      summary: Poll Account Updates
+      description: >-
+        Endpoint used to poll an Account for its current state and changes
+        since a specified TransactionID.
+      operationId: changes
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: '#/parameters/accountIDPathParam'
+      - name: sinceTransactionID
+        despcription: ID of the Transaction to get Account changes since.
+        in: query
+        type: string
+        format: >-
+          String representation of the numerical OANDA-assigned TransactionID
+      responses:
+        '200':
+          description: The Account state and changes are provided.
+          schema:
+            type: object
+            properties:
+              changes:
+                $ref: '#/definitions/AccountChanges'
+                description: >-
+                  The changes to the Account's Orders, Trades and Positions
+                  since the specified Transaction ID. Only provided if the
+                  sinceTransactionID is supplied to the poll request.
+              state:
+                $ref: '#/definitions/AccountState'
+                description: The Account's current price-dependent state.
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the last Transaction created for the Account.  This
+                  Transaction ID should be used for future poll requests,
+                  as the client has already observed all changes up to and
+                  including it.
+                example: '1523'
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
+        '416':
+          $ref: primitives.yaml#/responses/416
+definitions:
+  AccountID:
+    type: string
+    description: The string representation of an Account Identifier.
+    example: 001-011-5838423-001
+    format: >-
+      "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
+  Account:
+    type: object
+    description: >-
+      The full details of a client's Account. This includes full open Trade,
+      open Position and pending Order representation.
+    properties:
+      id:
+        type: string
+        description: The Account's identifier
+        example: 001-011-5838423-001
+        format: >-
+          "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
+      alias:
+        type: string
+        description: >-
+          Client-assigned alias for the Account. Only provided if the Account
+          has an alias set
+      currency:
+        type: string
+        description: The home currency of the Account
+        format: >-
+          A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)
+      balance:
+        type: string
+        description: >-
+          The current balance of the Account. Represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      createdByUserID:
+        type: integer
+        description: ID of the user that created the Account.
+      createdTime:
+        type: string
+        description: The date/time when the Account was created.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      pl:
+        type: string
+        description: >-
+          The total profit/loss realized over the lifetime of the Account.
+          Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      resettabledPL:
+        type: string
+        description: >-
+          The total realized profit/loss for the Account since it was last
+          reset by the client. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      resettabledPLTime:
+        type: string
+        description: >-
+          The date/time that the Account's resettablePL was last reset.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      marginRate:
+        type: string
+        description: >-
+          Client-provided margin rate override for the Account. The effective
+          margin rate of the Account is the lesser of this value and the
+          OANDA margin rate for the Account's division. This value is only
+          provided if a margin rate override exists for the Account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      marginCallEnterTime:
+        type: string
+        description: >-
+          The date/time when the Account entered a margin call state. Only
+          provided if the Account is in a margin call.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      marginCallExtensionCount:
+        type: integer
+        description: >-
+          The number of times that the Account's current margin call was
+          extended.
+      lastMarginCallExtensionTime:
+        type: string
+        description: The date/time of the Account's last margin call extension.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      openTradeCount:
+        type: integer
+        description: The number of Trades currently open in the Account.
+      openPositionCount:
+        type: integer
+        description: The number of Positions currently open in the Account.
+      pendingOrderCount:
+        type: integer
+        description: The number of Orders currently pending in the Account.
+      hedgingEnabled:
+        type: boolean
+        description: Flag indicating that the Account has hedging enabled.
+      unrealizedPL:
+        type: string
+        description: >-
+          The total unrealized profit/loss for all Trades currently open
+          in the Account. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      NAV:
+        type: string
+        description: >-
+          The net asset value of the Account. Equal to Account balance +
+          unrealizedPL. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginUsed:
+        type: string
+        description: >-
+          Margin currently used for the Account. Represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginAvailable:
+        type: string
+        description: >-
+          Margin available for Account. Represented in the Account's home
+          currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      positionValue:
+        type: string
+        description: >-
+          The value of the Account's open positions represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutUnrealizedPL:
+        type: string
+        description: The Account's margin closeout unrealized PL.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutNAV:
+        type: string
+        description: The Account's margin closeout NAV.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutMarginUsed:
+        type: string
+        description: The Account's margin closeout margin used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutPercent:
+        type: string
+        description: >-
+          The Account's margin closeout percentage. When this value is 1.0
+          or above the Account is in a margin closeout situation.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      withdrawalLimit:
+        type: string
+        description: >-
+          The current WithdrawalLimit for the account which will be zero
+          or a positive value indicating how much can be withdrawn from
+          the account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCallMarginUsed:
+        type: string
+        description: The Account's margin call margin used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCallPercent:
+        type: string
+        description: >-
+          The Account's margin call percentage. When this value is 1.0 or
+          above the Account is in a margin call situation.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      lastTransactionID:
+        type: string
+        description: The ID of the last Transaction created for the Account.
+        example: '1523'
+        format: >-
+          String representation of the numerical OANDA-assigned TransactionID
+      trades:
+        type: array
+        description: The details of the Trades currently open in the Account.
+        items:
+          $ref: trade.yaml#/definitions/TradeSummary
+      positions:
+        type: array
+        description: The details all Account Positions.
+        items:
+          $ref: position.yaml#/definitions/Position
+      orders:
+        type: array
+        description: The details of the Orders currently pending in the
+          Account.
+        items:
+          $ref: order.yaml#/definitions/Order
+  AccountState:
+    type: object
+    description: >-
+      An AccountState Object is used to represent an Account's current price-dependent
+      state. Price-dependent Account state is dependent on OANDA's current
+      Prices, and includes things like unrealized PL, NAV and Trailing Stop
+      Loss Order state.
+    properties:
+      unrealizedPL:
+        type: string
+        description: >-
+          The total unrealized profit/loss for all Trades currently open
+          in the Account. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      NAV:
+        type: string
+        description: >-
+          The net asset value of the Account. Equal to Account balance +
+          unrealizedPL. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginUsed:
+        type: string
+        description: >-
+          Margin currently used for the Account. Represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginAvailable:
+        type: string
+        description: >-
+          Margin available for Account. Represented in the Account's home
+          currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      positionValue:
+        type: string
+        description: >-
+          The value of the Account's open positions represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutUnrealizedPL:
+        type: string
+        description: The Account's margin closeout unrealized PL.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutNAV:
+        type: string
+        description: The Account's margin closeout NAV.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutMarginUsed:
+        type: string
+        description: The Account's margin closeout margin used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutPercent:
+        type: string
+        description: >-
+          The Account's margin closeout percentage. When this value is 1.0
+          or above the Account is in a margin closeout situation.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      withdrawalLimit:
+        type: string
+        description: >-
+          The current WithdrawalLimit for the account which will be zero
+          or a positive value indicating how much can be withdrawn from
+          the account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCallMarginUsed:
+        type: string
+        description: The Account's margin call margin used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCallPercent:
+        type: string
+        description: >-
+          The Account's margin call percentage. When this value is 1.0 or
+          above the Account is in a margin call situation.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      orders:
+        type: array
+        description: >-
+          The price-dependent state of each pending Order in the Account.
+        items:
+          $ref: order.yaml#/definitions/DynamicOrderState
+      trades:
+        type: array
+        description: >-
+          The price-dependent state for each open Trade in the Account.
+        items:
+          $ref: trade.yaml#/definitions/CalculatedTradeState
+      positions:
+        type: array
+        description: >-
+          The price-dependent state for each open Position in the Account.
+        items:
+          $ref: position.yaml#/definitions/CalculatedPositionState
+  AccountProperties:
+    type: object
+    description: Properties related to an Account.
+    properties:
+      id:
+        type: string
+        description: The Account's identifier
+        example: 001-011-5838423-001
+        format: >-
+          "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
+      mt4AccountID:
+        type: integer
+        description: >-
+          The Account's associated MT4 Account ID. This field will not be
+          present if the Account is not an MT4 account.
+      tags:
+        type: array
+        description: The Account's tags
+        items:
+          type: string
+  AccountSummary:
+    type: object
+    description: >-
+      A summary representation of a client's Account. The AccountSummary
+      does not provide to full specification of pending Orders, open Trades
+      and Positions.
+    properties:
+      id:
+        type: string
+        description: The Account's identifier
+        example: 001-011-5838423-001
+        format: >-
+          "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
+      alias:
+        type: string
+        description: >-
+          Client-assigned alias for the Account. Only provided if the Account
+          has an alias set
+      currency:
+        type: string
+        description: The home currency of the Account
+        format: >-
+          A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)
+      balance:
+        type: string
+        description: >-
+          The current balance of the Account. Represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      createdByUserID:
+        type: integer
+        description: ID of the user that created the Account.
+      createdTime:
+        type: string
+        description: The date/time when the Account was created.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      pl:
+        type: string
+        description: >-
+          The total profit/loss realized over the lifetime of the Account.
+          Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      resettabledPL:
+        type: string
+        description: >-
+          The total realized profit/loss for the Account since it was last
+          reset by the client. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      resettabledPLTime:
+        type: string
+        description: >-
+          The date/time that the Account's resettablePL was last reset.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      marginRate:
+        type: string
+        description: >-
+          Client-provided margin rate override for the Account. The effective
+          margin rate of the Account is the lesser of this value and the
+          OANDA margin rate for the Account's division. This value is only
+          provided if a margin rate override exists for the Account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      marginCallEnterTime:
+        type: string
+        description: >-
+          The date/time when the Account entered a margin call state. Only
+          provided if the Account is in a margin call.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      marginCallExtensionCount:
+        type: integer
+        description: >-
+          The number of times that the Account's current margin call was
+          extended.
+      lastMarginCallExtensionTime:
+        type: string
+        description: The date/time of the Account's last margin call extension.
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      openTradeCount:
+        type: integer
+        description: The number of Trades currently open in the Account.
+      openPositionCount:
+        type: integer
+        description: The number of Positions currently open in the Account.
+      pendingOrderCount:
+        type: integer
+        description: The number of Orders currently pending in the Account.
+      hedgingEnabled:
+        type: boolean
+        description: Flag indicating that the Account has hedging enabled.
+      unrealizedPL:
+        type: string
+        description: >-
+          The total unrealized profit/loss for all Trades currently open
+          in the Account. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      NAV:
+        type: string
+        description: >-
+          The net asset value of the Account. Equal to Account balance +
+          unrealizedPL. Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginUsed:
+        type: string
+        description: >-
+          Margin currently used for the Account. Represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginAvailable:
+        type: string
+        description: >-
+          Margin available for Account. Represented in the Account's home
+          currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      positionValue:
+        type: string
+        description: >-
+          The value of the Account's open positions represented in the Account's
+          home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutUnrealizedPL:
+        type: string
+        description: The Account's margin closeout unrealized PL.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutNAV:
+        type: string
+        description: The Account's margin closeout NAV.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutMarginUsed:
+        type: string
+        description: The Account's margin closeout margin used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCloseoutPercent:
+        type: string
+        description: >-
+          The Account's margin closeout percentage. When this value is 1.0
+          or above the Account is in a margin closeout situation.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      withdrawalLimit:
+        type: string
+        description: >-
+          The current WithdrawalLimit for the account which will be zero
+          or a positive value indicating how much can be withdrawn from
+          the account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCallMarginUsed:
+        type: string
+        description: The Account's margin call margin used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      marginCallPercent:
+        type: string
+        description: >-
+          The Account's margin call percentage. When this value is 1.0 or
+          above the Account is in a margin call situation.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      lastTransactionID:
+        type: string
+        description: The ID of the last Transaction created for the Account.
+        example: '1523'
+        format: >-
+          String representation of the numerical OANDA-assigned TransactionID
+  AccountChanges:
+    type: object
+    description: >-
+      An AccountChanges Object is used to represent the changes to an Account's
+      Orders, Trades and Positions since a specified Account TransactionID
+      in the past.
+    properties:
+      ordersCreated:
+        type: array
+        description: >-
+          The Orders created. These Orders may have been filled, cancelled
+          or triggered in the same period.
+        items:
+          $ref: order.yaml#/definitions/Order
+      ordersCancelled:
+        type: array
+        description: The Orders cancelled.
+        items:
+          $ref: order.yaml#/definitions/Order
+      ordersFilled:
+        type: array
+        description: The Orders filled.
+        items:
+          $ref: order.yaml#/definitions/Order
+      ordersTriggered:
+        type: array
+        description: The Orders triggered.
+        items:
+          $ref: order.yaml#/definitions/Order
+      tradesOpened:
+        type: array
+        description: The Trades opened.
+        items:
+          $ref: trade.yaml#/definitions/Trade
+      tradesReduced:
+        type: array
+        description: The Trades reduced.
+        items:
+          $ref: trade.yaml#/definitions/Trade
+      tradesClosed:
+        type: array
+        description: The Trades closed.
+        items:
+          $ref: trade.yaml#/definitions/Trade
+      positions:
+        type: array
+        description: The Positions changed.
+        items:
+          $ref: position.yaml#/definitions/Position
+      transactions:
+        type: array
+        description: The Transactions that have been generated.
+        items:
+          $ref: transaction.yaml#/definitions/Transaction
+  AccountFinancingMode:
+    type: string
+    description: The financing mode of an Account
+    enum:
+    - NO_FINANCING
+    - SECOND_BY_SECOND
+    - DAILY
+  PositionAggregationMode:
+    type: string
+    description: >-
+      The way that position values for an Account are calculated and aggregated.
+    enum:
+    - ABSOLUTE_SUM
+    - MAXIMAL_SIDE
+    - NET_SUM
+parameters:
+  accountIDPathParam:
+    name: accountID
+    despcription: Account Identifier
+    in: path
+    type: string
+    format: >-
+      "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
+    required: true
+

@@ -1,0 +1,383 @@
+swagger: '2.0'
+info:
+  title: OANDA v20 Primitives
+  description: >-
+    Definitions of primitive building-blocks used throughout OANDA's v20
+    REST API.
+  contact:
+    name: OANDA API Support
+    url: http://developer.oanda.com/rest-live-v20/introduction/
+    email: api@oanda.com
+  license:
+    name: MIT
+    url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
+  version: 3.0.13
+basePath: /v3
+produces:
+- application/json
+consumes:
+- application/json
+paths:
+  /accounts/{accountID}/pricing:
+    get:
+      summary: Current Prices
+      description: >-
+        Get pricing information for a specified list of Instruments within
+        an Account.
+      operationId: get
+      parameters:
+      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: v20_account.json#/parameters/accountIDPathParam
+      - name: instruments
+        despcription: List of Instruments to get pricing for.
+        in: query
+        type: array
+        items:
+          type: string
+          format: >-
+            A string containing the base currency and quote currency delimited
+            by a "_".
+        collectionFormat: csv
+        required: true
+      - name: since
+        despcription: >-
+          Date/Time filter to apply to the returned prices. Only prices
+          with a time later than this filter will be provided.
+        in: query
+        type: string
+        format: >-
+          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+          The amount of sub-second precision provided may represent milliseconds
+          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+          to 999999999).
+      - name: includeUnitsAvailable
+        despcription: >-
+          Flag that enables the inclusion of the unitsAvailable field in
+          the returned Price objects.
+        in: query
+        type: boolean
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          schema:
+            type: object
+            properties:
+              prices:
+                type: array
+                description: The list of Price objects requested
+                required: true
+                items:
+                  $ref: '#/definitions/Price'
+        '400':
+          $ref: v20_primitives.json#/responses/400
+        '401':
+          $ref: v20_primitives.json#/responses/401
+        '404':
+          $ref: v20_primitives.json#/responses/404
+        '405':
+          $ref: v20_primitives.json#/responses/405
+  /accounts/{accountID}/pricing/stream:
+    get:
+      summary: Price Stream
+      description: >-
+        Get a stream of Prices for an Account starting from when the request
+        is made.
+      operationId: stream
+      parameters:
+      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: v20_account.json#/parameters/accountIDPathParam
+      - name: instruments
+        despcription: List of Instruments to stream Prices for.
+        in: query
+        type: array
+        items:
+          type: string
+          format: >-
+            A string containing the base currency and quote currency delimited
+            by a "_".
+        collectionFormat: csv
+        required: true
+      - name: snapshot
+        despcription: >-
+          Flag that enables/disables the sending of a pricing snapshot when
+          initially connecting to the stream.
+        in: query
+        type: boolean
+      responses:
+        '200':
+          description: Connecting to the Price Stream was successful.
+          schema:
+            type: object
+            description: >-
+              The response body for the Pricing Stream uses chunked transfer
+              encoding.  Each chunk contains Price and/or PricingHeartbeat
+              objects encoded as JSON.  Each JSON object is serialized into
+              a single line of text, and multiple objects found in the same
+              chunk are separated by newlines.
+
+              Heartbeats are sent every 5 seconds.
+            properties:
+              price:
+                $ref: '#/definitions/Price'
+                description: An Account Price in the Pricing Stream
+              heartbeat:
+                $ref: '#/definitions/PricingHeartbeat'
+                description: A PricingHeartbeat message in the Pricing Stream
+        '400':
+          $ref: v20_primitives.json#/responses/400
+        '401':
+          $ref: v20_primitives.json#/responses/401
+        '404':
+          $ref: v20_primitives.json#/responses/404
+        '405':
+          $ref: v20_primitives.json#/responses/405
+definitions:
+  DecimalNumber:
+    type: string
+    description: The string representation of a decimal number.
+    format: >-
+      A decimal number encoded as a string. The amount of precision provided
+      depends on what the number represents.
+  AccountUnits:
+    type: string
+    description: >-
+      The string representation of a quantity of an Account's home currency.
+    format: >-
+      A decimal number encoded as a string. The amount of precision provided
+      depends on the Account's home currency.
+  Currency:
+    type: string
+    description: >-
+      Currency name identifier. Used by clients to refer to currencies.
+    format: >-
+      A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)
+  InstrumentName:
+    type: string
+    description: >-
+      Instrument name identifier. Used by clients to refer to an Instrument.
+    format: >-
+      A string containing the base currency and quote currency delimited
+      by a "_".
+  InstrumentType:
+    type: string
+    description: The type of an Instrument.
+    enum:
+    - CURRENCY
+    - CFD
+    - METAL
+  Instrument:
+    type: object
+    description: Full specification of an Instrument.
+    properties:
+      name:
+        type: string
+        description: The name of the Instrument
+        format: >-
+          A string containing the base currency and quote currency delimited
+          by a "_".
+      type:
+        type: string
+        description: The type of the Instrument
+        enum:
+        - CURRENCY
+        - CFD
+        - METAL
+      displayName:
+        type: string
+        description: The display name of the Instrument
+      pipLocation:
+        type: integer
+        description: >-
+          The location of the "pip" for this instrument. The decimal position
+          of the pip in this Instrument's price can be found at 10 ^ pipLocation
+          (e.g. -4 pipLocation results in a decimal pip position of 10 ^
+          -4 = 0.0001).
+      displayPrecision:
+        type: integer
+        description: >-
+          The number of decimal places that should be used to display prices
+          for this instrument. (e.g. a displayPrecision of 5 would result
+          in a price of "1" being displayed as "1.00000")
+      tradeUnitsPrecision:
+        type: integer
+        description: >-
+          The amount of decimal places that may be provided when specifying
+          the number of units traded for this instrument.
+      minimumTradeSize:
+        type: string
+        description: >-
+          The smallest number of units allowed to be traded for this instrument.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      maximumTrailingStopDistance:
+        type: string
+        description: >-
+          The maximum trailing stop distance allowed for a trailing stop
+          loss created for this instrument. Specified in price units.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      minimumTrailingStopDistance:
+        type: string
+        description: >-
+          The minimum trailing stop distance allowed for a trailing stop
+          loss created for this instrument. Specified in price units.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      maximumPositionSize:
+        type: string
+        description: >-
+          The maximum position size allowed for this instrument. Specified
+          in units.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      maximumOrderUnits:
+        type: string
+        description: >-
+          The maximum units allowed for an Order placed for this instrument.
+          Specified in units.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      marginRate:
+        type: string
+        description: The margin rate for this instrument.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+  DateTime:
+    type: string
+    description: Representation of a date and time value.
+    format: >-
+      A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
+      The amount of sub-second precision provided may represent milliseconds
+      (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
+      to 999999999).
+  AcceptDatetimeFormat:
+    type: string
+    description: DateTime header
+    enum:
+    - UNIX
+    - RFC3339
+parameters:
+  authorizationHeaderParam:
+    name: Authorization
+    despcription: >-
+      The authorization bearer token previously obtained by the client
+    in: header
+    type: string
+    format: The string 'Bearer ' followed by the token.
+    required: true
+responses:
+  '400':
+    description: >-
+      Bad Request. The client has provided invalid data to be processed
+      by the server.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '401':
+    description: >-
+      Unauthorized. The endpoint being access required the client to authenticated,
+      however the the authentication token is invalid or has not been provided.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '403':
+    description: >-
+      Forbidden. The client has provided a token that does not authorize
+      them to perform the action implemented by teh API endpoint.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '404':
+    description: >-
+      Not Found. The client has attempted to access an entity that does
+      not exist.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '405':
+    description: >-
+      Method Not Allowed. The client has attempted to access an endpoint
+      using an HTTP method that is not supported.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+  '416':
+    description: >-
+      Range Not Satisfiable. The client has specified a range that is invalid
+      or cannot be processed.
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+          required: false
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+          required: true
+
