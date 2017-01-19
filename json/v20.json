@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.13"
+    "version": "3.0.14"
   }, 
   "basePath": "/v3", 
   "schemes": "https", 
@@ -1782,6 +1782,12 @@
         "responses": {
           "200": {
             "description": "Connecting to the Price Stream was successful.", 
+            "headers": {
+              "Link": {
+                "description": "A link to the next/previous order book snapshot.", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "description": "The response body for the Pricing Stream uses chunked transfer encoding.  Each chunk contains Price and/or PricingHeartbeat objects encoded as JSON.  Each JSON object is serialized into a single line of text, and multiple objects found in the same chunk are separated by newlines.\nHeartbeats are sent every 5 seconds.", 
@@ -11073,8 +11079,7 @@
         }, 
         "liquidity": {
           "type": "integer", 
-          "description": "The amount of liquidity offered by the PriceBucket", 
-          "example": 1000000
+          "description": "The amount of liquidity offered by the PriceBucket"
         }
       }
     }, 

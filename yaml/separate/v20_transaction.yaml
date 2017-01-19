@@ -10,7 +10,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.13
+  version: 3.0.14
 basePath: /v3
 produces:
 - application/json
