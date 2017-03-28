@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.14"
+    "version": "3.0.13"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -32,31 +32,34 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
             "name": "from", 
-            "despcription": "The starting time (inclusive) of the time range for the Transactions being queried.", 
+            "description": "The starting time (inclusive) of the time range for the Transactions being queried.", 
             "in": "query", 
             "type": "string", 
-            "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+            "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
           }, 
           {
             "name": "to", 
-            "despcription": "The ending time (inclusive) of the time range for the Transactions being queried.", 
+            "description": "The ending time (inclusive) of the time range for the Transactions being queried.", 
             "in": "query", 
             "type": "string", 
-            "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+            "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
           }, 
           {
             "name": "pageSize", 
-            "despcription": "The number of Transactions to include in each page of the results.", 
+            "description": "The number of Transactions to include in each page of the results.", 
             "in": "query", 
             "type": "integer"
           }, 
           {
             "name": "type", 
-            "despcription": "A filter for restricting the types of Transactions to retreive.", 
+            "description": "A filter for restricting the types of Transactions to retreive.", 
             "in": "query", 
             "type": "array", 
             "items": {
@@ -68,18 +71,24 @@
         "responses": {
           "200": {
             "description": "The requested time range of Transaction pages are provided.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "from": {
                   "type": "string", 
                   "description": "The starting time provided in the request.", 
-                  "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+                  "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
                 }, 
                 "to": {
                   "type": "string", 
                   "description": "The ending time provided in the request.", 
-                  "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+                  "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
                 }, 
                 "pageSize": {
                   "type": "integer", 
@@ -106,7 +115,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -143,6 +151,9 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
@@ -152,17 +163,21 @@
         "responses": {
           "200": {
             "description": "The details of the requested Transaction are provided.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "transaction": {
-                  "$ref": "#/definitions/Transaction", 
-                  "description": "The details of the Transaction requested"
+                  "$ref": "#/definitions/Transaction"
                 }, 
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -190,11 +205,14 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
             "name": "from", 
-            "despcription": "The starting Transacion ID (inclusive) to fetch.", 
+            "description": "The starting Transacion ID (inclusive) to fetch.", 
             "in": "query", 
             "type": "string", 
             "format": "String representation of the numerical OANDA-assigned TransactionID", 
@@ -202,7 +220,7 @@
           }, 
           {
             "name": "to", 
-            "despcription": "The ending Transaction ID (inclusive) to fetch.", 
+            "description": "The ending Transaction ID (inclusive) to fetch.", 
             "in": "query", 
             "type": "string", 
             "format": "String representation of the numerical OANDA-assigned TransactionID", 
@@ -210,7 +228,7 @@
           }, 
           {
             "name": "type", 
-            "despcription": "The filter that restricts the types of Transactions to retreive.", 
+            "description": "The filter that restricts the types of Transactions to retreive.", 
             "in": "query", 
             "type": "array", 
             "items": {
@@ -222,6 +240,12 @@
         "responses": {
           "200": {
             "description": "The requested time range of Transactions are provided.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
@@ -235,7 +259,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -269,11 +292,14 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
             "name": "id", 
-            "despcription": "The ID of the last Transacion fetched. This query will return all Transactions newer than the TransactionID.", 
+            "description": "The ID of the last Transacion fetched. This query will return all Transactions newer than the TransactionID.", 
             "in": "query", 
             "type": "string", 
             "format": "String representation of the numerical OANDA-assigned TransactionID", 
@@ -283,6 +309,12 @@
         "responses": {
           "200": {
             "description": "The requested time range of Transactions are provided.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
@@ -296,7 +328,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -336,17 +367,21 @@
         "responses": {
           "200": {
             "description": "Connecting to the Transaction Stream was successful.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "description": "The response body for the Transaction Stream uses chunked transfer encoding.  Each chunk contains Transaction and/or TransactionHeartbeat objects encoded as JSON.  Each JSON object is serialized into a single line of text, and multiple objects found in the same chunk are separated by newlines.\nTransactionHeartbeats are sent every 5 seconds.", 
               "properties": {
                 "transaction": {
-                  "$ref": "#/definitions/Transaction", 
-                  "description": "An Account Transaction in the Transaction stream"
+                  "$ref": "#/definitions/Transaction"
                 }, 
                 "heartbeat": {
-                  "$ref": "#/definitions/TransactionHeartbeat", 
-                  "description": "A Heartbeat message in the Transaction Stream"
+                  "$ref": "#/definitions/TransactionHeartbeat"
                 }
               }
             }
@@ -371,7 +406,6 @@
     "TransactionID": {
       "type": "string", 
       "description": "The unique Transaction identifier within each Account.", 
-      "example": "1523", 
       "format": "String representation of the numerical OANDA-assigned TransactionID"
     }, 
     "TransactionType": {
@@ -421,30 +455,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }
       }
     }, 
@@ -455,30 +489,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -522,23 +556,19 @@
         }, 
         "divisionID": {
           "type": "integer", 
-          "description": "The ID of the Division that the Account is in", 
-          "example": 1
+          "description": "The ID of the Division that the Account is in"
         }, 
         "siteID": {
           "type": "integer", 
-          "description": "The ID of the Site that the Account was created at", 
-          "example": 1
+          "description": "The ID of the Site that the Account was created at"
         }, 
         "accountUserID": {
           "type": "integer", 
-          "description": "The ID of the user that the Account was created for", 
-          "example": 54321
+          "description": "The ID of the user that the Account was created for"
         }, 
         "accountNumber": {
           "type": "integer", 
-          "description": "The number of the Account within the site/division/user", 
-          "example": 1
+          "description": "The number of the Account within the site/division/user"
         }, 
         "homeCurrency": {
           "type": "string", 
@@ -554,30 +584,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -628,30 +658,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -702,30 +732,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -785,30 +815,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -1005,30 +1035,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -1086,6 +1116,10 @@
             "ADJUSTMENT"
           ]
         }, 
+        "comment": {
+          "type": "string", 
+          "description": "An optional comment that may be attached to a fund transfer for audit purposes"
+        }, 
         "accountBalance": {
           "type": "string", 
           "description": "The Account's balance after funds are transferred.", 
@@ -1100,30 +1134,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -1180,6 +1214,10 @@
             "SITE_MIGRATION", 
             "ADJUSTMENT"
           ]
+        }, 
+        "comment": {
+          "type": "string", 
+          "description": "An optional comment that may be attached to a fund transfer for audit purposes"
         }, 
         "rejectReason": {
           "type": "string", 
@@ -1327,30 +1365,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -1429,24 +1467,19 @@
           ]
         }, 
         "tradeClose": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderTradeClose", 
-          "description": "Details of the Trade requested to be closed, only provided when the Market Order is being used to explicitly close a Trade."
+          "$ref": "v20_transaction.json#/definitions/MarketOrderTradeClose"
         }, 
         "longPositionCloseout": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout", 
-          "description": "Details of the long Position requested to be closed out, only provided when a Market Order is being used to explicitly closeout a long Position."
+          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout"
         }, 
         "shortPositionCloseout": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout", 
-          "description": "Details of the short Position requested to be closed out, only provided when a Market Order is being used to explicitly closeout a short Position."
+          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout"
         }, 
         "marginCloseout": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderMarginCloseout", 
-          "description": "Details of the Margin Closeout that this Market Order was created for"
+          "$ref": "v20_transaction.json#/definitions/MarketOrderMarginCloseout"
         }, 
         "delayedTradeClose": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderDelayedTradeClose", 
-          "description": "Details of the delayed Trade close that this Market Order was created for"
+          "$ref": "v20_transaction.json#/definitions/MarketOrderDelayedTradeClose"
         }, 
         "reason": {
           "type": "string", 
@@ -1460,24 +1493,19 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -1488,30 +1516,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -1590,24 +1618,19 @@
           ]
         }, 
         "tradeClose": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderTradeClose", 
-          "description": "Details of the Trade requested to be closed, only provided when the Market Order is being used to explicitly close a Trade."
+          "$ref": "v20_transaction.json#/definitions/MarketOrderTradeClose"
         }, 
         "longPositionCloseout": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout", 
-          "description": "Details of the long Position requested to be closed out, only provided when a Market Order is being used to explicitly closeout a long Position."
+          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout"
         }, 
         "shortPositionCloseout": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout", 
-          "description": "Details of the short Position requested to be closed out, only provided when a Market Order is being used to explicitly closeout a short Position."
+          "$ref": "v20_transaction.json#/definitions/MarketOrderPositionCloseout"
         }, 
         "marginCloseout": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderMarginCloseout", 
-          "description": "Details of the Margin Closeout that this Market Order was created for"
+          "$ref": "v20_transaction.json#/definitions/MarketOrderMarginCloseout"
         }, 
         "delayedTradeClose": {
-          "$ref": "v20_transaction.json#/definitions/MarketOrderDelayedTradeClose", 
-          "description": "Details of the delayed Trade close that this Market Order was created for"
+          "$ref": "v20_transaction.json#/definitions/MarketOrderDelayedTradeClose"
         }, 
         "reason": {
           "type": "string", 
@@ -1621,24 +1644,19 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "rejectReason": {
           "type": "string", 
@@ -1783,30 +1801,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -1877,7 +1895,7 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the Limit Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "positionFill": {
           "type": "string", 
@@ -1889,6 +1907,17 @@
             "DEFAULT"
           ]
         }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that the Limit Order was initiated", 
@@ -1898,35 +1927,28 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "replacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order replaces (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "replacedOrderCancelTransactionID": {
+        "cancellingTransactionID": {
           "type": "string", 
           "description": "The ID of the Transaction that cancels the replaced Order (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -1938,30 +1960,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -2032,7 +2054,7 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the Limit Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "positionFill": {
           "type": "string", 
@@ -2044,6 +2066,17 @@
             "DEFAULT"
           ]
         }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that the Limit Order was initiated", 
@@ -2053,29 +2086,23 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "intendedReplacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order was intended to replace (only provided if this Order was intended to replace an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "rejectReason": {
@@ -2221,30 +2248,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -2320,7 +2347,7 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the Stop Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "positionFill": {
           "type": "string", 
@@ -2332,6 +2359,17 @@
             "DEFAULT"
           ]
         }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that the Stop Order was initiated", 
@@ -2341,35 +2379,28 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "replacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order replaces (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "replacedOrderCancelTransactionID": {
+        "cancellingTransactionID": {
           "type": "string", 
           "description": "The ID of the Transaction that cancels the replaced Order (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -2381,30 +2412,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -2480,7 +2511,7 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the Stop Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "positionFill": {
           "type": "string", 
@@ -2492,6 +2523,17 @@
             "DEFAULT"
           ]
         }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that the Stop Order was initiated", 
@@ -2501,29 +2543,23 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "intendedReplacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order was intended to replace (only provided if this Order was intended to replace an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "rejectReason": {
@@ -2669,30 +2705,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -2768,7 +2804,7 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the MarketIfTouched Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "positionFill": {
           "type": "string", 
@@ -2780,6 +2816,17 @@
             "DEFAULT"
           ]
         }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that the Market-if-touched Order was initiated", 
@@ -2789,35 +2836,28 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "replacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order replaces (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "replacedOrderCancelTransactionID": {
+        "cancellingTransactionID": {
           "type": "string", 
           "description": "The ID of the Transaction that cancels the replaced Order (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -2829,30 +2869,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -2928,7 +2968,7 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the MarketIfTouched Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "positionFill": {
           "type": "string", 
@@ -2940,6 +2980,17 @@
             "DEFAULT"
           ]
         }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that the Market-if-touched Order was initiated", 
@@ -2949,29 +3000,23 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-          "description": "The specification of the Take Profit Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
         }, 
         "stopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-          "description": "The specification of the Stop Loss Order that should be created for a Trade opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/StopLossDetails"
         }, 
         "trailingStopLossOnFill": {
-          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-          "description": "The specification of the Trailing Stop Loss Order that should be created for a Trade that is opened when the Order is filled (if such a Trade is created)."
+          "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
         }, 
         "tradeClientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Trade created when the Order is filled (if such a Trade is created).  Do not set, modify, delete tradeClientExtensions if your account is associated with MT4."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "intendedReplacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order was intended to replace (only provided if this Order was intended to replace an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "rejectReason": {
@@ -3118,30 +3163,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -3186,13 +3231,11 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade to close when the price threshold is breached.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The client ID of the Trade to be closed when the price threshold is breached.", 
-          "example": "my_order_id"
+          "description": "The client ID of the Trade to be closed when the price threshold is breached."
         }, 
         "price": {
           "type": "string", 
@@ -3213,7 +3256,18 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the TakeProfit Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
         }, 
         "reason": {
           "type": "string", 
@@ -3225,25 +3279,21 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "orderFillTransactionID": {
           "type": "string", 
           "description": "The ID of the OrderFill Transaction that caused this Order to be created (only provided if this Order was created automatically when another Order was filled).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "replacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order replaces (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "replacedOrderCancelTransactionID": {
+        "cancellingTransactionID": {
           "type": "string", 
           "description": "The ID of the Transaction that cancels the replaced Order (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -3255,30 +3305,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -3323,13 +3373,11 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade to close when the price threshold is breached.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The client ID of the Trade to be closed when the price threshold is breached.", 
-          "example": "my_order_id"
+          "description": "The client ID of the Trade to be closed when the price threshold is breached."
         }, 
         "price": {
           "type": "string", 
@@ -3350,7 +3398,18 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the TakeProfit Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
         }, 
         "reason": {
           "type": "string", 
@@ -3362,19 +3421,16 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "orderFillTransactionID": {
           "type": "string", 
           "description": "The ID of the OrderFill Transaction that caused this Order to be created (only provided if this Order was created automatically when another Order was filled).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "intendedReplacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order was intended to replace (only provided if this Order was intended to replace an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "rejectReason": {
@@ -3521,30 +3577,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -3589,13 +3645,11 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade to close when the price threshold is breached.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The client ID of the Trade to be closed when the price threshold is breached.", 
-          "example": "my_order_id"
+          "description": "The client ID of the Trade to be closed when the price threshold is breached."
         }, 
         "price": {
           "type": "string", 
@@ -3616,7 +3670,18 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the StopLoss Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
         }, 
         "reason": {
           "type": "string", 
@@ -3628,25 +3693,21 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "orderFillTransactionID": {
           "type": "string", 
           "description": "The ID of the OrderFill Transaction that caused this Order to be created (only provided if this Order was created automatically when another Order was filled).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "replacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order replaces (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "replacedOrderCancelTransactionID": {
+        "cancellingTransactionID": {
           "type": "string", 
           "description": "The ID of the Transaction that cancels the replaced Order (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -3658,30 +3719,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -3726,13 +3787,11 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade to close when the price threshold is breached.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The client ID of the Trade to be closed when the price threshold is breached.", 
-          "example": "my_order_id"
+          "description": "The client ID of the Trade to be closed when the price threshold is breached."
         }, 
         "price": {
           "type": "string", 
@@ -3753,7 +3812,18 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the StopLoss Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
         }, 
         "reason": {
           "type": "string", 
@@ -3765,19 +3835,16 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "orderFillTransactionID": {
           "type": "string", 
           "description": "The ID of the OrderFill Transaction that caused this Order to be created (only provided if this Order was created automatically when another Order was filled).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "intendedReplacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order was intended to replace (only provided if this Order was intended to replace an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "rejectReason": {
@@ -3924,30 +3991,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -3992,13 +4059,11 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade to close when the price threshold is breached.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The client ID of the Trade to be closed when the price threshold is breached.", 
-          "example": "my_order_id"
+          "description": "The client ID of the Trade to be closed when the price threshold is breached."
         }, 
         "distance": {
           "type": "string", 
@@ -4019,7 +4084,18 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the StopLoss Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
         }, 
         "reason": {
           "type": "string", 
@@ -4031,25 +4107,21 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "orderFillTransactionID": {
           "type": "string", 
           "description": "The ID of the OrderFill Transaction that caused this Order to be created (only provided if this Order was created automatically when another Order was filled).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "replacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order replaces (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "replacedOrderCancelTransactionID": {
+        "cancellingTransactionID": {
           "type": "string", 
           "description": "The ID of the Transaction that cancels the replaced Order (only provided if this Order replaces an existing Order).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -4061,30 +4133,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -4129,13 +4201,11 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade to close when the price threshold is breached.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The client ID of the Trade to be closed when the price threshold is breached.", 
-          "example": "my_order_id"
+          "description": "The client ID of the Trade to be closed when the price threshold is breached."
         }, 
         "distance": {
           "type": "string", 
@@ -4156,7 +4226,18 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date/time when the StopLoss Order will be cancelled if its timeInForce is \"GTD\".", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "triggerCondition": {
+          "type": "string", 
+          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "enum": [
+            "DEFAULT", 
+            "INVERSE", 
+            "BID", 
+            "ASK", 
+            "MID"
+          ]
         }, 
         "reason": {
           "type": "string", 
@@ -4168,19 +4249,16 @@
           ]
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "Client Extensions to add to the Order (only provided if the Order is being created with client extensions)."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "orderFillTransactionID": {
           "type": "string", 
           "description": "The ID of the OrderFill Transaction that caused this Order to be created (only provided if this Order was created automatically when another Order was filled).", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "intendedReplacesOrderID": {
           "type": "string", 
           "description": "The ID of the Order that this Order was intended to replace (only provided if this Order was intended to replace an existing Order).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "rejectReason": {
@@ -4335,30 +4413,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -4403,13 +4481,11 @@
         "orderID": {
           "type": "string", 
           "description": "The ID of the Order filled.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "clientOrderID": {
           "type": "string", 
-          "description": "The client Order ID of the Order filled (only provided if the client has assigned one).", 
-          "example": "my_order_id"
+          "description": "The client Order ID of the Order filled (only provided if the client has assigned one)."
         }, 
         "instrument": {
           "type": "string", 
@@ -4459,8 +4535,7 @@
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "tradeOpened": {
-          "$ref": "#/definitions/TradeOpen", 
-          "description": "The Trade that was opened when the Order was filled (only provided if filling the Order resulted in a new Trade)."
+          "$ref": "#/definitions/TradeOpen"
         }, 
         "tradesClosed": {
           "type": "array", 
@@ -4470,8 +4545,7 @@
           }
         }, 
         "tradeReduced": {
-          "$ref": "#/definitions/TradeReduce", 
-          "description": "The Trade that was reduced when the Order was filled (only provided if filling the Order resulted in reducing an open Trade)."
+          "$ref": "#/definitions/TradeReduce"
         }
       }
     }, 
@@ -4517,30 +4591,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -4585,13 +4659,11 @@
         "orderID": {
           "type": "string", 
           "description": "The ID of the Order cancelled", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "clientOrderID": {
           "type": "string", 
           "description": "The client ID of the Order cancelled (only provided if the Order has a client Order ID).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "reason": {
@@ -4632,7 +4704,6 @@
         "replacedByOrderID": {
           "type": "string", 
           "description": "The ID of the Order that replaced this Order (only provided if this Order was cancelled for replacement).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }
       }
@@ -4644,30 +4715,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -4712,13 +4783,11 @@
         "orderID": {
           "type": "string", 
           "description": "The ID of the Order intended to be cancelled", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "clientOrderID": {
           "type": "string", 
           "description": "The client ID of the Order intended to be cancelled (only provided if the Order has a client Order ID).", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "reason": {
@@ -4891,30 +4960,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -4959,21 +5028,17 @@
         "orderID": {
           "type": "string", 
           "description": "The ID of the Order who's client extensions are to be modified.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "clientOrderID": {
           "type": "string", 
-          "description": "The original Client ID of the Order who's client extensions are to be modified.", 
-          "example": "my_order_id"
+          "description": "The original Client ID of the Order who's client extensions are to be modified."
         }, 
-        "orderClientExtensionsModify": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The new Client Extensions for the Order."
+        "clientExtensionsModify": {
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "tradeClientExtensionsModify": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The new Client Extensions for the Order's Trade on fill."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -4984,30 +5049,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5052,21 +5117,17 @@
         "orderID": {
           "type": "string", 
           "description": "The ID of the Order who's client extensions are to be modified.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "clientOrderID": {
           "type": "string", 
-          "description": "The original Client ID of the Order who's client extensions are to be modified.", 
-          "example": "my_order_id"
+          "description": "The original Client ID of the Order who's client extensions are to be modified."
         }, 
-        "orderClientExtensionsModify": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The new Client Extensions for the Order."
+        "clientExtensionsModify": {
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "tradeClientExtensionsModify": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The new Client Extensions for the Order's Trade on fill."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "rejectReason": {
           "type": "string", 
@@ -5203,30 +5264,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5271,17 +5332,14 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade who's client extensions are to be modified.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The original Client ID of the Trade who's client extensions are to be modified.", 
-          "example": "my_order_id"
+          "description": "The original Client ID of the Trade who's client extensions are to be modified."
         }, 
         "tradeClientExtensionsModify": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The new Client Extensions for the Trade."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -5292,30 +5350,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5360,17 +5418,14 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade who's client extensions are to be modified.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
-          "description": "The original Client ID of the Trade who's client extensions are to be modified.", 
-          "example": "my_order_id"
+          "description": "The original Client ID of the Trade who's client extensions are to be modified."
         }, 
         "tradeClientExtensionsModify": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The new Client Extensions for the Trade."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "rejectReason": {
           "type": "string", 
@@ -5507,30 +5562,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5581,30 +5636,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5659,30 +5714,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5733,30 +5788,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5812,7 +5867,6 @@
         "tradeIDs": {
           "type": "string", 
           "description": "List of Trade ID's identifying the open trades that will be closed when their respective instruments become tradeable", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }
       }
@@ -5824,30 +5878,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5924,30 +5978,30 @@
         "id": {
           "type": "string", 
           "description": "The Transaction's Identifier.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the Transaction was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "userID": {
           "type": "integer", 
-          "description": "The ID of the user that initiated the creation of the Transaction.", 
-          "example": 54321
+          "description": "The ID of the user that initiated the creation of the Transaction."
         }, 
         "accountID": {
           "type": "string", 
           "description": "The ID of the Account the Transaction was created for.", 
-          "example": "001-011-5838423-001", 
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
         }, 
         "batchID": {
           "type": "string", 
           "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
         }, 
         "type": {
           "type": "string", 
@@ -5993,18 +6047,15 @@
     }, 
     "ClientID": {
       "type": "string", 
-      "description": "A client-provided identifier, used by clients to refer to their Orders or Trades with an identifier that they have provided.", 
-      "example": "my_order_id"
+      "description": "A client-provided identifier, used by clients to refer to their Orders or Trades with an identifier that they have provided."
     }, 
     "ClientTag": {
       "type": "string", 
-      "description": "A client-provided tag that can contain any data and may be assigned to their Orders or Trades. Tags are typically used to associate groups of Trades and/or Orders together.", 
-      "example": "client_tag_1"
+      "description": "A client-provided tag that can contain any data and may be assigned to their Orders or Trades. Tags are typically used to associate groups of Trades and/or Orders together."
     }, 
     "ClientComment": {
       "type": "string", 
-      "description": "A client-provided comment that can contain any data and may be assigned to their Orders or Trades. Comments are typically used to provide extra context or meaning to an Order or Trade.", 
-      "example": "This is a client comment"
+      "description": "A client-provided comment that can contain any data and may be assigned to their Orders or Trades. Comments are typically used to provide extra context or meaning to an Order or Trade."
     }, 
     "ClientExtensions": {
       "type": "object", 
@@ -6012,18 +6063,15 @@
       "properties": {
         "id": {
           "type": "string", 
-          "description": "The Client ID of the Order/Trade", 
-          "example": "my_order_id"
+          "description": "The Client ID of the Order/Trade"
         }, 
         "tag": {
           "type": "string", 
-          "description": "A tag associated with the Order/Trade", 
-          "example": "client_tag_1"
+          "description": "A tag associated with the Order/Trade"
         }, 
         "comment": {
           "type": "string", 
-          "description": "A comment associated with the Order/Trade", 
-          "example": "This is a client comment"
+          "description": "A comment associated with the Order/Trade"
         }
       }
     }, 
@@ -6050,11 +6098,10 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date when the Take Profit Order will be cancelled on if timeInForce is GTD.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "clientExtensions": {
-          "$ref": "#/definitions/ClientExtensions", 
-          "description": "The Client Extensions to add to the Take Profit Order when created."
+          "$ref": "#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -6081,11 +6128,10 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date when the Stop Loss Order will be cancelled on if timeInForce is GTD.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "clientExtensions": {
-          "$ref": "#/definitions/ClientExtensions", 
-          "description": "The Client Extensions to add to the Stop Loss Order when created."
+          "$ref": "#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -6112,11 +6158,10 @@
         "gtdTime": {
           "type": "string", 
           "description": "The date when the Trailing Stop Loss Order will be cancelled on if timeInForce is GTD.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "clientExtensions": {
-          "$ref": "#/definitions/ClientExtensions", 
-          "description": "The Client Extensions to add to the Trailing Stop Loss Order when created."
+          "$ref": "#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -6127,7 +6172,6 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade that was opened", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "units": {
@@ -6136,8 +6180,7 @@
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "clientExtensions": {
-          "$ref": "#/definitions/ClientExtensions", 
-          "description": "The client extensions for the newly opened Trade"
+          "$ref": "#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -6148,7 +6191,6 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade that was reduced or closed", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "units": {
@@ -6175,7 +6217,6 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade requested to be closed", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
@@ -6217,19 +6258,16 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade being closed", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "clientTradeID": {
           "type": "string", 
           "description": "The Client ID of the Trade being closed", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "sourceTransactionID": {
           "type": "string", 
           "description": "The Transaction ID of the DelayedTradeClosure transaction to which this Delayed Trade Close belongs to", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
@@ -6285,7 +6323,7 @@
         "timestamp": {
           "type": "string", 
           "description": "The timestamp of the schedule step.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "bidLiquidityUsed": {
           "type": "string", 
@@ -6306,7 +6344,6 @@
         "tradeID": {
           "type": "string", 
           "description": "The ID of the Trade that financing is being paid/collected for.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "financing": {
@@ -6338,6 +6375,10 @@
           }
         }
       }
+    }, 
+    "RequestID": {
+      "type": "string", 
+      "description": "The request identifier."
     }, 
     "TransactionRejectReason": {
       "type": "string", 
@@ -6522,13 +6563,12 @@
         "lastTransactionID": {
           "type": "string", 
           "description": "The ID of the most recent Transaction created for the Account", 
-          "example": "1523", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }, 
         "time": {
           "type": "string", 
           "description": "The date/time when the TransactionHeartbeat was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }
       }
     }
@@ -6536,7 +6576,7 @@
   "parameters": {
     "transactionIDPathParam": {
       "name": "transactionID", 
-      "despcription": "A Transaction ID", 
+      "description": "A Transaction ID", 
       "in": "path", 
       "type": "string", 
       "format": "String representation of the numerical OANDA-assigned TransactionID", 

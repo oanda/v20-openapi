@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.14"
+    "version": "3.0.13"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -24,7 +24,7 @@
   "paths": {
     "/accounts/{accountID}/pricing": {
       "get": {
-        "summary": "Current Prices", 
+        "summary": "Current Account Prices", 
         "description": "Get pricing information for a specified list of Instruments within an Account.", 
         "operationId": "get", 
         "parameters": [
@@ -32,11 +32,14 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
             "name": "instruments", 
-            "despcription": "List of Instruments to get pricing for.", 
+            "description": "List of Instruments to get pricing for.", 
             "in": "query", 
             "type": "array", 
             "items": {
@@ -48,14 +51,14 @@
           }, 
           {
             "name": "since", 
-            "despcription": "Date/Time filter to apply to the returned prices. Only prices with a time later than this filter will be provided.", 
+            "description": "Date/Time filter to apply to the returned prices. Only prices with a time later than this filter will be provided.", 
             "in": "query", 
             "type": "string", 
-            "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+            "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
           }, 
           {
             "name": "includeUnitsAvailable", 
-            "despcription": "Flag that enables the inclusion of the unitsAvailable field in the returned Price objects.", 
+            "description": "Flag that enables the inclusion of the unitsAvailable field in the returned Price objects.", 
             "in": "query", 
             "type": "boolean"
           }
@@ -63,13 +66,18 @@
         "responses": {
           "200": {
             "description": "Pricing information has been successfully provided.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "prices": {
                   "type": "array", 
                   "description": "The list of Price objects requested", 
-                  "required": true, 
                   "items": {
                     "$ref": "#/definitions/Price"
                   }
@@ -95,18 +103,21 @@
     "/accounts/{accountID}/pricing/stream": {
       "get": {
         "summary": "Price Stream", 
-        "description": "Get a stream of Prices for an Account starting from when the request is made.", 
+        "description": "Get a stream of Account Prices starting from when the request is made.\nThis pricing stream does not include every single price created for the Account, but instead will provide at most 4 prices per second (every 250 milliseconds) for each instrument being requested.\nIf more than one price is created for an instrument during the 250 millisecond window, only the price in effect at the end of the window is sent. This means that during periods of rapid price movement, subscribers to this stream will not be sent every price.\nPricing windows for different connections to the price stream are not all aligned in the same way (i.e. they are not all aligned to the top of the second). This means that during periods of rapid price movement, different subscribers may observe different prices depending on their alignment.", 
         "operationId": "stream", 
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
             "name": "instruments", 
-            "despcription": "List of Instruments to stream Prices for.", 
+            "description": "List of Instruments to stream Prices for.", 
             "in": "query", 
             "type": "array", 
             "items": {
@@ -118,7 +129,7 @@
           }, 
           {
             "name": "snapshot", 
-            "despcription": "Flag that enables/disables the sending of a pricing snapshot when initially connecting to the stream.", 
+            "description": "Flag that enables/disables the sending of a pricing snapshot when initially connecting to the stream.", 
             "in": "query", 
             "type": "boolean"
           }
@@ -130,6 +141,10 @@
               "Link": {
                 "description": "A link to the next/previous order book snapshot.", 
                 "type": "string"
+              }, 
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
               }
             }, 
             "schema": {
@@ -137,12 +152,10 @@
               "description": "The response body for the Pricing Stream uses chunked transfer encoding.  Each chunk contains Price and/or PricingHeartbeat objects encoded as JSON.  Each JSON object is serialized into a single line of text, and multiple objects found in the same chunk are separated by newlines.\nHeartbeats are sent every 5 seconds.", 
               "properties": {
                 "price": {
-                  "$ref": "#/definitions/Price", 
-                  "description": "An Account Price in the Pricing Stream"
+                  "$ref": "#/definitions/Price"
                 }, 
                 "heartbeat": {
-                  "$ref": "#/definitions/PricingHeartbeat", 
-                  "description": "A PricingHeartbeat message in the Pricing Stream"
+                  "$ref": "#/definitions/PricingHeartbeat"
                 }
               }
             }
@@ -180,7 +193,7 @@
         "time": {
           "type": "string", 
           "description": "The date/time when the Price was created", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "status": {
           "type": "string", 
@@ -190,6 +203,10 @@
             "non-tradeable", 
             "invalid"
           ]
+        }, 
+        "tradeable": {
+          "type": "boolean", 
+          "description": "Flag indicating if the Price is tradeable or not"
         }, 
         "bids": {
           "type": "array", 
@@ -216,12 +233,10 @@
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
         }, 
         "quoteHomeConversionFactors": {
-          "$ref": "#/definitions/QuoteHomeConversionFactors", 
-          "description": "The factors used to convert quantities of this price's Instrument's quote currency into a quantity of the Account's home currency."
+          "$ref": "#/definitions/QuoteHomeConversionFactors"
         }, 
         "unitsAvailable": {
-          "$ref": "#/definitions/UnitsAvailable", 
-          "description": "Representation of many units of an Instrument are available to be traded for both long and short Orders."
+          "$ref": "#/definitions/UnitsAvailable"
         }
       }
     }, 
@@ -254,43 +269,37 @@
         "invalid"
       ]
     }, 
-    "UnitsAvailable": {
+    "UnitsAvailableDetails": {
       "type": "object", 
       "description": "Representation of many units of an Instrument are available to be traded for both long and short Orders.", 
       "properties": {
         "long": {
-          "$ref": "#/definitions/UnitsAvailableDetails", 
-          "description": "The units available breakdown for long Orders."
+          "type": "string", 
+          "description": "The units available for long Orders.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "short": {
-          "$ref": "#/definitions/UnitsAvailableDetails", 
-          "description": "The units available breakdown for short Orders."
+          "type": "string", 
+          "description": "The units available for short Orders.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }
       }
     }, 
-    "UnitsAvailableDetails": {
+    "UnitsAvailable": {
       "type": "object", 
       "description": "Representation of how many units of an Instrument are available to be traded by an Order depending on its postionFill option.", 
       "properties": {
         "default": {
-          "type": "string", 
-          "description": "The number of units that are available to be traded using an Order with a positionFill option of \"DEFAULT\". For an Account with hedging enabled, this value will be the same as the \"OPEN_ONLY\" value. For an Account without hedging enabled, this value will be the same as the \"REDUCE_FIRST\" value.", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+          "$ref": "#/definitions/UnitsAvailableDetails"
         }, 
         "reduceFirst": {
-          "type": "string", 
-          "description": "The number of units that may are available to be traded with an Order with a positionFill option of \"REDUCE_FIRST\".", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+          "$ref": "#/definitions/UnitsAvailableDetails"
         }, 
         "reduceOnly": {
-          "type": "string", 
-          "description": "The number of units that may are available to be traded with an Order with a positionFill option of \"REDUCE_ONLY\".", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+          "$ref": "#/definitions/UnitsAvailableDetails"
         }, 
         "openOnly": {
-          "type": "string", 
-          "description": "The number of units that may are available to be traded with an Order with a positionFill option of \"OPEN_ONLY\".", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+          "$ref": "#/definitions/UnitsAvailableDetails"
         }
       }
     }, 
@@ -321,7 +330,7 @@
         "time": {
           "type": "string", 
           "description": "The date/time when the Heartbeat was created.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }
       }
     }
@@ -329,7 +338,7 @@
   "parameters": {
     "transactionIDPathParam": {
       "name": "transactionID", 
-      "despcription": "A Transaction ID", 
+      "description": "A Transaction ID", 
       "in": "path", 
       "type": "string", 
       "format": "String representation of the numerical OANDA-assigned TransactionID", 

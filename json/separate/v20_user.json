@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.14"
+    "version": "3.0.13"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -38,12 +38,17 @@
         "responses": {
           "200": {
             "description": "The user information has been provided", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "userInfo": {
-                  "$ref": "#/definitions/UserInfo", 
-                  "description": "The user information for the specifier user."
+                  "$ref": "#/definitions/UserInfo"
                 }
               }
             }
@@ -76,12 +81,17 @@
         "responses": {
           "200": {
             "description": "The external user information has been provided", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "userInfo": {
-                  "$ref": "#/definitions/UserInfoExternal", 
-                  "description": "The user information for the specifier user."
+                  "$ref": "#/definitions/UserInfoExternal"
                 }
               }
             }
@@ -149,7 +159,7 @@
   "parameters": {
     "userSpecifierPathParam": {
       "name": "userSpecifier", 
-      "despcription": "The User Specifier", 
+      "description": "The User Specifier", 
       "in": "path", 
       "type": "string", 
       "format": "A user specifier may have one of 3 formats: the OANDA-assigned User ID (numerical), the client-provided username prefixed by the \"@\" symbol (e.g. \"@myusername\"), or the \"@\" symbol. The \"@\" symbol on its own acts as an alias for the username of the user accessing the endpoint (as inferred from the token provided).", 

@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.14"
+    "version": "3.0.13"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -32,11 +32,14 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
             "name": "ids", 
-            "despcription": "List of Trade IDs to retrieve.", 
+            "description": "List of Trade IDs to retrieve.", 
             "in": "query", 
             "type": "array", 
             "items": {
@@ -47,26 +50,26 @@
           }, 
           {
             "name": "state", 
-            "despcription": "The state to filter the requested Trades by.", 
+            "description": "The state to filter the requested Trades by.", 
             "in": "query", 
             "type": "string"
           }, 
           {
             "name": "instrument", 
-            "despcription": "The instrument to filter the requested Trades by.", 
+            "description": "The instrument to filter the requested Trades by.", 
             "in": "query", 
             "type": "string", 
             "format": "A string containing the base currency and quote currency delimited by a \"_\"."
           }, 
           {
             "name": "count", 
-            "despcription": "The maximum number of Trades to return.", 
+            "description": "The maximum number of Trades to return.", 
             "in": "query", 
             "type": "integer"
           }, 
           {
             "name": "beforeID", 
-            "despcription": "The maximum Trade ID to return. If not provided the most recent Trades in the Account are returned.", 
+            "description": "The maximum Trade ID to return. If not provided the most recent Trades in the Account are returned.", 
             "in": "query", 
             "type": "string", 
             "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
@@ -78,6 +81,10 @@
             "headers": {
               "Link": {
                 "description": "A link to the next page of Trades if the results were paginated", 
+                "type": "string"
+              }, 
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
                 "type": "string"
               }
             }, 
@@ -94,7 +101,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -122,12 +128,21 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }
         ], 
         "responses": {
           "200": {
             "description": "The Account's list of open Trades is provided", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
@@ -141,7 +156,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -169,6 +183,9 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
@@ -178,17 +195,21 @@
         "responses": {
           "200": {
             "description": "The details for the requested Trade is provided", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "trade": {
-                  "$ref": "#/definitions/Trade", 
-                  "description": "The Account's list of open Trades"
+                  "$ref": "#/definitions/Trade"
                 }, 
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -216,6 +237,9 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
@@ -223,7 +247,7 @@
           }, 
           {
             "name": "closeTradeBody", 
-            "despcription": "Details of how much of the open Trade to close.", 
+            "description": "Details of how much of the open Trade to close.", 
             "in": "body", 
             "schema": {
               "type": "object", 
@@ -240,20 +264,23 @@
         "responses": {
           "200": {
             "description": "The Trade has been closed as requested", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "orderCreateTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/MarketOrderTransaction", 
-                  "description": "The MarketOrder Transaction created to close the Trade."
+                  "$ref": "v20_transaction.json#/definitions/MarketOrderTransaction"
                 }, 
                 "orderFillTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderFillTransaction", 
-                  "description": "The OrderFill Transaction that fills the Trade-closing MarketOrder and closes the Trade."
+                  "$ref": "v20_transaction.json#/definitions/OrderFillTransaction"
                 }, 
                 "orderCancelTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction", 
-                  "description": "The OrderCancel Transaction that immediately cancelled the Trade-closing MarketOrder."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
                 }, 
                 "relatedTransactionIDs": {
                   "type": "array", 
@@ -265,7 +292,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -277,18 +303,15 @@
               "type": "object", 
               "properties": {
                 "orderRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction", 
-                  "description": "The MarketOrderReject Transaction that rejects the creation of the Trade-closing MarketOrder."
+                  "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction"
                 }, 
                 "errorCode": {
                   "type": "string", 
-                  "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-                  "required": false
+                  "description": "The code of the error that has occurred. This field may not be returned for some errors."
                 }, 
                 "errorMessage": {
                   "type": "string", 
-                  "description": "The human-readable description of the error that has occurred.", 
-                  "required": true
+                  "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
@@ -297,23 +320,32 @@
             "$ref": "v20_primitives.json#/responses/401"
           }, 
           "404": {
-            "description": "The Account or Trade does not exist", 
+            "description": "The Account or Trade specified does not exist.", 
             "schema": {
               "type": "object", 
               "properties": {
                 "orderRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction", 
-                  "description": "The MarketOrderReject Transaction that rejects the creation of the Trade-closing MarketOrder."
+                  "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction"
+                }, 
+                "lastTransactionID": {
+                  "type": "string", 
+                  "description": "The ID of the most recent Transaction created for the Account. Only present if the Account exists.", 
+                  "format": "String representation of the numerical OANDA-assigned TransactionID"
+                }, 
+                "relatedTransactionIDs": {
+                  "type": "array", 
+                  "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
+                  "items": {
+                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                  }
                 }, 
                 "errorCode": {
                   "type": "string", 
-                  "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-                  "required": false
+                  "description": "The code of the error that has occurred. This field may not be returned for some errors."
                 }, 
                 "errorMessage": {
                   "type": "string", 
-                  "description": "The human-readable description of the error that has occurred.", 
-                  "required": true
+                  "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
@@ -334,6 +366,9 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
@@ -341,14 +376,13 @@
           }, 
           {
             "name": "setTradeClientExtensionsBody", 
-            "despcription": "Details of how to modify the Trade's Client Extensions.", 
+            "description": "Details of how to modify the Trade's Client Extensions.", 
             "in": "body", 
             "schema": {
               "type": "object", 
               "properties": {
                 "clientExtensions": {
-                  "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-                  "description": "The Client Extensions to update the Trade with. Do not add, update, or delete the Client Extensions if your account is associated with MT4."
+                  "$ref": "v20_transaction.json#/definitions/ClientExtensions"
                 }
               }
             }, 
@@ -358,12 +392,17 @@
         "responses": {
           "200": {
             "description": "The Trade's Client Extensions have been updated as requested.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "tradeClientExtensionsModifyTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/TradeClientExtensionsModifyTransaction", 
-                  "description": "The Transaction that updates the Trade's Client Extensions."
+                  "$ref": "v20_transaction.json#/definitions/TradeClientExtensionsModifyTransaction"
                 }, 
                 "relatedTransactionIDs": {
                   "type": "array", 
@@ -375,7 +414,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -387,24 +425,27 @@
               "type": "object", 
               "properties": {
                 "tradeClientExtensionsModifyRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/TradeClientExtensionsModifyRejectTransaction", 
-                  "description": "The Transaction that rejects the modification of the Trade's Client Extensions."
+                  "$ref": "v20_transaction.json#/definitions/TradeClientExtensionsModifyRejectTransaction"
                 }, 
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account.", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
+                }, 
+                "relatedTransactionIDs": {
+                  "type": "array", 
+                  "description": "The IDs of all Transactions that were created while satisfying the request.", 
+                  "items": {
+                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                  }
                 }, 
                 "errorCode": {
                   "type": "string", 
-                  "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-                  "required": false
+                  "description": "The code of the error that has occurred. This field may not be returned for some errors."
                 }, 
                 "errorMessage": {
                   "type": "string", 
-                  "description": "The human-readable description of the error that has occurred.", 
-                  "required": true
+                  "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
@@ -413,7 +454,35 @@
             "$ref": "v20_primitives.json#/responses/401"
           }, 
           "404": {
-            "$ref": "v20_primitives.json#/responses/404"
+            "description": "The Account or Trade specified does not exist.", 
+            "schema": {
+              "type": "object", 
+              "properties": {
+                "tradeClientExtensionsModifyRejectTransaction": {
+                  "$ref": "v20_transaction.json#/definitions/TradeClientExtensionsModifyRejectTransaction"
+                }, 
+                "lastTransactionID": {
+                  "type": "string", 
+                  "description": "The ID of the most recent Transaction created for the Account. Only present if the Account exists.", 
+                  "format": "String representation of the numerical OANDA-assigned TransactionID"
+                }, 
+                "relatedTransactionIDs": {
+                  "type": "array", 
+                  "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
+                  "items": {
+                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                  }
+                }, 
+                "errorCode": {
+                  "type": "string", 
+                  "description": "The code of the error that has occurred. This field may not be returned for some errors."
+                }, 
+                "errorMessage": {
+                  "type": "string", 
+                  "description": "The human-readable description of the error that has occurred."
+                }
+              }
+            }
           }, 
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
@@ -431,6 +500,9 @@
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }, 
           {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          }, 
+          {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }, 
           {
@@ -438,22 +510,19 @@
           }, 
           {
             "name": "setTradeDependentOrdersBody", 
-            "despcription": "Details of how to modify the Trade's dependent Orders.", 
+            "description": "Details of how to modify the Trade's dependent Orders.", 
             "in": "body", 
             "schema": {
               "type": "object", 
               "properties": {
                 "takeProfit": {
-                  "$ref": "v20_transaction.json#/definitions/TakeProfitDetails", 
-                  "description": "The specification of the Take Profit to create/modify/cancel. If takeProfit is set to null, the Take Profit Order will be cancelled if it exists. If takeProfit is not provided, the exisiting Take Profit Order will not be modified. If a sub-field of takeProfit is not specified, that field will be set to a default value on create, and be inherited by the replacing order on modify."
+                  "$ref": "v20_transaction.json#/definitions/TakeProfitDetails"
                 }, 
                 "stopLoss": {
-                  "$ref": "v20_transaction.json#/definitions/StopLossDetails", 
-                  "description": "The specification of the Stop Loss to create/modify/cancel. If stopLoss is set to null, the Stop Loss Order will be cancelled if it exists. If stopLoss is not provided, the exisiting Stop Loss Order will not be modified. If a sub-field of stopLoss is not specified, that field will be set to a default value on create, and be inherited by the replacing order on modify."
+                  "$ref": "v20_transaction.json#/definitions/StopLossDetails"
                 }, 
                 "trailingStopLoss": {
-                  "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails", 
-                  "description": "The specification of the Trailing Stop Loss to create/modify/cancel. If trailingStopLoss is set to null, the Trailing Stop Loss Order will be cancelled if it exists. If trailingStopLoss is not provided, the exisiting Trailing Stop Loss Order will not be modified. If a sub-field of trailngStopLoss is not specified, that field will be set to a default value on create, and be inherited by the replacing order on modify."
+                  "$ref": "v20_transaction.json#/definitions/TrailingStopLossDetails"
                 }
               }
             }, 
@@ -463,48 +532,44 @@
         "responses": {
           "200": {
             "description": "The Trade's dependent Orders have been modified as requested.", 
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request", 
+                "type": "string"
+              }
+            }, 
             "schema": {
               "type": "object", 
               "properties": {
                 "takeProfitOrderCancelTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction", 
-                  "description": "The Transaction created that cancels the Trade's existing Take Profit Order."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
                 }, 
                 "takeProfitOrderTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/TakeProfitOrderTransaction", 
-                  "description": "The Transaction created that creates a new Take Profit Order for the Trade."
+                  "$ref": "v20_transaction.json#/definitions/TakeProfitOrderTransaction"
                 }, 
                 "takeProfitOrderFillTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderFillTransaction", 
-                  "description": "The Transaction created that immediately fills the Trade's new Take Profit Order. Only provided if the new Take Profit Order was immediately filled."
+                  "$ref": "v20_transaction.json#/definitions/OrderFillTransaction"
                 }, 
                 "takeProfitOrderCreatedCancelTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction", 
-                  "description": "The Transaction created that immediately cancels the Trade's new Take Profit Order. Only provided if the new Take Profit Order was immediately cancelled."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
                 }, 
                 "stopLossOrderCancelTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction", 
-                  "description": "The Transaction created that cancels the Trade's existing Stop Loss Order."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
                 }, 
                 "stopLossOrderTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/StopLossOrderTransaction", 
-                  "description": "The Transaction created that creates a new Stop Loss Order for the Trade."
+                  "$ref": "v20_transaction.json#/definitions/StopLossOrderTransaction"
                 }, 
                 "stopLossOrderFillTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderFillTransaction", 
-                  "description": "The Transaction created that immediately fills the Trade's new Stop Order. Only provided if the new Stop Loss Order was immediately filled."
+                  "$ref": "v20_transaction.json#/definitions/OrderFillTransaction"
                 }, 
                 "stopLossOrderCreatedCancelTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction", 
-                  "description": "The Transaction created that immediately cancels the Trade's new Stop Loss Order. Only provided if the new Stop Loss Order was immediately cancelled."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
                 }, 
                 "trailingStopLossOrderCancelTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction", 
-                  "description": "The Transaction created that cancels the Trade's existing Trailing Stop Loss Order."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
                 }, 
                 "trailingStopLossOrderTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/TrailingStopLossOrderTransaction", 
-                  "description": "The Transaction created that creates a new Trailing Stop Loss Order for the Trade."
+                  "$ref": "v20_transaction.json#/definitions/TrailingStopLossOrderTransaction"
                 }, 
                 "relatedTransactionIDs": {
                   "type": "array", 
@@ -516,7 +581,6 @@
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
@@ -528,44 +592,42 @@
               "type": "object", 
               "properties": {
                 "takeProfitOrderCancelRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelRejectTransaction", 
-                  "description": "An OrderCancelRejectTransaction represents the rejection of the cancellation of an Order in the client's Account."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelRejectTransaction"
                 }, 
                 "takeProfitOrderRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/TakeProfitOrderRejectTransaction", 
-                  "description": "A TakeProfitOrderRejectTransaction represents the rejection of the creation of a TakeProfit Order."
+                  "$ref": "v20_transaction.json#/definitions/TakeProfitOrderRejectTransaction"
                 }, 
                 "stopLossOrderCancelRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelRejectTransaction", 
-                  "description": "An OrderCancelRejectTransaction represents the rejection of the cancellation of an Order in the client's Account."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelRejectTransaction"
                 }, 
                 "stopLossOrderRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/StopLossOrderRejectTransaction", 
-                  "description": "A StopLossOrderRejectTransaction represents the rejection of the creation of a StopLoss Order."
+                  "$ref": "v20_transaction.json#/definitions/StopLossOrderRejectTransaction"
                 }, 
                 "trailingStopLossOrderCancelRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/OrderCancelRejectTransaction", 
-                  "description": "An OrderCancelRejectTransaction represents the rejection of the cancellation of an Order in the client's Account."
+                  "$ref": "v20_transaction.json#/definitions/OrderCancelRejectTransaction"
                 }, 
                 "trailingStopLossOrderRejectTransaction": {
-                  "$ref": "v20_transaction.json#/definitions/TrailingStopLossOrderRejectTransaction", 
-                  "description": "A TrailingStopLossOrderRejectTransaction represents the rejection of the creation of a TrailingStopLoss Order."
+                  "$ref": "v20_transaction.json#/definitions/TrailingStopLossOrderRejectTransaction"
                 }, 
                 "lastTransactionID": {
                   "type": "string", 
                   "description": "The ID of the most recent Transaction created for the Account.", 
-                  "example": "1523", 
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
+                }, 
+                "relatedTransactionIDs": {
+                  "type": "array", 
+                  "description": "The IDs of all Transactions that were created while satisfying the request.", 
+                  "items": {
+                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                  }
                 }, 
                 "errorCode": {
                   "type": "string", 
-                  "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-                  "required": false
+                  "description": "The code of the error that has occurred. This field may not be returned for some errors."
                 }, 
                 "errorMessage": {
                   "type": "string", 
-                  "description": "The human-readable description of the error that has occurred.", 
-                  "required": true
+                  "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
@@ -587,7 +649,6 @@
     "TradeID": {
       "type": "string", 
       "description": "The Trade's identifier, unique within the Trade's Account.", 
-      "example": "1523", 
       "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
     }, 
     "TradeState": {
@@ -602,7 +663,6 @@
     "TradeSpecifier": {
       "type": "string", 
       "description": "The identification of a Trade as referred to by clients", 
-      "example": "@my_trade_id", 
       "format": "Either the Trade's OANDA-assigned TradeID or the Trade's client-provided ClientID prefixed by the \"@\" symbol"
     }, 
     "Trade": {
@@ -612,7 +672,6 @@
         "id": {
           "type": "string", 
           "description": "The Trade's identifier, unique within the Trade's Account.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "instrument": {
@@ -628,7 +687,7 @@
         "openTime": {
           "type": "string", 
           "description": "The date/time when the Trade was opened.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "state": {
           "type": "string", 
@@ -659,6 +718,11 @@
           "description": "The unrealized profit/loss on the open portion of the Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
+        "averageClosePrice": {
+          "type": "string", 
+          "description": "The average closing price of the Trade. Only present if the Trade has been closed or reduced at least once.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
         "closingTransactionIDs": {
           "type": "array", 
           "description": "The IDs of the Transactions that have closed portions of this Trade.", 
@@ -674,23 +738,19 @@
         "closeTime": {
           "type": "string", 
           "description": "The date/time when the Trade was fully closed. Only provided for Trades whose state is CLOSED.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The client extensions of the Trade."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOrder": {
-          "$ref": "v20_order.json#/definitions/TakeProfitOrder", 
-          "description": "Full representation of the Trade's Take Profit Order, only provided if such an Order exists."
+          "$ref": "v20_order.json#/definitions/TakeProfitOrder"
         }, 
         "stopLossOrder": {
-          "$ref": "v20_order.json#/definitions/StopLossOrder", 
-          "description": "Full representation of the Trade's Stop Loss Order, only provided if such an Order exists."
+          "$ref": "v20_order.json#/definitions/StopLossOrder"
         }, 
         "trailingStopLossOrder": {
-          "$ref": "v20_order.json#/definitions/TrailingStopLossOrder", 
-          "description": "Full representation of the Trade's Trailing Stop Loss Order, only provided if such an Order exists."
+          "$ref": "v20_order.json#/definitions/TrailingStopLossOrder"
         }
       }
     }, 
@@ -701,7 +761,6 @@
         "id": {
           "type": "string", 
           "description": "The Trade's identifier, unique within the Trade's Account.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "instrument": {
@@ -717,7 +776,7 @@
         "openTime": {
           "type": "string", 
           "description": "The date/time when the Trade was opened.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "state": {
           "type": "string", 
@@ -748,6 +807,11 @@
           "description": "The unrealized profit/loss on the open portion of the Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
+        "averageClosePrice": {
+          "type": "string", 
+          "description": "The average closing price of the Trade. Only present if the Trade has been closed or reduced at least once.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
         "closingTransactionIDs": {
           "type": "array", 
           "description": "The IDs of the Transactions that have closed portions of this Trade.", 
@@ -763,28 +827,24 @@
         "closeTime": {
           "type": "string", 
           "description": "The date/time when the Trade was fully closed. Only provided for Trades whose state is CLOSED.", 
-          "format": "A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt). The amount of sub-second precision provided may represent milliseconds (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000 to 999999999)."
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
         "clientExtensions": {
-          "$ref": "v20_transaction.json#/definitions/ClientExtensions", 
-          "description": "The client extensions of the Trade."
+          "$ref": "v20_transaction.json#/definitions/ClientExtensions"
         }, 
         "takeProfitOrderID": {
           "type": "string", 
           "description": "ID of the Trade's Take Profit Order, only provided if such an Order exists.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "stopLossOrderID": {
           "type": "string", 
           "description": "ID of the Trade's Stop Loss Order, only provided if such an Order exists.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
         "trailingStopLossOrderID": {
           "type": "string", 
           "description": "ID of the Trade's Trailing Stop Loss Order, only provided if such an Order exists.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }
       }
@@ -796,7 +856,6 @@
         "id": {
           "type": "string", 
           "description": "The Trade's ID.", 
-          "example": "1523", 
           "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
         }, 
         "unrealizedPL": {
@@ -810,7 +869,7 @@
   "parameters": {
     "tradeSpecifierPathParam": {
       "name": "tradeSpecifier", 
-      "despcription": "Specifier for the Trade", 
+      "description": "Specifier for the Trade", 
       "in": "path", 
       "type": "string", 
       "format": "Either the Trade's OANDA-assigned TradeID or the Trade's client-provided ClientID prefixed by the \"@\" symbol", 
@@ -820,108 +879,132 @@
   "responses": {
     "400": {
       "description": "Bad Request. The client has provided invalid data to be processed by the server.", 
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request", 
+          "type": "string"
+        }
+      }, 
       "schema": {
         "type": "object", 
         "properties": {
           "errorCode": {
             "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-            "required": false
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
           }, 
           "errorMessage": {
             "type": "string", 
-            "description": "The human-readable description of the error that has occurred.", 
-            "required": true
+            "description": "The human-readable description of the error that has occurred."
           }
         }
       }
     }, 
     "401": {
       "description": "Unauthorized. The endpoint being access required the client to authenticated, however the the authentication token is invalid or has not been provided.", 
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request", 
+          "type": "string"
+        }
+      }, 
       "schema": {
         "type": "object", 
         "properties": {
           "errorCode": {
             "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-            "required": false
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
           }, 
           "errorMessage": {
             "type": "string", 
-            "description": "The human-readable description of the error that has occurred.", 
-            "required": true
+            "description": "The human-readable description of the error that has occurred."
           }
         }
       }
     }, 
     "403": {
       "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by teh API endpoint.", 
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request", 
+          "type": "string"
+        }
+      }, 
       "schema": {
         "type": "object", 
         "properties": {
           "errorCode": {
             "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-            "required": false
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
           }, 
           "errorMessage": {
             "type": "string", 
-            "description": "The human-readable description of the error that has occurred.", 
-            "required": true
+            "description": "The human-readable description of the error that has occurred."
           }
         }
       }
     }, 
     "404": {
       "description": "Not Found. The client has attempted to access an entity that does not exist.", 
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request", 
+          "type": "string"
+        }
+      }, 
       "schema": {
         "type": "object", 
         "properties": {
           "errorCode": {
             "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-            "required": false
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
           }, 
           "errorMessage": {
             "type": "string", 
-            "description": "The human-readable description of the error that has occurred.", 
-            "required": true
+            "description": "The human-readable description of the error that has occurred."
           }
         }
       }
     }, 
     "405": {
       "description": "Method Not Allowed. The client has attempted to access an endpoint using an HTTP method that is not supported.", 
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request", 
+          "type": "string"
+        }
+      }, 
       "schema": {
         "type": "object", 
         "properties": {
           "errorCode": {
             "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-            "required": false
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
           }, 
           "errorMessage": {
             "type": "string", 
-            "description": "The human-readable description of the error that has occurred.", 
-            "required": true
+            "description": "The human-readable description of the error that has occurred."
           }
         }
       }
     }, 
     "416": {
       "description": "Range Not Satisfiable. The client has specified a range that is invalid or cannot be processed.", 
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request", 
+          "type": "string"
+        }
+      }, 
       "schema": {
         "type": "object", 
         "properties": {
           "errorCode": {
             "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors.", 
-            "required": false
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
           }, 
           "errorMessage": {
             "type": "string", 
-            "description": "The human-readable description of the error that has occurred.", 
-            "required": true
+            "description": "The human-readable description of the error that has occurred."
           }
         }
       }

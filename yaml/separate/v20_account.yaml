@@ -9,7 +9,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.14
+  version: 3.0.13
 basePath: /v3
 produces:
 - application/json
@@ -27,6 +27,10 @@ paths:
       responses:
         '200':
           description: The list of authorized Accounts has been provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -51,22 +55,25 @@ paths:
       operationId: get
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: '#/parameters/accountIDPathParam'
       responses:
         '200':
           description: The full Account details are provided
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               account:
                 $ref: '#/definitions/Account'
-                description: The full details of the requested Account.
               lastTransactionID:
                 type: string
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account.
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -84,22 +91,25 @@ paths:
       operationId: summary
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: '#/parameters/accountIDPathParam'
       responses:
         '200':
           description: The Account summary  are provided
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               account:
                 $ref: '#/definitions/AccountSummary'
-                description: The summary of the requested Account.
               lastTransactionID:
                 type: string
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account.
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -122,7 +132,7 @@ paths:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
       - $ref: '#/parameters/accountIDPathParam'
       - name: instruments
-        despcription: List of instruments to query specifically.
+        description: List of instruments to query specifically.
         in: query
         type: array
         items:
@@ -135,6 +145,10 @@ paths:
         '200':
           description: >-
             The list of tradeable instruments for the Account has been provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -143,6 +157,14 @@ paths:
                 description: The requested list of instruments.
                 items:
                   $ref: primitives.yaml#/definitions/Instrument
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account.
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
         '400':
           $ref: primitives.yaml#/responses/400
         '401':
@@ -156,9 +178,10 @@ paths:
       operationId: configure
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: '#/parameters/accountIDPathParam'
       - name: configureAccountBody
-        despcription: Representation of the Account configuration to set
+        description: Representation of the Account configuration to set
         in: body
         schema:
           type: object
@@ -175,36 +198,34 @@ paths:
       responses:
         '200':
           description: The Account was configured successfully.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
-              configureTransaction:
+              clientConfigureTransaction:
                 $ref: transaction.yaml#/definitions/ClientConfigureTransaction
-                description: The transaction that configures the Account.
               lastTransactionID:
                 type: string
                 description: The ID of the last Transaction created for
                   the Account.
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
         '400':
-          description: The Account could not be configured successfully.
+          description: The configuration specification was invalid.
           schema:
             type: object
             properties:
-              configureRejectTransaction:
+              clientConfigureRejectTransaction:
                 $ref: >-
                   transaction.yaml#/definitions/ClientConfigureRejectTransaction
-                description: >-
-                  The transaction that rejects the configuration of the
-                  Account.
               lastTransactionID:
                 type: string
                 description: The ID of the last Transaction created for
                   the Account.
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -213,12 +234,35 @@ paths:
                 description: >-
                   The code of the error that has occurred. This field may
                   not be returned for some errors.
-                required: false
               errorMessage:
                 type: string
                 description: >-
                   The human-readable description of the error that has occurred.
-                required: true
+        '403':
+          description: The configuration operation was forbidden on the
+            Account.
+          schema:
+            type: object
+            properties:
+              clientConfigureRejectTransaction:
+                $ref: >-
+                  transaction.yaml#/definitions/ClientConfigureRejectTransaction
+              lastTransactionID:
+                type: string
+                description: The ID of the last Transaction created for
+                  the Account.
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+              errorCode:
+                type: string
+                description: >-
+                  The code of the error that has occurred. This field may
+                  not be returned for some errors.
+              errorMessage:
+                type: string
+                description: >-
+                  The human-readable description of the error that has occurred.
         '401':
           $ref: primitives.yaml#/responses/401
         '404':
@@ -234,9 +278,10 @@ paths:
       operationId: changes
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: '#/parameters/accountIDPathParam'
       - name: sinceTransactionID
-        despcription: ID of the Transaction to get Account changes since.
+        description: ID of the Transaction to get Account changes since.
         in: query
         type: string
         format: >-
@@ -244,18 +289,17 @@ paths:
       responses:
         '200':
           description: The Account state and changes are provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               changes:
                 $ref: '#/definitions/AccountChanges'
-                description: >-
-                  The changes to the Account's Orders, Trades and Positions
-                  since the specified Transaction ID. Only provided if the
-                  sinceTransactionID is supplied to the poll request.
               state:
-                $ref: '#/definitions/AccountState'
-                description: The Account's current price-dependent state.
+                $ref: '#/definitions/AccountChangesState'
               lastTransactionID:
                 type: string
                 description: >-
@@ -263,7 +307,6 @@ paths:
                   Transaction ID should be used for future poll requests,
                   as the client has already observed all changes up to and
                   including it.
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -279,7 +322,6 @@ definitions:
   AccountID:
     type: string
     description: The string representation of an Account Identifier.
-    example: 001-011-5838423-001
     format: >-
       "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
   Account:
@@ -291,7 +333,6 @@ definitions:
       id:
         type: string
         description: The Account's identifier
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       alias:
@@ -319,10 +360,11 @@ definitions:
         type: string
         description: The date/time when the Account was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       pl:
         type: string
         description: >-
@@ -331,7 +373,7 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
-      resettabledPL:
+      resettablePL:
         type: string
         description: >-
           The total realized profit/loss for the Account since it was last
@@ -344,10 +386,11 @@ definitions:
         description: >-
           The date/time that the Account's resettablePL was last reset.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       marginRate:
         type: string
         description: >-
@@ -364,10 +407,11 @@ definitions:
           The date/time when the Account entered a margin call state. Only
           provided if the Account is in a margin call.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       marginCallExtensionCount:
         type: integer
         description: >-
@@ -377,10 +421,11 @@ definitions:
         type: string
         description: The date/time of the Account's last margin call extension.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       openTradeCount:
         type: integer
         description: The number of Trades currently open in the Account.
@@ -459,6 +504,14 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.
+      marginCloseoutPositionValue:
+        type: string
+        description: >-
+          The value of the Account's open positions as used for margin closeout
+          calculations represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       withdrawalLimit:
         type: string
         description: >-
@@ -485,7 +538,6 @@ definitions:
       lastTransactionID:
         type: string
         description: The ID of the last Transaction created for the Account.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       trades:
@@ -504,7 +556,7 @@ definitions:
           Account.
         items:
           $ref: order.yaml#/definitions/Order
-  AccountState:
+  AccountChangesState:
     type: object
     description: >-
       An AccountState Object is used to represent an Account's current price-dependent
@@ -578,6 +630,14 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.
+      marginCloseoutPositionValue:
+        type: string
+        description: >-
+          The value of the Account's open positions as used for margin closeout
+          calculations represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       withdrawalLimit:
         type: string
         description: >-
@@ -626,7 +686,6 @@ definitions:
       id:
         type: string
         description: The Account's identifier
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       mt4AccountID:
@@ -649,7 +708,6 @@ definitions:
       id:
         type: string
         description: The Account's identifier
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       alias:
@@ -677,10 +735,11 @@ definitions:
         type: string
         description: The date/time when the Account was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       pl:
         type: string
         description: >-
@@ -689,7 +748,7 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
-      resettabledPL:
+      resettablePL:
         type: string
         description: >-
           The total realized profit/loss for the Account since it was last
@@ -702,10 +761,11 @@ definitions:
         description: >-
           The date/time that the Account's resettablePL was last reset.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       marginRate:
         type: string
         description: >-
@@ -722,10 +782,11 @@ definitions:
           The date/time when the Account entered a margin call state. Only
           provided if the Account is in a margin call.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       marginCallExtensionCount:
         type: integer
         description: >-
@@ -735,10 +796,11 @@ definitions:
         type: string
         description: The date/time of the Account's last margin call extension.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       openTradeCount:
         type: integer
         description: The number of Trades currently open in the Account.
@@ -817,6 +879,14 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.
+      marginCloseoutPositionValue:
+        type: string
+        description: >-
+          The value of the Account's open positions as used for margin closeout
+          calculations represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       withdrawalLimit:
         type: string
         description: >-
@@ -843,7 +913,6 @@ definitions:
       lastTransactionID:
         type: string
         description: The ID of the last Transaction created for the Account.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   AccountChanges:
@@ -879,17 +948,17 @@ definitions:
         type: array
         description: The Trades opened.
         items:
-          $ref: trade.yaml#/definitions/Trade
+          $ref: trade.yaml#/definitions/TradeSummary
       tradesReduced:
         type: array
         description: The Trades reduced.
         items:
-          $ref: trade.yaml#/definitions/Trade
+          $ref: trade.yaml#/definitions/TradeSummary
       tradesClosed:
         type: array
         description: The Trades closed.
         items:
-          $ref: trade.yaml#/definitions/Trade
+          $ref: trade.yaml#/definitions/TradeSummary
       positions:
         type: array
         description: The Positions changed.
@@ -918,7 +987,7 @@ definitions:
 parameters:
   accountIDPathParam:
     name: accountID
-    despcription: Account Identifier
+    description: Account Identifier
     in: path
     type: string
     format: >-

@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.14
+  version: 3.0.13
 basePath: /v3
 produces:
 - application/json
@@ -25,20 +25,21 @@ paths:
       operationId: candles
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: '#/parameters/instrumentNamePathParam'
       - name: price
-        despcription: >-
+        description: >-
           The Price component(s) to get candlestick data for. Can contain
           any combination of the characters "M" (midpoint candles) "B" (bid
           candles) and "A" (ask candles).
         in: query
         type: string
       - name: granularity
-        despcription: The granularity of the candlesticks to fetch
+        description: The granularity of the candlesticks to fetch
         in: query
         type: string
       - name: count
-        despcription: >-
+        description: >-
           The number of candlesticks to return in the reponse. Count should
           not be specified if both the start and end parameters are provided,
           as the time range combined with the graularity will determine
@@ -46,26 +47,27 @@ paths:
         in: query
         type: integer
       - name: from
-        despcription: The start of the time range to fetch candlesticks
-          for.
+        description: The start of the time range to fetch candlesticks for.
         in: query
         type: string
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       - name: to
-        despcription: The end of the time range to fetch candlesticks for.
+        description: The end of the time range to fetch candlesticks for.
         in: query
         type: string
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       - name: smooth
-        despcription: >-
+        description: >-
           A flag that controls whether the candlestick is "smoothed" or
           not.  A smoothed candlestick uses the previous candle's close
           price as its open price, while an unsmoothed candlestick uses
@@ -73,7 +75,7 @@ paths:
         in: query
         type: boolean
       - name: includeFirst
-        despcription: >-
+        description: >-
           A flag that controls whether the candlestick that is covered by
           the from time should be included in the results. This flag enables
           clients to use the timestamp of the last completed candlestick
@@ -82,26 +84,30 @@ paths:
         in: query
         type: boolean
       - name: dailyAlignment
-        despcription: >-
+        description: >-
           The hour of the day (in the specified timezone) to use for granularities
           that have daily alignments.
         in: query
         type: integer
       - name: alignmentTimezone
-        despcription: >-
+        description: >-
           The timezone to use for the dailyAlignment parameter. Candlesticks
           with daily alignment will be aligned to the dailyAlignment hour
           within the alignmentTimezone.
         in: query
         type: string
       - name: weeklyAlignment
-        despcription: >-
+        description: >-
           The day of the week used for granularities that have weekly alignment.
         in: query
         type: string
       responses:
         '200':
           description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -197,25 +203,17 @@ definitions:
         type: string
         description: The start time of the candlestick
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       bid:
         $ref: '#/definitions/CandlestickData'
-        description: >-
-          The candlestick data based on bids. Only provided if bid-based
-          candles were requested.
       ask:
         $ref: '#/definitions/CandlestickData'
-        description: >-
-          The candlestick data based on asks. Only provided if ask-based
-          candles were requested.
       mid:
         $ref: '#/definitions/CandlestickData'
-        description: >-
-          The candlestick data based on midpoints. Only provided if midpoint-based
-          candles were requested.
       volume:
         type: integer
         description: >-
@@ -263,7 +261,7 @@ definitions:
 parameters:
   instrumentNamePathParam:
     name: instrument
-    despcription: Name of the Instrument
+    description: Name of the Instrument
     in: path
     type: string
     format: >-
@@ -275,6 +273,10 @@ responses:
     description: >-
       Bad Request. The client has provided invalid data to be processed
       by the server.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -283,16 +285,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '401':
     description: >-
       Unauthorized. The endpoint being access required the client to authenticated,
       however the the authentication token is invalid or has not been provided.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -301,16 +305,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '403':
     description: >-
       Forbidden. The client has provided a token that does not authorize
       them to perform the action implemented by teh API endpoint.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -319,16 +325,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '404':
     description: >-
       Not Found. The client has attempted to access an entity that does
       not exist.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -337,16 +345,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '405':
     description: >-
       Method Not Allowed. The client has attempted to access an endpoint
       using an HTTP method that is not supported.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -355,16 +365,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '416':
     description: >-
       Range Not Satisfiable. The client has specified a range that is invalid
       or cannot be processed.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -373,10 +385,8 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
 

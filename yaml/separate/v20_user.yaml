@@ -9,7 +9,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.14
+  version: 3.0.13
 basePath: /v3
 produces:
 - application/json
@@ -30,12 +30,15 @@ paths:
       responses:
         '200':
           description: The user information has been provided
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               userInfo:
                 $ref: '#/definitions/UserInfo'
-                description: The user information for the specifier user.
         '401':
           $ref: primitives.yaml#/responses/401
         '403':
@@ -56,12 +59,15 @@ paths:
       responses:
         '200':
           description: The external user information has been provided
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               userInfo:
                 $ref: '#/definitions/UserInfoExternal'
-                description: The user information for the specifier user.
         '401':
           $ref: primitives.yaml#/responses/401
         '403':
@@ -115,7 +121,7 @@ definitions:
 parameters:
   userSpecifierPathParam:
     name: userSpecifier
-    despcription: The User Specifier
+    description: The User Specifier
     in: path
     type: string
     format: >-

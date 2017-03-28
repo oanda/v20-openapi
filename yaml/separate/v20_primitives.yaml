@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.14
+  version: 3.0.13
 basePath: /v3
 produces:
 - application/json
@@ -20,16 +20,18 @@ consumes:
 paths:
   /accounts/{accountID}/pricing:
     get:
-      summary: Current Prices
+      summary: Current Account Prices
       description: >-
         Get pricing information for a specified list of Instruments within
         an Account.
       operationId: get
       parameters:
       - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: >-
+          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: v20_account.json#/parameters/accountIDPathParam
       - name: instruments
-        despcription: List of Instruments to get pricing for.
+        description: List of Instruments to get pricing for.
         in: query
         type: array
         items:
@@ -40,18 +42,19 @@ paths:
         collectionFormat: csv
         required: true
       - name: since
-        despcription: >-
+        description: >-
           Date/Time filter to apply to the returned prices. Only prices
           with a time later than this filter will be provided.
         in: query
         type: string
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       - name: includeUnitsAvailable
-        despcription: >-
+        description: >-
           Flag that enables the inclusion of the unitsAvailable field in
           the returned Price objects.
         in: query
@@ -59,13 +62,16 @@ paths:
       responses:
         '200':
           description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               prices:
                 type: array
                 description: The list of Price objects requested
-                required: true
                 items:
                   $ref: '#/definitions/Price'
         '400':
@@ -80,14 +86,31 @@ paths:
     get:
       summary: Price Stream
       description: >-
-        Get a stream of Prices for an Account starting from when the request
-        is made.
+        Get a stream of Account Prices starting from when the request is
+        made.
+
+        This pricing stream does not include every single price created
+        for the Account, but instead will provide at most 4 prices per second
+        (every 250 milliseconds) for each instrument being requested.
+
+        If more than one price is created for an instrument during the 250
+        millisecond window, only the price in effect at the end of the window
+        is sent. This means that during periods of rapid price movement,
+        subscribers to this stream will not be sent every price.
+
+        Pricing windows for different connections to the price stream are
+        not all aligned in the same way (i.e. they are not all aligned to
+        the top of the second). This means that during periods of rapid
+        price movement, different subscribers may observe different prices
+        depending on their alignment.
       operationId: stream
       parameters:
       - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: >-
+          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: v20_account.json#/parameters/accountIDPathParam
       - name: instruments
-        despcription: List of Instruments to stream Prices for.
+        description: List of Instruments to stream Prices for.
         in: query
         type: array
         items:
@@ -98,7 +121,7 @@ paths:
         collectionFormat: csv
         required: true
       - name: snapshot
-        despcription: >-
+        description: >-
           Flag that enables/disables the sending of a pricing snapshot when
           initially connecting to the stream.
         in: query
@@ -109,6 +132,9 @@ paths:
           headers:
             Link:
               description: A link to the next/previous order book snapshot.
+              type: string
+            RequestID:
+              description: The unique identifier generated for the request
               type: string
           schema:
             type: object
@@ -123,10 +149,8 @@ paths:
             properties:
               price:
                 $ref: '#/definitions/Price'
-                description: An Account Price in the Pricing Stream
               heartbeat:
                 $ref: '#/definitions/PricingHeartbeat'
-                description: A PricingHeartbeat message in the Pricing Stream
         '400':
           $ref: v20_primitives.json#/responses/400
         '401':
@@ -254,12 +278,14 @@ definitions:
           provided depends on what the number represents.
   DateTime:
     type: string
-    description: Representation of a date and time value.
+    description: >-
+      A date and time value using either RFC3339 or UNIX time representation.
     format: >-
-      A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-      The amount of sub-second precision provided may represent milliseconds
-      (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-      to 999999999).
+      The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+      The Unix representation is a string representing the number of seconds
+      since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional
+      number, where the fractional part represents a fraction of a second
+      (up to nine decimal places).
   AcceptDatetimeFormat:
     type: string
     description: DateTime header
@@ -269,17 +295,26 @@ definitions:
 parameters:
   authorizationHeaderParam:
     name: Authorization
-    despcription: >-
+    description: >-
       The authorization bearer token previously obtained by the client
     in: header
     type: string
     format: The string 'Bearer ' followed by the token.
     required: true
+  acceptDatetimeFormatHeaderParam:
+    name: Accept-Datetime-Format
+    description: Format of DateTime fields in the request and response.
+    in: header
+    type: string
 responses:
   '400':
     description: >-
       Bad Request. The client has provided invalid data to be processed
       by the server.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -288,16 +323,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '401':
     description: >-
       Unauthorized. The endpoint being access required the client to authenticated,
       however the the authentication token is invalid or has not been provided.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -306,16 +343,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '403':
     description: >-
       Forbidden. The client has provided a token that does not authorize
       them to perform the action implemented by teh API endpoint.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -324,16 +363,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '404':
     description: >-
       Not Found. The client has attempted to access an entity that does
       not exist.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -342,16 +383,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '405':
     description: >-
       Method Not Allowed. The client has attempted to access an endpoint
       using an HTTP method that is not supported.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -360,16 +403,18 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
   '416':
     description: >-
       Range Not Satisfiable. The client has specified a range that is invalid
       or cannot be processed.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
     schema:
       type: object
       properties:
@@ -378,10 +423,8 @@ responses:
           description: >-
             The code of the error that has occurred. This field may not
             be returned for some errors.
-          required: false
         errorMessage:
           type: string
           description: >-
             The human-readable description of the error that has occurred.
-          required: true
 

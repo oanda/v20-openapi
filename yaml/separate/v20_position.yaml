@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.14
+  version: 3.0.13
 basePath: /v3
 produces:
 - application/json
@@ -32,6 +32,10 @@ paths:
       responses:
         '200':
           description: The Account's Positions are provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -45,7 +49,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -68,6 +71,10 @@ paths:
       responses:
         '200':
           description: The Account's open Positions are provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -81,7 +88,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -105,18 +111,20 @@ paths:
       responses:
         '200':
           description: The Position is provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               position:
                 $ref: '#/definitions/Position'
-                description: The requested Position.
               lastTransactionID:
                 type: string
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -134,10 +142,11 @@ paths:
       operationId: close
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: account.yaml#/parameters/accountIDPathParam
       - $ref: instrument.yaml#/parameters/instrumentNamePathParam
       - name: closePositionBody
-        despcription: Representation of how to close the position
+        description: Representation of how to close the position
         in: body
         schema:
           type: object
@@ -152,9 +161,6 @@ paths:
                 must always be positive.
             longClientExtensions:
               $ref: transaction.yaml#/definitions/ClientExtensions
-              description: >-
-                The client extensions to add to the MarketOrder used to
-                close the long position.
             shortUnits:
               type: string
               description: >-
@@ -165,9 +171,6 @@ paths:
                 must always be positive.
             shortClientExtensions:
               $ref: transaction.yaml#/definitions/ClientExtensions
-              description: >-
-                The client extensions to add to the MarketOrder used to
-                close the short position.
         required: true
       responses:
         '200':
@@ -177,36 +180,24 @@ paths:
             Location:
               description: A link to the Position that was just closed out
               type: string
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               longOrderCreateTransaction:
                 $ref: transaction.yaml#/definitions/MarketOrderTransaction
-                description: >-
-                  The MarketOrderTransaction created to close the long Position.
               longOrderFillTransaction:
                 $ref: transaction.yaml#/definitions/OrderFillTransaction
-                description: OrderFill Transaction that closes the long
-                  Position
               longOrderCancelTransaction:
                 $ref: transaction.yaml#/definitions/OrderCancelTransaction
-                description: >-
-                  OrderCancel Transaction that cancels the MarketOrder created
-                  to close the long Position
               shortOrderCreateTransaction:
                 $ref: transaction.yaml#/definitions/MarketOrderTransaction
-                description: >-
-                  The MarketOrderTransaction created to close the short
-                  Position.
               shortOrderFillTransaction:
                 $ref: transaction.yaml#/definitions/OrderFillTransaction
-                description: OrderFill Transaction that closes the short
-                  Position
               shortOrderCancelTransaction:
                 $ref: transaction.yaml#/definitions/OrderCancelTransaction
-                description: >-
-                  OrderCancel Transaction that cancels the MarketOrder created
-                  to close the short Position
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -219,7 +210,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -232,14 +222,8 @@ paths:
             properties:
               longOrderRejectTransaction:
                 $ref: transaction.yaml#/definitions/MarketOrderRejectTransaction
-                description: >-
-                  The Transaction created that rejects the creation of a
-                  MarketOrder to close the long Position.
               shortOrderRejectTransaction:
                 $ref: transaction.yaml#/definitions/MarketOrderRejectTransaction
-                description: >-
-                  The Transaction created that rejects the creation of a
-                  MarketOrder to close the short Position.
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -252,7 +236,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -261,16 +244,47 @@ paths:
                 description: >-
                   The code of the error that has occurred. This field may
                   not be returned for some errors.
-                required: false
               errorMessage:
                 type: string
                 description: >-
                   The human-readable description of the error that has occurred.
-                required: true
         '401':
           $ref: primitives.yaml#/responses/401
         '404':
-          $ref: primitives.yaml#/responses/404
+          description: >-
+            The Account or one or more of the Positions specified does not
+            exist.
+          schema:
+            type: object
+            properties:
+              longOrderRejectTransaction:
+                $ref: transaction.yaml#/definitions/MarketOrderRejectTransaction
+              shortOrderRejectTransaction:
+                $ref: transaction.yaml#/definitions/MarketOrderRejectTransaction
+              relatedTransactionIDs:
+                type: array
+                description: >-
+                  The IDs of all Transactions that were created while satisfying
+                  the request. Only present if the Account exists.
+                items:
+                  $ref: transaction.yaml#/definitions/TransactionID
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account. Only present if the Account exists.
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+              errorCode:
+                type: string
+                description: >-
+                  The code of the error that has occurred. This field may
+                  not be returned for some errors.
+              errorMessage:
+                type: string
+                description: >-
+                  The human-readable description of the error that has occurred.
         '405':
           $ref: primitives.yaml#/responses/405
 definitions:
@@ -310,10 +324,8 @@ definitions:
           provided depends on the Account's home currency.
       long:
         $ref: '#/definitions/PositionSide'
-        description: The details of the long side of the Position.
       short:
         $ref: '#/definitions/PositionSide'
-        description: The details of the short side of the Position.
   PositionSide:
     type: object
     description: >-
@@ -398,7 +410,7 @@ definitions:
 parameters:
   orderSpecifierPathParam:
     name: orderSpecifier
-    despcription: The Order Specifier
+    description: The Order Specifier
     in: path
     type: string
     format: >-

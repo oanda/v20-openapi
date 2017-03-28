@@ -10,7 +10,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.14
+  version: 3.0.13
 basePath: /v3
 produces:
 - application/json
@@ -26,36 +26,39 @@ paths:
       operationId: list
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: account.yaml#/parameters/accountIDPathParam
       - name: from
-        despcription: >-
+        description: >-
           The starting time (inclusive) of the time range for the Transactions
           being queried.
         in: query
         type: string
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       - name: to
-        despcription: >-
+        description: >-
           The ending time (inclusive) of the time range for the Transactions
           being queried.
         in: query
         type: string
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       - name: pageSize
-        despcription: >-
+        description: >-
           The number of Transactions to include in each page of the results.
         in: query
         type: integer
       - name: type
-        despcription: >-
+        description: >-
           A filter for restricting the types of Transactions to retreive.
         in: query
         type: array
@@ -66,6 +69,10 @@ paths:
         '200':
           description: The requested time range of Transaction pages are
             provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -73,18 +80,22 @@ paths:
                 type: string
                 description: The starting time provided in the request.
                 format: >-
-                  A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-                  The amount of sub-second precision provided may represent
-                  milliseconds (000 to 999), microseconds (000000 to 999999)
-                  or nanoseconds (000000000 to 999999999).
+                  The RFC 3339 representation is a string conforming to
+                  https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation
+                  is a string representing the number of seconds since the
+                  Unix Epoch (January 1st, 1970 at UTC). The value is a
+                  fractional number, where the fractional part represents
+                  a fraction of a second (up to nine decimal places).
               to:
                 type: string
                 description: The ending time provided in the request.
                 format: >-
-                  A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-                  The amount of sub-second precision provided may represent
-                  milliseconds (000 to 999), microseconds (000000 to 999999)
-                  or nanoseconds (000000000 to 999999999).
+                  The RFC 3339 representation is a string conforming to
+                  https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation
+                  is a string representing the number of seconds since the
+                  Unix Epoch (January 1st, 1970 at UTC). The value is a
+                  fractional number, where the fractional part represents
+                  a fraction of a second (up to nine decimal places).
               pageSize:
                 type: integer
                 description: The pageSize provided in the request
@@ -111,7 +122,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -134,23 +144,26 @@ paths:
       operationId: get
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: account.yaml#/parameters/accountIDPathParam
       - $ref: '#/parameters/transactionIDPathParam'
       responses:
         '200':
           description: The details of the requested Transaction are provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
               transaction:
                 $ref: '#/definitions/Transaction'
-                description: The details of the Transaction requested
               lastTransactionID:
                 type: string
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -169,23 +182,24 @@ paths:
       operationId: range
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: account.yaml#/parameters/accountIDPathParam
       - name: from
-        despcription: The starting Transacion ID (inclusive) to fetch.
+        description: The starting Transacion ID (inclusive) to fetch.
         in: query
         type: string
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
         required: true
       - name: to
-        despcription: The ending Transaction ID (inclusive) to fetch.
+        description: The ending Transaction ID (inclusive) to fetch.
         in: query
         type: string
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
         required: true
       - name: type
-        despcription: >-
+        description: >-
           The filter that restricts the types of Transactions to retreive.
         in: query
         type: array
@@ -195,6 +209,10 @@ paths:
       responses:
         '200':
           description: The requested time range of Transactions are provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -208,7 +226,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -231,9 +248,10 @@ paths:
       operationId: since
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: account.yaml#/parameters/accountIDPathParam
       - name: id
-        despcription: >-
+        description: >-
           The ID of the last Transacion fetched. This query will return
           all Transactions newer than the TransactionID.
         in: query
@@ -244,6 +262,10 @@ paths:
       responses:
         '200':
           description: The requested time range of Transactions are provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             properties:
@@ -257,7 +279,6 @@ paths:
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
-                example: '1523'
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -284,6 +305,10 @@ paths:
       responses:
         '200':
           description: Connecting to the Transaction Stream was successful.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
           schema:
             type: object
             description: >-
@@ -297,10 +322,8 @@ paths:
             properties:
               transaction:
                 $ref: '#/definitions/Transaction'
-                description: An Account Transaction in the Transaction stream
               heartbeat:
                 $ref: '#/definitions/TransactionHeartbeat'
-                description: A Heartbeat message in the Transaction Stream
         '400':
           $ref: primitives.yaml#/responses/400
         '401':
@@ -313,7 +336,6 @@ definitions:
   TransactionID:
     type: string
     description: The unique Transaction identifier within each Account.
-    example: '1523'
     format: >-
       String representation of the numerical OANDA-assigned TransactionID
   TransactionType:
@@ -363,26 +385,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -390,9 +410,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
   CreateTransaction:
     type: object
     description: A CreateTransaction represents the creation of an Account.
@@ -400,26 +423,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -427,9 +448,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -472,19 +496,15 @@ definitions:
       divisionID:
         type: integer
         description: The ID of the Division that the Account is in
-        example: 1
       siteID:
         type: integer
         description: The ID of the Site that the Account was created at
-        example: 1
       accountUserID:
         type: integer
         description: The ID of the user that the Account was created for
-        example: 54321
       accountNumber:
         type: integer
         description: The number of the Account within the site/division/user
-        example: 1
       homeCurrency:
         type: string
         description: The home currency of the Account
@@ -497,26 +517,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -524,9 +542,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -574,26 +595,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -601,9 +620,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -652,26 +674,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -679,9 +699,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -740,26 +763,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -767,9 +788,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -961,26 +985,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -988,9 +1010,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -1049,6 +1074,11 @@ definitions:
         - DIVISION_MIGRATION
         - SITE_MIGRATION
         - ADJUSTMENT
+      comment:
+        type: string
+        description: >-
+          An optional comment that may be attached to a fund transfer for
+          audit purposes
       accountBalance:
         type: string
         description: The Account's balance after funds are transferred.
@@ -1064,26 +1094,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -1091,9 +1119,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -1152,6 +1183,11 @@ definitions:
         - DIVISION_MIGRATION
         - SITE_MIGRATION
         - ADJUSTMENT
+      comment:
+        type: string
+        description: >-
+          An optional comment that may be attached to a fund transfer for
+          audit purposes
       rejectReason:
         type: string
         description: The reason that the Reject Transaction was created
@@ -1299,26 +1335,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -1326,9 +1360,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -1415,31 +1452,14 @@ definitions:
         - DEFAULT
       tradeClose:
         $ref: transaction.yaml#/definitions/MarketOrderTradeClose
-        description: >-
-          Details of the Trade requested to be closed, only provided when
-          the Market Order is being used to explicitly close a Trade.
       longPositionCloseout:
         $ref: transaction.yaml#/definitions/MarketOrderPositionCloseout
-        description: >-
-          Details of the long Position requested to be closed out, only
-          provided when a Market Order is being used to explicitly closeout
-          a long Position.
       shortPositionCloseout:
         $ref: transaction.yaml#/definitions/MarketOrderPositionCloseout
-        description: >-
-          Details of the short Position requested to be closed out, only
-          provided when a Market Order is being used to explicitly closeout
-          a short Position.
       marginCloseout:
         $ref: transaction.yaml#/definitions/MarketOrderMarginCloseout
-        description: >-
-          Details of the Margin Closeout that this Market Order was created
-          for
       delayedTradeClose:
         $ref: transaction.yaml#/definitions/MarketOrderDelayedTradeClose
-        description: >-
-          Details of the delayed Trade close that this Market Order was
-          created for
       reason:
         type: string
         description: The reason that the Market Order was created
@@ -1451,33 +1471,14 @@ definitions:
         - DELAYED_TRADE_CLOSE
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
   MarketOrderRejectTransaction:
     type: object
     description: >-
@@ -1487,26 +1488,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -1514,9 +1513,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -1603,31 +1605,14 @@ definitions:
         - DEFAULT
       tradeClose:
         $ref: transaction.yaml#/definitions/MarketOrderTradeClose
-        description: >-
-          Details of the Trade requested to be closed, only provided when
-          the Market Order is being used to explicitly close a Trade.
       longPositionCloseout:
         $ref: transaction.yaml#/definitions/MarketOrderPositionCloseout
-        description: >-
-          Details of the long Position requested to be closed out, only
-          provided when a Market Order is being used to explicitly closeout
-          a long Position.
       shortPositionCloseout:
         $ref: transaction.yaml#/definitions/MarketOrderPositionCloseout
-        description: >-
-          Details of the short Position requested to be closed out, only
-          provided when a Market Order is being used to explicitly closeout
-          a short Position.
       marginCloseout:
         $ref: transaction.yaml#/definitions/MarketOrderMarginCloseout
-        description: >-
-          Details of the Margin Closeout that this Market Order was created
-          for
       delayedTradeClose:
         $ref: transaction.yaml#/definitions/MarketOrderDelayedTradeClose
-        description: >-
-          Details of the delayed Trade close that this Market Order was
-          created for
       reason:
         type: string
         description: The reason that the Market Order was created
@@ -1639,33 +1624,14 @@ definitions:
         - DELAYED_TRADE_CLOSE
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       rejectReason:
         type: string
         description: The reason that the Reject Transaction was created
@@ -1805,26 +1771,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -1832,9 +1796,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -1914,10 +1881,11 @@ definitions:
           The date/time when the Limit Order will be cancelled if its timeInForce
           is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       positionFill:
         type: string
         description: >-
@@ -1928,6 +1896,17 @@ definitions:
         - REDUCE_FIRST
         - REDUCE_ONLY
         - DEFAULT
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Limit Order was initiated
@@ -1936,49 +1915,28 @@ definitions:
         - REPLACEMENT
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       replacesOrderID:
         type: string
         description: >-
           The ID of the Order that this Order replaces (only provided if
           this Order replaces an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
           of the Transaction that created the Order.
-      replacedOrderCancelTransactionID:
+      cancellingTransactionID:
         type: string
         description: >-
           The ID of the Transaction that cancels the replaced Order (only
           provided if this Order replaces an existing Order).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   LimitOrderRejectTransaction:
@@ -1990,26 +1948,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -2017,9 +1973,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -2099,10 +2058,11 @@ definitions:
           The date/time when the Limit Order will be cancelled if its timeInForce
           is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       positionFill:
         type: string
         description: >-
@@ -2113,6 +2073,17 @@ definitions:
         - REDUCE_FIRST
         - REDUCE_ONLY
         - DEFAULT
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Limit Order was initiated
@@ -2121,39 +2092,19 @@ definitions:
         - REPLACEMENT
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       intendedReplacesOrderID:
         type: string
         description: >-
           The ID of the Order that this Order was intended to replace (only
           provided if this Order was intended to replace an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -2297,26 +2248,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -2324,9 +2273,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -2415,10 +2367,11 @@ definitions:
           The date/time when the Stop Order will be cancelled if its timeInForce
           is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       positionFill:
         type: string
         description: >-
@@ -2429,6 +2382,17 @@ definitions:
         - REDUCE_FIRST
         - REDUCE_ONLY
         - DEFAULT
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Stop Order was initiated
@@ -2437,49 +2401,28 @@ definitions:
         - REPLACEMENT
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       replacesOrderID:
         type: string
         description: >-
           The ID of the Order that this Order replaces (only provided if
           this Order replaces an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
           of the Transaction that created the Order.
-      replacedOrderCancelTransactionID:
+      cancellingTransactionID:
         type: string
         description: >-
           The ID of the Transaction that cancels the replaced Order (only
           provided if this Order replaces an existing Order).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   StopOrderRejectTransaction:
@@ -2491,26 +2434,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -2518,9 +2459,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -2610,10 +2554,11 @@ definitions:
           The date/time when the Stop Order will be cancelled if its timeInForce
           is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       positionFill:
         type: string
         description: >-
@@ -2624,6 +2569,17 @@ definitions:
         - REDUCE_FIRST
         - REDUCE_ONLY
         - DEFAULT
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Stop Order was initiated
@@ -2632,39 +2588,19 @@ definitions:
         - REPLACEMENT
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       intendedReplacesOrderID:
         type: string
         description: >-
           The ID of the Order that this Order was intended to replace (only
           provided if this Order was intended to replace an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -2808,26 +2744,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -2835,9 +2769,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -2930,10 +2867,11 @@ definitions:
           The date/time when the MarketIfTouched Order will be cancelled
           if its timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       positionFill:
         type: string
         description: >-
@@ -2944,6 +2882,17 @@ definitions:
         - REDUCE_FIRST
         - REDUCE_ONLY
         - DEFAULT
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Market-if-touched Order was initiated
@@ -2952,49 +2901,28 @@ definitions:
         - REPLACEMENT
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       replacesOrderID:
         type: string
         description: >-
           The ID of the Order that this Order replaces (only provided if
           this Order replaces an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
           of the Transaction that created the Order.
-      replacedOrderCancelTransactionID:
+      cancellingTransactionID:
         type: string
         description: >-
           The ID of the Transaction that cancels the replaced Order (only
           provided if this Order replaces an existing Order).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   MarketIfTouchedOrderRejectTransaction:
@@ -3006,26 +2934,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -3033,9 +2959,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -3128,10 +3057,11 @@ definitions:
           The date/time when the MarketIfTouched Order will be cancelled
           if its timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       positionFill:
         type: string
         description: >-
@@ -3142,6 +3072,17 @@ definitions:
         - REDUCE_FIRST
         - REDUCE_ONLY
         - DEFAULT
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Market-if-touched Order was initiated
@@ -3150,39 +3091,19 @@ definitions:
         - REPLACEMENT
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       takeProfitOnFill:
         $ref: transaction.yaml#/definitions/TakeProfitDetails
-        description: >-
-          The specification of the Take Profit Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       stopLossOnFill:
         $ref: transaction.yaml#/definitions/StopLossDetails
-        description: >-
-          The specification of the Stop Loss Order that should be created
-          for a Trade opened when the Order is filled (if such a Trade is
-          created).
       trailingStopLossOnFill:
         $ref: transaction.yaml#/definitions/TrailingStopLossDetails
-        description: >-
-          The specification of the Trailing Stop Loss Order that should
-          be created for a Trade that is opened when the Order is filled
-          (if such a Trade is created).
       tradeClientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Trade created when the Order is
-          filled (if such a Trade is created).  Do not set, modify, delete
-          tradeClientExtensions if your account is associated with MT4.
       intendedReplacesOrderID:
         type: string
         description: >-
           The ID of the Order that this Order was intended to replace (only
           provided if this Order was intended to replace an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -3327,26 +3248,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -3354,9 +3273,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -3401,7 +3323,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade to close when the price threshold is breached.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -3411,7 +3332,6 @@ definitions:
         description: >-
           The client ID of the Trade to be closed when the price threshold
           is breached.
-        example: my_order_id
       price:
         type: string
         description: >-
@@ -3438,10 +3358,22 @@ definitions:
           The date/time when the TakeProfit Order will be cancelled if its
           timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Take Profit Order was initiated
@@ -3451,16 +3383,12 @@ definitions:
         - ON_FILL
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       orderFillTransactionID:
         type: string
         description: >-
           The ID of the OrderFill Transaction that caused this Order to
           be created (only provided if this Order was created automatically
           when another Order was filled).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       replacesOrderID:
@@ -3468,17 +3396,15 @@ definitions:
         description: >-
           The ID of the Order that this Order replaces (only provided if
           this Order replaces an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
           of the Transaction that created the Order.
-      replacedOrderCancelTransactionID:
+      cancellingTransactionID:
         type: string
         description: >-
           The ID of the Transaction that cancels the replaced Order (only
           provided if this Order replaces an existing Order).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   TakeProfitOrderRejectTransaction:
@@ -3490,26 +3416,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -3517,9 +3441,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -3564,7 +3491,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade to close when the price threshold is breached.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -3574,7 +3500,6 @@ definitions:
         description: >-
           The client ID of the Trade to be closed when the price threshold
           is breached.
-        example: my_order_id
       price:
         type: string
         description: >-
@@ -3601,10 +3526,22 @@ definitions:
           The date/time when the TakeProfit Order will be cancelled if its
           timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Take Profit Order was initiated
@@ -3614,16 +3551,12 @@ definitions:
         - ON_FILL
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       orderFillTransactionID:
         type: string
         description: >-
           The ID of the OrderFill Transaction that caused this Order to
           be created (only provided if this Order was created automatically
           when another Order was filled).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       intendedReplacesOrderID:
@@ -3631,7 +3564,6 @@ definitions:
         description: >-
           The ID of the Order that this Order was intended to replace (only
           provided if this Order was intended to replace an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -3776,26 +3708,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -3803,9 +3733,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -3850,7 +3783,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade to close when the price threshold is breached.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -3860,7 +3792,6 @@ definitions:
         description: >-
           The client ID of the Trade to be closed when the price threshold
           is breached.
-        example: my_order_id
       price:
         type: string
         description: >-
@@ -3887,10 +3818,22 @@ definitions:
           The date/time when the StopLoss Order will be cancelled if its
           timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Stop Loss Order was initiated
@@ -3900,16 +3843,12 @@ definitions:
         - ON_FILL
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       orderFillTransactionID:
         type: string
         description: >-
           The ID of the OrderFill Transaction that caused this Order to
           be created (only provided if this Order was created automatically
           when another Order was filled).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       replacesOrderID:
@@ -3917,17 +3856,15 @@ definitions:
         description: >-
           The ID of the Order that this Order replaces (only provided if
           this Order replaces an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
           of the Transaction that created the Order.
-      replacedOrderCancelTransactionID:
+      cancellingTransactionID:
         type: string
         description: >-
           The ID of the Transaction that cancels the replaced Order (only
           provided if this Order replaces an existing Order).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   StopLossOrderRejectTransaction:
@@ -3939,26 +3876,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -3966,9 +3901,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -4013,7 +3951,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade to close when the price threshold is breached.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -4023,7 +3960,6 @@ definitions:
         description: >-
           The client ID of the Trade to be closed when the price threshold
           is breached.
-        example: my_order_id
       price:
         type: string
         description: >-
@@ -4050,10 +3986,22 @@ definitions:
           The date/time when the StopLoss Order will be cancelled if its
           timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Stop Loss Order was initiated
@@ -4063,16 +4011,12 @@ definitions:
         - ON_FILL
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       orderFillTransactionID:
         type: string
         description: >-
           The ID of the OrderFill Transaction that caused this Order to
           be created (only provided if this Order was created automatically
           when another Order was filled).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       intendedReplacesOrderID:
@@ -4080,7 +4024,6 @@ definitions:
         description: >-
           The ID of the Order that this Order was intended to replace (only
           provided if this Order was intended to replace an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -4225,26 +4168,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -4252,9 +4193,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -4299,7 +4243,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade to close when the price threshold is breached.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -4309,7 +4252,6 @@ definitions:
         description: >-
           The client ID of the Trade to be closed when the price threshold
           is breached.
-        example: my_order_id
       distance:
         type: string
         description: The price distance specified for the TrailingStopLoss
@@ -4334,10 +4276,22 @@ definitions:
           The date/time when the StopLoss Order will be cancelled if its
           timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Trailing Stop Loss Order was initiated
@@ -4347,16 +4301,12 @@ definitions:
         - ON_FILL
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       orderFillTransactionID:
         type: string
         description: >-
           The ID of the OrderFill Transaction that caused this Order to
           be created (only provided if this Order was created automatically
           when another Order was filled).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       replacesOrderID:
@@ -4364,17 +4314,15 @@ definitions:
         description: >-
           The ID of the Order that this Order replaces (only provided if
           this Order replaces an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
           of the Transaction that created the Order.
-      replacedOrderCancelTransactionID:
+      cancellingTransactionID:
         type: string
         description: >-
           The ID of the Transaction that cancels the replaced Order (only
           provided if this Order replaces an existing Order).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   TrailingStopLossOrderRejectTransaction:
@@ -4386,26 +4334,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -4413,9 +4359,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -4460,7 +4409,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade to close when the price threshold is breached.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -4470,7 +4418,6 @@ definitions:
         description: >-
           The client ID of the Trade to be closed when the price threshold
           is breached.
-        example: my_order_id
       distance:
         type: string
         description: The price distance specified for the TrailingStopLoss
@@ -4495,10 +4442,22 @@ definitions:
           The date/time when the StopLoss Order will be cancelled if its
           timeInForce is "GTD".
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      triggerCondition:
+        type: string
+        description: >-
+          Specification of what component of a price should be used for
+          comparison when determining if the Order should be filled.
+        enum:
+        - DEFAULT
+        - INVERSE
+        - BID
+        - ASK
+        - MID
       reason:
         type: string
         description: The reason that the Trailing Stop Loss Order was initiated
@@ -4508,16 +4467,12 @@ definitions:
         - ON_FILL
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: >-
-          Client Extensions to add to the Order (only provided if the Order
-          is being created with client extensions).
       orderFillTransactionID:
         type: string
         description: >-
           The ID of the OrderFill Transaction that caused this Order to
           be created (only provided if this Order was created automatically
           when another Order was filled).
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       intendedReplacesOrderID:
@@ -4525,7 +4480,6 @@ definitions:
         description: >-
           The ID of the Order that this Order was intended to replace (only
           provided if this Order was intended to replace an existing Order).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -4678,26 +4632,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -4705,9 +4657,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -4751,7 +4706,6 @@ definitions:
       orderID:
         type: string
         description: The ID of the Order filled.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -4761,7 +4715,6 @@ definitions:
         description: >-
           The client Order ID of the Order filled (only provided if the
           client has assigned one).
-        example: my_order_id
       instrument:
         type: string
         description: The name of the filled Order's instrument.
@@ -4817,9 +4770,6 @@ definitions:
           provided depends on the Account's home currency.
       tradeOpened:
         $ref: '#/definitions/TradeOpen'
-        description: >-
-          The Trade that was opened when the Order was filled (only provided
-          if filling the Order resulted in a new Trade).
       tradesClosed:
         type: array
         description: >-
@@ -4829,9 +4779,6 @@ definitions:
           $ref: '#/definitions/TradeReduce'
       tradeReduced:
         $ref: '#/definitions/TradeReduce'
-        description: >-
-          The Trade that was reduced when the Order was filled (only provided
-          if filling the Order resulted in reducing an open Trade).
   OrderCancelReason:
     type: string
     description: The reason that an Order was cancelled.
@@ -4874,26 +4821,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -4901,9 +4846,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -4947,7 +4895,6 @@ definitions:
       orderID:
         type: string
         description: The ID of the Order cancelled
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -4957,7 +4904,6 @@ definitions:
         description: >-
           The client ID of the Order cancelled (only provided if the Order
           has a client Order ID).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -5000,7 +4946,6 @@ definitions:
         description: >-
           The ID of the Order that replaced this Order (only provided if
           this Order was cancelled for replacement).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -5014,26 +4959,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -5041,9 +4984,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -5087,7 +5033,6 @@ definitions:
       orderID:
         type: string
         description: The ID of the Order intended to be cancelled
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -5097,7 +5042,6 @@ definitions:
         description: >-
           The client ID of the Order intended to be cancelled (only provided
           if the Order has a client Order ID).
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -5268,26 +5212,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -5295,9 +5237,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -5342,7 +5287,6 @@ definitions:
         type: string
         description: >-
           The ID of the Order who's client extensions are to be modified.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -5352,14 +5296,10 @@ definitions:
         description: >-
           The original Client ID of the Order who's client extensions are
           to be modified.
-        example: my_order_id
-      orderClientExtensionsModify:
+      clientExtensionsModify:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: The new Client Extensions for the Order.
       tradeClientExtensionsModify:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: The new Client Extensions for the Order's Trade on
-          fill.
   OrderClientExtensionsModifyRejectTransaction:
     type: object
     description: >-
@@ -5369,26 +5309,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -5396,9 +5334,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -5443,7 +5384,6 @@ definitions:
         type: string
         description: >-
           The ID of the Order who's client extensions are to be modified.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned OrderID. OANDA-assigned
           OrderIDs are positive integers, and are derived from the TransactionID
@@ -5453,14 +5393,10 @@ definitions:
         description: >-
           The original Client ID of the Order who's client extensions are
           to be modified.
-        example: my_order_id
-      orderClientExtensionsModify:
+      clientExtensionsModify:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: The new Client Extensions for the Order.
       tradeClientExtensionsModify:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: The new Client Extensions for the Order's Trade on
-          fill.
       rejectReason:
         type: string
         description: The reason that the Reject Transaction was created
@@ -5594,26 +5530,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -5621,9 +5555,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -5668,7 +5605,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade who's client extensions are to be modified.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -5678,10 +5614,8 @@ definitions:
         description: >-
           The original Client ID of the Trade who's client extensions are
           to be modified.
-        example: my_order_id
       tradeClientExtensionsModify:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: The new Client Extensions for the Trade.
   TradeClientExtensionsModifyRejectTransaction:
     type: object
     description: >-
@@ -5691,26 +5625,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -5718,9 +5650,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -5765,7 +5700,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade who's client extensions are to be modified.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -5775,10 +5709,8 @@ definitions:
         description: >-
           The original Client ID of the Trade who's client extensions are
           to be modified.
-        example: my_order_id
       tradeClientExtensionsModify:
         $ref: transaction.yaml#/definitions/ClientExtensions
-        description: The new Client Extensions for the Trade.
       rejectReason:
         type: string
         description: The reason that the Reject Transaction was created
@@ -5912,26 +5844,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -5939,9 +5869,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -5991,26 +5924,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -6018,9 +5949,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -6076,26 +6010,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -6103,9 +6035,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -6158,26 +6093,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -6185,9 +6118,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -6242,7 +6178,6 @@ definitions:
         description: >-
           List of Trade ID's identifying the open trades that will be closed
           when their respective instruments become tradeable
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6256,26 +6191,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -6283,9 +6216,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -6361,26 +6297,24 @@ definitions:
       id:
         type: string
         description: The Transaction's Identifier.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the Transaction was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       userID:
         type: integer
         description: >-
           The ID of the user that initiated the creation of the Transaction.
-        example: 54321
       accountID:
         type: string
         description: The ID of the Account the Transaction was created for.
-        example: 001-011-5838423-001
         format: >-
           "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
       batchID:
@@ -6388,9 +6322,12 @@ definitions:
         description: >-
           The ID of the "batch" that the Transaction belongs to. Transactions
           in the same batch are applied to the Account simultaneously.
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
+      requestID:
+        type: string
+        description: >-
+          The Request ID of the request which generated the transaction.
       type:
         type: string
         description: >-
@@ -6436,21 +6373,18 @@ definitions:
     description: >-
       A client-provided identifier, used by clients to refer to their Orders
       or Trades with an identifier that they have provided.
-    example: my_order_id
   ClientTag:
     type: string
     description: >-
       A client-provided tag that can contain any data and may be assigned
       to their Orders or Trades. Tags are typically used to associate groups
       of Trades and/or Orders together.
-    example: client_tag_1
   ClientComment:
     type: string
     description: >-
       A client-provided comment that can contain any data and may be assigned
       to their Orders or Trades. Comments are typically used to provide
       extra context or meaning to an Order or Trade.
-    example: This is a client comment
   ClientExtensions:
     type: object
     description: >-
@@ -6461,15 +6395,12 @@ definitions:
       id:
         type: string
         description: The Client ID of the Order/Trade
-        example: my_order_id
       tag:
         type: string
         description: A tag associated with the Order/Trade
-        example: client_tag_1
       comment:
         type: string
         description: A comment associated with the Order/Trade
-        example: This is a client comment
   TakeProfitDetails:
     type: object
     description: >-
@@ -6502,14 +6433,13 @@ definitions:
           The date when the Take Profit Order will be cancelled on if timeInForce
           is GTD.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       clientExtensions:
         $ref: '#/definitions/ClientExtensions'
-        description: >-
-          The Client Extensions to add to the Take Profit Order when created.
   StopLossDetails:
     type: object
     description: >-
@@ -6542,14 +6472,13 @@ definitions:
           The date when the Stop Loss Order will be cancelled on if timeInForce
           is GTD.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       clientExtensions:
         $ref: '#/definitions/ClientExtensions'
-        description: >-
-          The Client Extensions to add to the Stop Loss Order when created.
   TrailingStopLossDetails:
     type: object
     description: >-
@@ -6584,15 +6513,13 @@ definitions:
           The date when the Trailing Stop Loss Order will be cancelled on
           if timeInForce is GTD.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       clientExtensions:
         $ref: '#/definitions/ClientExtensions'
-        description: >-
-          The Client Extensions to add to the Trailing Stop Loss Order when
-          created.
   TradeOpen:
     type: object
     description: >-
@@ -6604,7 +6531,6 @@ definitions:
       tradeID:
         type: string
         description: The ID of the Trade that was opened
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6617,7 +6543,6 @@ definitions:
           provided depends on what the number represents.
       clientExtensions:
         $ref: '#/definitions/ClientExtensions'
-        description: The client extensions for the newly opened Trade
   TradeReduce:
     type: object
     description: >-
@@ -6629,7 +6554,6 @@ definitions:
       tradeID:
         type: string
         description: The ID of the Trade that was reduced or closed
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6661,7 +6585,6 @@ definitions:
       tradeID:
         type: string
         description: The ID of the Trade requested to be closed
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6705,7 +6628,6 @@ definitions:
       tradeID:
         type: string
         description: The ID of the Trade being closed
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6713,7 +6635,6 @@ definitions:
       clientTradeID:
         type: string
         description: The Client ID of the Trade being closed
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6723,7 +6644,6 @@ definitions:
         description: >-
           The Transaction ID of the DelayedTradeClosure transaction to which
           this Delayed Trade Close belongs to
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
   MarketOrderPositionCloseout:
@@ -6790,10 +6710,11 @@ definitions:
         type: string
         description: The timestamp of the schedule step.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       bidLiquidityUsed:
         type: string
         description: >-
@@ -6818,7 +6739,6 @@ definitions:
         type: string
         description: >-
           The ID of the Trade that financing is being paid/collected for.
-        example: '1523'
         format: >-
           The string representation of the OANDA-assigned TradeID. OANDA-assigned
           TradeIDs are positive integers, and are derived from the TransactionID
@@ -6855,6 +6775,9 @@ definitions:
           The financing paid/collecte for each open Trade within the Position.
         items:
           $ref: '#/definitions/OpenTradeFinancing'
+  RequestID:
+    type: string
+    description: The request identifier.
   TransactionRejectReason:
     type: string
     description: The reason that a Transaction was rejected.
@@ -7036,21 +6959,21 @@ definitions:
         type: string
         description: >-
           The ID of the most recent Transaction created for the Account
-        example: '1523'
         format: >-
           String representation of the numerical OANDA-assigned TransactionID
       time:
         type: string
         description: The date/time when the TransactionHeartbeat was created.
         format: >-
-          A string conforming to RFC 3339 (https://tools.ietf.org/rfc/rfc3339.txt).
-          The amount of sub-second precision provided may represent milliseconds
-          (000 to 999), microseconds (000000 to 999999) or nanoseconds (000000000
-          to 999999999).
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
 parameters:
   transactionIDPathParam:
     name: transactionID
-    despcription: A Transaction ID
+    description: A Transaction ID
     in: path
     type: string
     format: >-
