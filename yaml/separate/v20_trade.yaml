@@ -220,7 +220,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               lastTransactionID:
                 type: string
                 description: >-
@@ -268,7 +273,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request. Only present if the Account exists.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               errorCode:
                 type: string
                 description: >-
@@ -322,7 +332,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               lastTransactionID:
                 type: string
                 description: >-
@@ -354,7 +369,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               errorCode:
                 type: string
                 description: >-
@@ -388,7 +408,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request. Only present if the Account exists.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               errorCode:
                 type: string
                 description: >-
@@ -463,7 +488,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               lastTransactionID:
                 type: string
                 description: >-
@@ -506,7 +536,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               errorCode:
                 type: string
                 description: >-
@@ -629,7 +664,10 @@ definitions:
           The IDs of the Transactions that have closed portions of this
           Trade.
         items:
-          $ref: transaction.yaml#/definitions/TransactionID
+          type: string
+          description: The unique Transaction identifier within each Account.
+          format: >-
+            String representation of the numerical OANDA-assigned TransactionID
       financing:
         type: string
         description: The financing paid/collected for this Trade.
@@ -740,7 +778,10 @@ definitions:
           The IDs of the Transactions that have closed portions of this
           Trade.
         items:
-          $ref: transaction.yaml#/definitions/TransactionID
+          type: string
+          description: The unique Transaction identifier within each Account.
+          format: >-
+            String representation of the numerical OANDA-assigned TransactionID
       financing:
         type: string
         description: The financing paid/collected for this Trade.

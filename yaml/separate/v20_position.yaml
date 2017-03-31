@@ -204,7 +204,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               lastTransactionID:
                 type: string
                 description: >-
@@ -230,7 +235,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               lastTransactionID:
                 type: string
                 description: >-
@@ -267,7 +277,12 @@ paths:
                   The IDs of all Transactions that were created while satisfying
                   the request. Only present if the Account exists.
                 items:
-                  $ref: transaction.yaml#/definitions/TransactionID
+                  type: string
+                  description: The unique Transaction identifier within
+                    each Account.
+                  format: >-
+                    String representation of the numerical OANDA-assigned
+                    TransactionID
               lastTransactionID:
                 type: string
                 description: >-
@@ -352,7 +367,13 @@ definitions:
         description: >-
           List of the open Trade IDs which contribute to the open Position.
         items:
-          $ref: trade.yaml#/definitions/TradeID
+          type: string
+          description: The Trade's identifier, unique within the Trade's
+            Account.
+          format: >-
+            The string representation of the OANDA-assigned TradeID. OANDA-assigned
+            TradeIDs are positive integers, and are derived from the TransactionID
+            of the Transaction that opened the Trade.
       pl:
         type: string
         description: >-

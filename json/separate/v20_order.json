@@ -86,7 +86,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -109,7 +111,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -146,7 +150,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -447,7 +453,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -470,7 +478,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -504,7 +514,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -567,7 +579,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -593,7 +607,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "lastTransactionID": {
@@ -678,7 +694,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }
               }
@@ -701,7 +719,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "errorCode": {
@@ -735,7 +755,9 @@
                   "type": "array", 
                   "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
                   "items": {
-                    "$ref": "v20_transaction.json#/definitions/TransactionID"
+                    "type": "string", 
+                    "description": "The unique Transaction identifier within each Account.", 
+                    "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
                 }, 
                 "errorCode": {
@@ -1018,7 +1040,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
@@ -1161,7 +1185,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
@@ -1319,7 +1345,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
@@ -1482,7 +1510,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
@@ -1612,7 +1642,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
@@ -1742,7 +1774,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
@@ -1877,7 +1911,9 @@
           "type": "array", 
           "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
           "items": {
-            "$ref": "v20_trade.json#/definitions/TradeID"
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
         }, 
         "cancellingTransactionID": {
