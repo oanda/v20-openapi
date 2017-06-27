@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.15"
+    "version": "3.0.18"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -236,7 +236,7 @@
           "$ref": "#/definitions/QuoteHomeConversionFactors"
         }, 
         "unitsAvailable": {
-          "$ref": "#/definitions/UnitsAvailable"
+          "$ref": "v20_order.json#/definitions/UnitsAvailable"
         }
       }
     }, 
@@ -269,40 +269,6 @@
         "invalid"
       ]
     }, 
-    "UnitsAvailableDetails": {
-      "type": "object", 
-      "description": "Representation of many units of an Instrument are available to be traded for both long and short Orders.", 
-      "properties": {
-        "long": {
-          "type": "string", 
-          "description": "The units available for long Orders.", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
-        "short": {
-          "type": "string", 
-          "description": "The units available for short Orders.", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }
-      }
-    }, 
-    "UnitsAvailable": {
-      "type": "object", 
-      "description": "Representation of how many units of an Instrument are available to be traded by an Order depending on its postionFill option.", 
-      "properties": {
-        "default": {
-          "$ref": "#/definitions/UnitsAvailableDetails"
-        }, 
-        "reduceFirst": {
-          "$ref": "#/definitions/UnitsAvailableDetails"
-        }, 
-        "reduceOnly": {
-          "$ref": "#/definitions/UnitsAvailableDetails"
-        }, 
-        "openOnly": {
-          "$ref": "#/definitions/UnitsAvailableDetails"
-        }
-      }
-    }, 
     "QuoteHomeConversionFactors": {
       "type": "object", 
       "description": "QuoteHomeConversionFactors represents the factors that can be used used to convert quantities of a Price's Instrument's quote currency into the Account's home currency.", 
@@ -316,6 +282,41 @@
           "type": "string", 
           "description": "The factor used to convert a negative amount of the Price's Instrument's quote currency into a negative amount of the Account's home currency.  Conversion is performed by multiplying the quote units by the conversion factor.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }
+      }
+    }, 
+    "ClientPrice": {
+      "type": "object", 
+      "description": "Client price for an Account.", 
+      "properties": {
+        "bids": {
+          "type": "array", 
+          "description": "The list of prices and liquidity available on the Instrument's bid side. It is possible for this list to be empty if there is no bid liquidity currently available for the Instrument in the Account.", 
+          "items": {
+            "$ref": "#/definitions/PriceBucket"
+          }
+        }, 
+        "asks": {
+          "type": "array", 
+          "description": "The list of prices and liquidity available on the Instrument's ask side. It is possible for this list to be empty if there is no ask liquidity currently available for the Instrument in the Account.", 
+          "items": {
+            "$ref": "#/definitions/PriceBucket"
+          }
+        }, 
+        "closeoutBid": {
+          "type": "string", 
+          "description": "The closeout bid Price. This Price is used when a bid is required to closeout a Position (margin closeout or manual) yet there is no bid liquidity. The closeout bid is never used to open a new position.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "closeoutAsk": {
+          "type": "string", 
+          "description": "The closeout ask Price. This Price is used when a ask is required to closeout a Position (margin closeout or manual) yet there is no ask liquidity. The closeout ask is never used to open a new position.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "timestamp": {
+          "type": "string", 
+          "description": "The date/time when the Price was created.", 
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }
       }
     }, 

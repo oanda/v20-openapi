@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.15"
+    "version": "3.0.18"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -4545,6 +4545,9 @@
           "description": "The average market price that the Order was filled at.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
         }, 
+        "fullPrice": {
+          "$ref": "v20_pricing.json#/definitions/ClientPrice"
+        }, 
         "reason": {
           "type": "string", 
           "description": "The reason that an Order was filled", 
@@ -4570,6 +4573,11 @@
         "financing": {
           "type": "string", 
           "description": "The financing paid or collected when the Order was filled.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "commission": {
+          "type": "string", 
+          "description": "The commission charged in the Account's home currency as a result of filling the Order. The commission is always represented as a positive quantity of the Account's home currency, however it reduces the balance in the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "accountBalance": {
@@ -6400,7 +6408,7 @@
       "type": "object", 
       "description": "OpenTradeFinancing is used to pay/collect daily financing charge for a Position within an Account", 
       "properties": {
-        "instrumentID": {
+        "instrument": {
           "type": "string", 
           "description": "The instrument of the Position that financing is being paid/collected for.", 
           "format": "A string containing the base currency and quote currency delimited by a \"_\"."

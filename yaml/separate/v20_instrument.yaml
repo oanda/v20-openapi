@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.15
+  version: 3.0.18
 basePath: /v3
 produces:
 - application/json
@@ -156,6 +156,92 @@ paths:
           $ref: primitives.yaml#/responses/404
         '405':
           $ref: primitives.yaml#/responses/405
+  /instruments/{instrument}/orderBook:
+    get:
+      summary: Get Order Book
+      description: Fetch a gzip compressed order book for an instrument.
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: '#/parameters/instrumentNamePathParam'
+      - name: time
+        description: >-
+          The time of the snapshot to fetch. If not specified, then the
+          most recent snapshot is fetched.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      responses:
+        '200':
+          description: The order book has been successfully provided.
+          headers:
+            Link:
+              description: A link to the next/previous order book snapshot.
+              type: string
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              orderBook:
+                $ref: '#/definitions/OrderBook'
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /instruments/{instrument}/positionBook:
+    get:
+      summary: Get Position Book
+      description: Fetch a gzip compressed position book for an instrument.
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: '#/parameters/instrumentNamePathParam'
+      - name: time
+        description: >-
+          The time of the snapshot to fetch. If not specified, then the
+          most recent snapshot is fetched.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      responses:
+        '200':
+          description: The position book has been successfully provided.
+          headers:
+            Link:
+              description: A link to the next/previous position book snapshot.
+              type: string
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              positionBook:
+                $ref: '#/definitions/PositionBook'
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
 definitions:
   CandlestickGranularity:
     type: string
@@ -258,6 +344,155 @@ definitions:
         format: >-
           A decimal number encodes as a string. The amount of precision
           provided depends on the Price's Instrument.
+  OrderBook:
+    type: object
+    description: >-
+      The representation of an instrument's order book at a point in time
+    properties:
+      instrument:
+        type: string
+        description: The order book's instrument
+        format: >-
+          A string containing the base currency and quote currency delimited
+          by a "_".
+      time:
+        type: string
+        description: The time when the order book snapshot was created.
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      price:
+        type: string
+        description: >-
+          The price (midpoint) for the order book's instrument at the time
+          of the order book snapshot
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      bucketWidth:
+        type: string
+        description: >-
+          The price width for each bucket. Each bucket covers the price
+          range from the bucket's price to the bucket's price + bucketWidth.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      buckets:
+        type: array
+        description: >-
+          The partitioned order book, divided into buckets using a default
+          bucket width. These buckets are only provided for price ranges
+          which actually contain order or position data.
+        items:
+          $ref: '#/definitions/OrderBookBucket'
+  OrderBookBucket:
+    type: object
+    description: >-
+      The order book data for a partition of the instrument's prices.
+    properties:
+      price:
+        type: string
+        description: >-
+          The lowest price (inclusive) covered by the bucket. The bucket
+          covers the price range from the price to price + the order book's
+          bucketWidth.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      longCountPercent:
+        type: string
+        description: >-
+          The percentage of the total number of orders represented by the
+          long orders found in this bucket.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      shortCountPercent:
+        type: string
+        description: >-
+          The percentage of the total number of orders represented by the
+          short orders found in this bucket.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+  PositionBook:
+    type: object
+    description: >-
+      The representation of an instrument's position book at a point in
+      time
+    properties:
+      instrument:
+        type: string
+        description: The position book's instrument
+        format: >-
+          A string containing the base currency and quote currency delimited
+          by a "_".
+      time:
+        type: string
+        description: The time when the position book snapshot was created
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      price:
+        type: string
+        description: >-
+          The price (midpoint) for the position book's instrument at the
+          time of the position book snapshot
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      bucketWidth:
+        type: string
+        description: >-
+          The price width for each bucket. Each bucket covers the price
+          range from the bucket's price to the bucket's price + bucketWidth.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      buckets:
+        type: array
+        description: >-
+          The partitioned position book, divided into buckets using a default
+          bucket width. These buckets are only provided for price ranges
+          which actually contain order or position data.
+        items:
+          $ref: '#/definitions/PositionBookBucket'
+  PositionBookBucket:
+    type: object
+    description: >-
+      The position book data for a partition of the instrument's prices.
+    properties:
+      price:
+        type: string
+        description: >-
+          The lowest price (inclusive) covered by the bucket. The bucket
+          covers the price range from the price to price + the position
+          book's bucketWidth.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      longCountPercent:
+        type: string
+        description: >-
+          The percentage of the total number of positions represented by
+          the long positions found in this bucket.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      shortCountPercent:
+        type: string
+        description: >-
+          The percentage of the total number of positions represented by
+          the short positions found in this bucket.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
 parameters:
   instrumentNamePathParam:
     name: instrument

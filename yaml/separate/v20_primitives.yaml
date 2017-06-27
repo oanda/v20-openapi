@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.15
+  version: 3.0.18
 basePath: /v3
 produces:
 - application/json
@@ -276,6 +276,8 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.
+      commission:
+        $ref: '#/definitions/InstrumentCommission'
   DateTime:
     type: string
     description: >-
@@ -292,6 +294,41 @@ definitions:
     enum:
     - UNIX
     - RFC3339
+  InstrumentCommission:
+    type: object
+    description: >-
+      An InstrumentCommission represents an instrument-specific commission
+    properties:
+      instrument:
+        type: string
+        description: The name of the instrument
+        format: >-
+          A string containing the base currency and quote currency delimited
+          by a "_".
+      commission:
+        type: string
+        description: >-
+          The commission amount (in the Account's home currency) charged
+          per unitsTraded of the instrument
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      unitsTraded:
+        type: string
+        description: >-
+          The number of units traded that the commission amount is based
+          on.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      minimumCommission:
+        type: string
+        description: >-
+          The minimum commission amount (in the Account's home currency)
+          that is charged when an Order is filled for this instrument.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
 parameters:
   authorizationHeaderParam:
     name: Authorization

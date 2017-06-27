@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.15
+  version: 3.0.18
 basePath: /v3
 produces:
 - application/json
@@ -698,6 +698,15 @@ definitions:
     - FILLED
     - TRIGGERED
     - CANCELLED
+  OrderStateFilter:
+    type: string
+    description: The state to filter the requested Orders by.
+    enum:
+    - PENDING
+    - FILLED
+    - TRIGGERED
+    - CANCELLED
+    - ALL
   OrderIdentifier:
     type: object
     description: >-
@@ -2840,6 +2849,38 @@ definitions:
         - MID
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
+  UnitsAvailableDetails:
+    type: object
+    description: >-
+      Representation of many units of an Instrument are available to be
+      traded for both long and short Orders.
+    properties:
+      long:
+        type: string
+        description: The units available for long Orders.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      short:
+        type: string
+        description: The units available for short Orders.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+  UnitsAvailable:
+    type: object
+    description: >-
+      Representation of how many units of an Instrument are available to
+      be traded by an Order depending on its postionFill option.
+    properties:
+      default:
+        $ref: '#/definitions/UnitsAvailableDetails'
+      reduceFirst:
+        $ref: '#/definitions/UnitsAvailableDetails'
+      reduceOnly:
+        $ref: '#/definitions/UnitsAvailableDetails'
+      openOnly:
+        $ref: '#/definitions/UnitsAvailableDetails'
 parameters:
   orderSpecifierPathParam:
     name: orderSpecifier

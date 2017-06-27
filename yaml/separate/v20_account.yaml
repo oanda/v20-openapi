@@ -9,7 +9,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.15
+  version: 3.0.18
 basePath: /v3
 produces:
 - application/json
@@ -391,6 +391,14 @@ definitions:
           seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
           is a fractional number, where the fractional part represents a
           fraction of a second (up to nine decimal places).
+      commission:
+        type: string
+        description: >-
+          The total amount of commission paid over the lifetime of the Account.
+          Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
       marginRate:
         type: string
         description: >-
@@ -766,6 +774,14 @@ definitions:
           seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
           is a fractional number, where the fractional part represents a
           fraction of a second (up to nine decimal places).
+      commission:
+        type: string
+        description: >-
+          The total amount of commission paid over the lifetime of the Account.
+          Represented in the Account's home currency.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
       marginRate:
         type: string
         description: >-
