@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.18
+  version: 3.0.22
 basePath: /v3
 produces:
 - application/json
@@ -42,8 +42,10 @@ paths:
         required: true
       - name: since
         description: >-
-          Date/Time filter to apply to the returned prices. Only prices
-          with a time later than this filter will be provided.
+          Date/Time filter to apply to the response. Only prices and home
+          conversions (if requested) with a time later than this filter
+          (i.e. the price has changed after the since time) will be provided,
+          and are filtered independently.
         in: query
         type: string
         format: >-
@@ -58,6 +60,14 @@ paths:
           the returned Price objects.
         in: query
         type: boolean
+      - name: includeHomeConversions
+        description: >-
+          Flag that enables the inclusion of the homeConversions field in
+          the returned response. An entry will be returned for each currency
+          in the set of all base and quote currencies present in the requested
+          instruments list.
+        in: query
+        type: boolean
       responses:
         '200':
           description: Pricing information has been successfully provided.
@@ -70,9 +80,29 @@ paths:
             properties:
               prices:
                 type: array
-                description: The list of Price objects requested
+                description: The list of Price objects requested.
                 items:
                   $ref: '#/definitions/Price'
+              homeConversions:
+                type: array
+                description: >-
+                  The list of home currency conversion factors requested.
+                  This field will only be present if includeHomeConversions
+                  was set to true in the request.
+                items:
+                  $ref: '#/definitions/HomeConversions'
+              time:
+                type: string
+                description: >-
+                  The DateTime value to use for the "since" parameter in
+                  the next poll request.
+                format: >-
+                  The RFC 3339 representation is a string conforming to
+                  https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation
+                  is a string representing the number of seconds since the
+                  Unix Epoch (January 1st, 1970 at UTC). The value is a
+                  fractional number, where the fractional part represents
+                  a fraction of a second (up to nine decimal places).
         '400':
           $ref: primitives.yaml#/responses/400
         '401':
@@ -285,6 +315,44 @@ definitions:
           quote currency into a negative amount of the Account's home currency.  Conversion
           is performed by multiplying the quote units by the conversion
           factor.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+  HomeConversions:
+    type: object
+    description: >-
+      HomeConversions represents the factors to use to convert quantities
+      of a given currency into the Account's home currency. The conversion
+      factor depends on the scenario the conversion is required for.
+    properties:
+      currency:
+        type: string
+        description: The currency to be converted into the home currency.
+        format: >-
+          A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)
+      accountGain:
+        type: string
+        description: >-
+          The factor used to convert any gains for an Account in the specified
+          currency into the Account's home currency. This would include
+          positive realized P/L and positive financing amounts. Conversion
+          is performed by multiplying the positive P/L by the conversion
+          factor.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      accountLoss:
+        type: string
+        description: The string representation of a decimal number.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      positionValue:
+        type: string
+        description: >-
+          The factor used to convert a Position or Trade Value in the specified
+          currency into the Account's home currency. Conversion is performed
+          by multiplying the Position or Trade Value by the conversion factor.
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.

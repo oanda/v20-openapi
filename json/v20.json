@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.18"
+    "version": "3.0.22"
   }, 
   "basePath": "/v3", 
   "schemes": [
@@ -2036,7 +2036,7 @@
           }, 
           {
             "name": "since", 
-            "description": "Date/Time filter to apply to the returned prices. Only prices with a time later than this filter will be provided.", 
+            "description": "Date/Time filter to apply to the response. Only prices and home conversions (if requested) with a time later than this filter (i.e. the price has changed after the since time) will be provided, and are filtered independently.", 
             "in": "query", 
             "type": "string", 
             "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
@@ -2044,6 +2044,12 @@
           {
             "name": "includeUnitsAvailable", 
             "description": "Flag that enables the inclusion of the unitsAvailable field in the returned Price objects.", 
+            "in": "query", 
+            "type": "boolean"
+          }, 
+          {
+            "name": "includeHomeConversions", 
+            "description": "Flag that enables the inclusion of the homeConversions field in the returned response. An entry will be returned for each currency in the set of all base and quote currencies present in the requested instruments list.", 
             "in": "query", 
             "type": "boolean"
           }
@@ -2062,10 +2068,22 @@
               "properties": {
                 "prices": {
                   "type": "array", 
-                  "description": "The list of Price objects requested", 
+                  "description": "The list of Price objects requested.", 
                   "items": {
                     "$ref": "#/definitions/Price"
                   }
+                }, 
+                "homeConversions": {
+                  "type": "array", 
+                  "description": "The list of home currency conversion factors requested. This field will only be present if includeHomeConversions was set to true in the request.", 
+                  "items": {
+                    "$ref": "#/definitions/HomeConversions"
+                  }
+                }, 
+                "time": {
+                  "type": "string", 
+                  "description": "The DateTime value to use for the \"since\" parameter in the next poll request.", 
+                  "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
                 }
               }
             }
@@ -2863,7 +2881,7 @@
           }, 
           {
             "name": "alignmentTimezone", 
-            "description": "The timezone to use for the dailyAlignment parameter. Candlesticks with daily alignment will be aligned to the dailyAlignment hour within the alignmentTimezone.", 
+            "description": "The timezone to use for the dailyAlignment parameter. Candlesticks with daily alignment will be aligned to the dailyAlignment hour within the alignmentTimezone.  Note that the returned times will still be represented in UTC.", 
             "in": "query", 
             "type": "string"
           }, 
@@ -2946,7 +2964,7 @@
     "/instruments/{instrument}/orderBook": {
       "get": {
         "summary": "Get Order Book", 
-        "description": "Fetch a gzip compressed order book for an instrument.", 
+        "description": "Fetch an order book for an instrument.", 
         "parameters": [
           {
             "$ref": "#/parameters/authorizationHeaderParam"
@@ -2969,6 +2987,10 @@
           "200": {
             "description": "The order book has been successfully provided.", 
             "headers": {
+              "Content-Encoding": {
+                "description": "Value will be \"gzip\" regardless of provided Accept-Encoding header", 
+                "type": "string"
+              }, 
               "Link": {
                 "description": "A link to the next/previous order book snapshot.", 
                 "type": "string"
@@ -3005,7 +3027,7 @@
     "/instruments/{instrument}/positionBook": {
       "get": {
         "summary": "Get Position Book", 
-        "description": "Fetch a gzip compressed position book for an instrument.", 
+        "description": "Fetch a position book for an instrument.", 
         "parameters": [
           {
             "$ref": "#/parameters/authorizationHeaderParam"
@@ -3028,6 +3050,10 @@
           "200": {
             "description": "The position book has been successfully provided.", 
             "headers": {
+              "Content-Encoding": {
+                "description": "Value will be \"gzip\" regardless of provided Accept-Encoding header", 
+                "type": "string"
+              }, 
               "Link": {
                 "description": "A link to the next/previous position book snapshot.", 
                 "type": "string"
@@ -3088,7 +3114,7 @@
         }, 
         "balance": {
           "type": "string", 
-          "description": "The current balance of the Account. Represented in the Account's home currency.", 
+          "description": "The current balance of the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "createdByUserID": {
@@ -3100,24 +3126,43 @@
           "description": "The date/time when the Account was created.", 
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
+        "guaranteedStopLossOrderMode": {
+          "type": "string", 
+          "description": "The current guaranteed Stop Loss Order mode of the Account.", 
+          "enum": [
+            "DISABLED", 
+            "ALLOWED", 
+            "REQUIRED"
+          ]
+        }, 
         "pl": {
           "type": "string", 
-          "description": "The total profit/loss realized over the lifetime of the Account. Represented in the Account's home currency.", 
+          "description": "The total profit/loss realized over the lifetime of the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "resettablePL": {
           "type": "string", 
-          "description": "The total realized profit/loss for the Account since it was last reset by the client. Represented in the Account's home currency.", 
+          "description": "The total realized profit/loss for the Account since it was last reset by the client.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
-        "resettabledPLTime": {
+        "resettablePLTime": {
           "type": "string", 
           "description": "The date/time that the Account's resettablePL was last reset.", 
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
+        "financing": {
+          "type": "string", 
+          "description": "The total amount of financing paid/collected over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "commission": {
           "type": "string", 
-          "description": "The total amount of commission paid over the lifetime of the Account. Represented in the Account's home currency.", 
+          "description": "The total amount of commission paid over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "guaranteedExecutionFees": {
+          "type": "string", 
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginRate": {
@@ -3157,22 +3202,22 @@
         }, 
         "unrealizedPL": {
           "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account. Represented in the Account's home currency.", 
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "NAV": {
           "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL. Represented in the Account's home currency.", 
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginUsed": {
           "type": "string", 
-          "description": "Margin currently used for the Account. Represented in the Account's home currency.", 
+          "description": "Margin currently used for the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginAvailable": {
           "type": "string", 
-          "description": "Margin available for Account. Represented in the Account's home currency.", 
+          "description": "Margin available for Account currency.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "positionValue": {
@@ -3254,22 +3299,22 @@
       "properties": {
         "unrealizedPL": {
           "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account. Represented in the Account's home currency.", 
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "NAV": {
           "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL. Represented in the Account's home currency.", 
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginUsed": {
           "type": "string", 
-          "description": "Margin currently used for the Account. Represented in the Account's home currency.", 
+          "description": "Margin currently used for the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginAvailable": {
           "type": "string", 
-          "description": "Margin available for Account. Represented in the Account's home currency.", 
+          "description": "Margin available for Account currency.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "positionValue": {
@@ -3362,6 +3407,15 @@
         }
       }
     }, 
+    "GuaranteedStopLossOrderMode": {
+      "type": "string", 
+      "description": "The overall behaviour of the Account regarding guaranteed Stop Loss Orders.", 
+      "enum": [
+        "DISABLED", 
+        "ALLOWED", 
+        "REQUIRED"
+      ]
+    }, 
     "AccountSummary": {
       "type": "object", 
       "description": "A summary representation of a client's Account. The AccountSummary does not provide to full specification of pending Orders, open Trades and Positions.", 
@@ -3382,7 +3436,7 @@
         }, 
         "balance": {
           "type": "string", 
-          "description": "The current balance of the Account. Represented in the Account's home currency.", 
+          "description": "The current balance of the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "createdByUserID": {
@@ -3394,24 +3448,43 @@
           "description": "The date/time when the Account was created.", 
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
+        "guaranteedStopLossOrderMode": {
+          "type": "string", 
+          "description": "The current guaranteed Stop Loss Order mode of the Account.", 
+          "enum": [
+            "DISABLED", 
+            "ALLOWED", 
+            "REQUIRED"
+          ]
+        }, 
         "pl": {
           "type": "string", 
-          "description": "The total profit/loss realized over the lifetime of the Account. Represented in the Account's home currency.", 
+          "description": "The total profit/loss realized over the lifetime of the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "resettablePL": {
           "type": "string", 
-          "description": "The total realized profit/loss for the Account since it was last reset by the client. Represented in the Account's home currency.", 
+          "description": "The total realized profit/loss for the Account since it was last reset by the client.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
-        "resettabledPLTime": {
+        "resettablePLTime": {
           "type": "string", 
           "description": "The date/time that the Account's resettablePL was last reset.", 
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }, 
+        "financing": {
+          "type": "string", 
+          "description": "The total amount of financing paid/collected over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "commission": {
           "type": "string", 
-          "description": "The total amount of commission paid over the lifetime of the Account. Represented in the Account's home currency.", 
+          "description": "The total amount of commission paid over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "guaranteedExecutionFees": {
+          "type": "string", 
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginRate": {
@@ -3451,22 +3524,22 @@
         }, 
         "unrealizedPL": {
           "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account. Represented in the Account's home currency.", 
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "NAV": {
           "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL. Represented in the Account's home currency.", 
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginUsed": {
           "type": "string", 
-          "description": "Margin currently used for the Account. Represented in the Account's home currency.", 
+          "description": "Margin currently used for the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "marginAvailable": {
           "type": "string", 
-          "description": "Margin available for Account. Represented in the Account's home currency.", 
+          "description": "Margin available for Account currency.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "positionValue": {
@@ -3518,6 +3591,77 @@
           "type": "string", 
           "description": "The ID of the last Transaction created for the Account.", 
           "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }
+      }
+    }, 
+    "CalculatedAccountState": {
+      "type": "object", 
+      "description": "The dynamically calculated state of a client's Account.", 
+      "properties": {
+        "unrealizedPL": {
+          "type": "string", 
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "NAV": {
+          "type": "string", 
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used for the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginAvailable": {
+          "type": "string", 
+          "description": "Margin available for Account currency.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "positionValue": {
+          "type": "string", 
+          "description": "The value of the Account's open positions represented in the Account's home currency.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginCloseoutUnrealizedPL": {
+          "type": "string", 
+          "description": "The Account's margin closeout unrealized PL.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginCloseoutNAV": {
+          "type": "string", 
+          "description": "The Account's margin closeout NAV.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginCloseoutMarginUsed": {
+          "type": "string", 
+          "description": "The Account's margin closeout margin used.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginCloseoutPercent": {
+          "type": "string", 
+          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "marginCloseoutPositionValue": {
+          "type": "string", 
+          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "withdrawalLimit": {
+          "type": "string", 
+          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginCallMarginUsed": {
+          "type": "string", 
+          "description": "The Account's margin call margin used.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginCallPercent": {
+          "type": "string", 
+          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }
       }
     }, 
@@ -3623,6 +3767,19 @@
         "MARKET_IF_TOUCHED", 
         "TAKE_PROFIT", 
         "STOP_LOSS", 
+        "TRAILING_STOP_LOSS", 
+        "FIXED_PRICE"
+      ]
+    }, 
+    "CancellableOrderType": {
+      "type": "string", 
+      "description": "The type of the Order.", 
+      "enum": [
+        "LIMIT", 
+        "STOP", 
+        "MARKET_IF_TOUCHED", 
+        "TAKE_PROFIT", 
+        "STOP_LOSS", 
         "TRAILING_STOP_LOSS"
       ]
     }, 
@@ -3690,7 +3847,7 @@
     }, 
     "OrderTriggerCondition": {
       "type": "string", 
-      "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+      "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
       "enum": [
         "DEFAULT", 
         "INVERSE", 
@@ -3790,7 +3947,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -3897,6 +4055,129 @@
         }
       }
     }, 
+    "FixedPriceOrder": {
+      "type": "object", 
+      "description": "A FixedPriceOrder is an order that is filled immediately upon creation using a fixed price.", 
+      "properties": {
+        "id": {
+          "type": "string", 
+          "description": "The Order's identifier, unique within the Order's Account.", 
+          "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
+        }, 
+        "createTime": {
+          "type": "string", 
+          "description": "The time when the Order was created.", 
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "state": {
+          "type": "string", 
+          "description": "The current state of the Order.", 
+          "enum": [
+            "PENDING", 
+            "FILLED", 
+            "TRIGGERED", 
+            "CANCELLED"
+          ]
+        }, 
+        "clientExtensions": {
+          "$ref": "#/definitions/ClientExtensions"
+        }, 
+        "type": {
+          "type": "string", 
+          "description": "The type of the Order. Always set to \"FIXED_PRICE\" for Fixed Price Orders.", 
+          "enum": [
+            "MARKET", 
+            "LIMIT", 
+            "STOP", 
+            "MARKET_IF_TOUCHED", 
+            "TAKE_PROFIT", 
+            "STOP_LOSS", 
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
+          ]
+        }, 
+        "instrument": {
+          "type": "string", 
+          "description": "The Fixed Price Order's Instrument.", 
+          "format": "A string containing the base currency and quote currency delimited by a \"_\"."
+        }, 
+        "units": {
+          "type": "string", 
+          "description": "The quantity requested to be filled by the Fixed Price Order. A posititive number of units results in a long Order, and a negative number of units results in a short Order.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "price": {
+          "type": "string", 
+          "description": "The price specified for the Fixed Price Order. This price is the exact price that the Fixed Price Order will be filled at.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "positionFill": {
+          "type": "string", 
+          "description": "Specification of how Positions in the Account are modified when the Order is filled.", 
+          "enum": [
+            "OPEN_ONLY", 
+            "REDUCE_FIRST", 
+            "REDUCE_ONLY", 
+            "DEFAULT"
+          ]
+        }, 
+        "tradeState": {
+          "type": "string", 
+          "description": "The state that the trade resulting from the Fixed Price Order should be set to."
+        }, 
+        "takeProfitOnFill": {
+          "$ref": "#/definitions/TakeProfitDetails"
+        }, 
+        "stopLossOnFill": {
+          "$ref": "#/definitions/StopLossDetails"
+        }, 
+        "trailingStopLossOnFill": {
+          "$ref": "#/definitions/TrailingStopLossDetails"
+        }, 
+        "tradeClientExtensions": {
+          "$ref": "#/definitions/ClientExtensions"
+        }, 
+        "fillingTransactionID": {
+          "type": "string", 
+          "description": "ID of the Transaction that filled this Order (only provided when the Order's state is FILLED)", 
+          "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "filledTime": {
+          "type": "string", 
+          "description": "Date/time when the Order was filled (only provided when the Order's state is FILLED)", 
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "tradeOpenedID": {
+          "type": "string", 
+          "description": "Trade ID of Trade opened when the Order was filled (only provided when the Order's state is FILLED and a Trade was opened as a result of the fill)", 
+          "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
+        }, 
+        "tradeReducedID": {
+          "type": "string", 
+          "description": "Trade ID of Trade reduced when the Order was filled (only provided when the Order's state is FILLED and a Trade was reduced as a result of the fill)", 
+          "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
+        }, 
+        "tradeClosedIDs": {
+          "type": "array", 
+          "description": "Trade IDs of Trades closed when the Order was filled (only provided when the Order's state is FILLED and one or more Trades were closed as a result of the fill)", 
+          "items": {
+            "type": "string", 
+            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
+          }
+        }, 
+        "cancellingTransactionID": {
+          "type": "string", 
+          "description": "ID of the Transaction that cancelled the Order (only provided when the Order's state is CANCELLED)", 
+          "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "cancelledTime": {
+          "type": "string", 
+          "description": "Date/time when the Order was cancelled (only provided when the state of the Order is CANCELLED)", 
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }
+      }
+    }, 
     "LimitOrder": {
       "type": "object", 
       "description": "A LimitOrder is an order that is created with a price threshold, and will only be filled by a price that is equal to or better than the threshold.", 
@@ -3934,7 +4215,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -3980,7 +4262,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4089,7 +4371,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -4140,7 +4423,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4249,7 +4532,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -4300,7 +4584,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4414,7 +4698,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "tradeID": {
@@ -4449,7 +4734,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4546,8 +4831,14 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
+        }, 
+        "guaranteedExecutionPremium": {
+          "type": "string", 
+          "description": "The premium that will be charged if the Stop Loss Order is guaranteed and the Order is filled at the guaranteed price. It is in price units and is charged for each unit of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "tradeID": {
           "type": "string", 
@@ -4560,8 +4851,13 @@
         }, 
         "price": {
           "type": "string", 
-          "description": "The price threshold specified for the StopLoss Order. The associated Trade will be closed by a market price that is equal to or worse than this threshold.", 
+          "description": "The price threshold specified for the Stop Loss Order. If the guaranteed flag is false, the associated Trade will be closed by a market price that is equal to or worse than this threshold. If the flag is true the associated Trade will be closed at this price.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "distance": {
+          "type": "string", 
+          "description": "Specifies the distance (in price units) from the Account's current price to use as the Stop Loss Order price. If the Trade is short the Instrument's bid price is used, and for long Trades the ask is used.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -4581,7 +4877,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4589,6 +4885,10 @@
             "ASK", 
             "MID"
           ]
+        }, 
+        "guaranteed": {
+          "type": "boolean", 
+          "description": "Flag indicating that the Stop Loss Order is guaranteed. The default value depends on the GuaranteedStopLossOrderMode of the account, if it is REQUIRED, the default will be true, for DISABLED or ENABLED the default is false."
         }, 
         "fillingTransactionID": {
           "type": "string", 
@@ -4678,7 +4978,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "tradeID": {
@@ -4692,8 +4993,8 @@
         }, 
         "distance": {
           "type": "string", 
-          "description": "The price distance specified for the TrailingStopLoss Order.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+          "description": "The price distance (in price units) specified for the TrailingStopLoss Order.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -4713,7 +5014,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4797,7 +5098,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -4867,7 +5169,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -4913,7 +5216,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -4953,7 +5256,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -5004,7 +5308,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -5044,7 +5348,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "instrument": {
@@ -5095,7 +5400,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -5123,7 +5428,7 @@
     }, 
     "TakeProfitOrderRequest": {
       "type": "object", 
-      "description": "A TakeProfitOrderRequest specifies the parameters that may be set when creating a Take Profit Order.", 
+      "description": "A TakeProfitOrderRequest specifies the parameters that may be set when creating a Take Profit Order. Only one of the price and distance fields may be specified.", 
       "properties": {
         "type": {
           "type": "string", 
@@ -5135,7 +5440,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "tradeID": {
@@ -5170,7 +5476,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -5186,7 +5492,7 @@
     }, 
     "StopLossOrderRequest": {
       "type": "object", 
-      "description": "A StopLossOrderRequest specifies the parameters that may be set when creating a Stop Loss Order.", 
+      "description": "A StopLossOrderRequest specifies the parameters that may be set when creating a Stop Loss Order. Only one of the price and distance fields may be specified.", 
       "properties": {
         "type": {
           "type": "string", 
@@ -5198,7 +5504,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "tradeID": {
@@ -5212,8 +5519,13 @@
         }, 
         "price": {
           "type": "string", 
-          "description": "The price threshold specified for the StopLoss Order. The associated Trade will be closed by a market price that is equal to or worse than this threshold.", 
+          "description": "The price threshold specified for the Stop Loss Order. If the guaranteed flag is false, the associated Trade will be closed by a market price that is equal to or worse than this threshold. If the flag is true the associated Trade will be closed at this price.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "distance": {
+          "type": "string", 
+          "description": "Specifies the distance (in price units) from the Account's current price to use as the Stop Loss Order price. If the Trade is short the Instrument's bid price is used, and for long Trades the ask is used.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -5233,7 +5545,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -5241,6 +5553,10 @@
             "ASK", 
             "MID"
           ]
+        }, 
+        "guaranteed": {
+          "type": "boolean", 
+          "description": "Flag indicating that the Stop Loss Order is guaranteed. The default value depends on the GuaranteedStopLossOrderMode of the account, if it is REQUIRED, the default will be true, for DISABLED or ENABLED the default is false."
         }, 
         "clientExtensions": {
           "$ref": "#/definitions/ClientExtensions"
@@ -5261,7 +5577,8 @@
             "MARKET_IF_TOUCHED", 
             "TAKE_PROFIT", 
             "STOP_LOSS", 
-            "TRAILING_STOP_LOSS"
+            "TRAILING_STOP_LOSS", 
+            "FIXED_PRICE"
           ]
         }, 
         "tradeID": {
@@ -5275,8 +5592,8 @@
         }, 
         "distance": {
           "type": "string", 
-          "description": "The price distance specified for the TrailingStopLoss Order.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+          "description": "The price distance (in price units) specified for the TrailingStopLoss Order.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -5296,7 +5613,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -5344,6 +5661,29 @@
         }
       }
     }, 
+    "GuaranteedStopLossOrderEntryData": {
+      "type": "object", 
+      "description": "Details required by clients creating a Guaranteed Stop Loss Order", 
+      "properties": {
+        "minimumDistance": {
+          "type": "string", 
+          "description": "The minimum distance allowed between the Trade's fill price and the configured price for guaranteed Stop Loss Orders created for this instrument. Specified in price units.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "premium": {
+          "type": "string", 
+          "description": "The amount that is charged to the account if a guaranteed Stop Loss Order is triggered and filled. The value is in price units and is charged for each unit of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "levelRestriction": {
+          "$ref": "#/definitions/GuaranteedStopLossOrderLevelRestriction"
+        }
+      }
+    }, 
+    "StatementYear": {
+      "type": "integer", 
+      "description": "The year that a Yearly Account Statement is generated for."
+    }, 
     "Position": {
       "type": "object", 
       "description": "The specification of a Position within an Account.", 
@@ -5363,14 +5703,29 @@
           "description": "The unrealized profit/loss of all open Trades that contribute to this Position.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Position.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "resettablePL": {
           "type": "string", 
           "description": "Profit/loss realized by the Position since the Account's resettablePL was last reset by the client.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
+        "financing": {
+          "type": "string", 
+          "description": "The total amount of financing paid/collected for this instrument over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "commission": {
           "type": "string", 
-          "description": "The total amount of commission paid for this instrument over the lifetime of the Account. Represented in the Account's home currency.", 
+          "description": "The total amount of commission paid for this instrument over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "guaranteedExecutionFees": {
+          "type": "string", 
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders for this instrument.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "long": {
@@ -5418,6 +5773,16 @@
           "type": "string", 
           "description": "Profit/loss realized by the PositionSide since the Account's resettablePL was last reset by the client.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "financing": {
+          "type": "string", 
+          "description": "The total amount of financing paid/collected for this PositionSide over the lifetime of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "guaranteedExecutionFees": {
+          "type": "string", 
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders attached to Trades for this PositionSide.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
     }, 
@@ -5443,6 +5808,11 @@
         "shortUnrealizedPL": {
           "type": "string", 
           "description": "The unrealized profit/loss of the Position's short open Trades", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Position.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
@@ -5510,6 +5880,7 @@
         "TRANSFER_FUNDS_REJECT", 
         "MARKET_ORDER", 
         "MARKET_ORDER_REJECT", 
+        "FIXED_PRICE_ORDER", 
         "LIMIT_ORDER", 
         "LIMIT_ORDER_REJECT", 
         "STOP_ORDER", 
@@ -5616,6 +5987,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -5711,6 +6083,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -5785,6 +6158,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -5859,6 +6233,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -5942,6 +6317,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -5999,6 +6375,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -6051,9 +6428,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -6162,6 +6561,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -6261,6 +6661,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -6329,6 +6730,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -6381,9 +6783,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -6447,6 +6871,13 @@
         "DELAYED_TRADE_CLOSE"
       ]
     }, 
+    "FixedPriceOrderReason": {
+      "type": "string", 
+      "description": "The reason that the Fixed Price Order was created", 
+      "enum": [
+        "PLATFORM_ACCOUNT_MIGRATION"
+      ]
+    }, 
     "MarketOrderTransaction": {
       "type": "object", 
       "description": "A MarketOrderTransaction represents the creation of a Market Order in the user's account. A Market Order is an Order that is filled immediately at the current market price.\nMarket Orders can be specialized when they are created to accomplish a specific task: to close a Trade, to closeout a Position or to particiate in in a Margin closeout.", 
@@ -6492,6 +6923,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -6643,6 +7075,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -6768,6 +7201,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -6820,9 +7254,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -6872,6 +7328,132 @@
             "REPLACING_ORDER_INVALID", 
             "REPLACING_TRADE_ID_INVALID"
           ]
+        }
+      }
+    }, 
+    "FixedPriceOrderTransaction": {
+      "type": "object", 
+      "description": "A FixedPriceOrderTransaction represents the creation of a Fixed Price Order in the user's account. A Fixed Price Order is an Order that is filled immediately at a specified price.", 
+      "properties": {
+        "id": {
+          "type": "string", 
+          "description": "The Transaction's Identifier.", 
+          "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "time": {
+          "type": "string", 
+          "description": "The date/time when the Transaction was created.", 
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        }, 
+        "userID": {
+          "type": "integer", 
+          "description": "The ID of the user that initiated the creation of the Transaction."
+        }, 
+        "accountID": {
+          "type": "string", 
+          "description": "The ID of the Account the Transaction was created for.", 
+          "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
+        }, 
+        "batchID": {
+          "type": "string", 
+          "description": "The ID of the \"batch\" that the Transaction belongs to. Transactions in the same batch are applied to the Account simultaneously.", 
+          "format": "String representation of the numerical OANDA-assigned TransactionID"
+        }, 
+        "requestID": {
+          "type": "string", 
+          "description": "The Request ID of the request which generated the transaction."
+        }, 
+        "type": {
+          "type": "string", 
+          "description": "The Type of the Transaction. Always set to \"FIXED_PRICE_ORDER\" in a FixedPriceOrderTransaction.", 
+          "enum": [
+            "CREATE", 
+            "CLOSE", 
+            "REOPEN", 
+            "CLIENT_CONFIGURE", 
+            "CLIENT_CONFIGURE_REJECT", 
+            "TRANSFER_FUNDS", 
+            "TRANSFER_FUNDS_REJECT", 
+            "MARKET_ORDER", 
+            "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
+            "LIMIT_ORDER", 
+            "LIMIT_ORDER_REJECT", 
+            "STOP_ORDER", 
+            "STOP_ORDER_REJECT", 
+            "MARKET_IF_TOUCHED_ORDER", 
+            "MARKET_IF_TOUCHED_ORDER_REJECT", 
+            "TAKE_PROFIT_ORDER", 
+            "TAKE_PROFIT_ORDER_REJECT", 
+            "STOP_LOSS_ORDER", 
+            "STOP_LOSS_ORDER_REJECT", 
+            "TRAILING_STOP_LOSS_ORDER", 
+            "TRAILING_STOP_LOSS_ORDER_REJECT", 
+            "ORDER_FILL", 
+            "ORDER_CANCEL", 
+            "ORDER_CANCEL_REJECT", 
+            "ORDER_CLIENT_EXTENSIONS_MODIFY", 
+            "ORDER_CLIENT_EXTENSIONS_MODIFY_REJECT", 
+            "TRADE_CLIENT_EXTENSIONS_MODIFY", 
+            "TRADE_CLIENT_EXTENSIONS_MODIFY_REJECT", 
+            "MARGIN_CALL_ENTER", 
+            "MARGIN_CALL_EXTEND", 
+            "MARGIN_CALL_EXIT", 
+            "DELAYED_TRADE_CLOSURE", 
+            "DAILY_FINANCING", 
+            "RESET_RESETTABLE_PL"
+          ]
+        }, 
+        "instrument": {
+          "type": "string", 
+          "description": "The Fixed Price Order's Instrument.", 
+          "format": "A string containing the base currency and quote currency delimited by a \"_\"."
+        }, 
+        "units": {
+          "type": "string", 
+          "description": "The quantity requested to be filled by the Fixed Price Order. A posititive number of units results in a long Order, and a negative number of units results in a short Order.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "price": {
+          "type": "string", 
+          "description": "The price specified for the Fixed Price Order. This price is the exact price that the Fixed Price Order will be filled at.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "positionFill": {
+          "type": "string", 
+          "description": "Specification of how Positions in the Account are modified when the Order is filled.", 
+          "enum": [
+            "OPEN_ONLY", 
+            "REDUCE_FIRST", 
+            "REDUCE_ONLY", 
+            "DEFAULT"
+          ]
+        }, 
+        "tradeState": {
+          "type": "string", 
+          "description": "The state that the trade resulting from the Fixed Price Order should be set to."
+        }, 
+        "reason": {
+          "type": "string", 
+          "description": "The reason that the Fixed Price Order was created", 
+          "enum": [
+            "PLATFORM_ACCOUNT_MIGRATION"
+          ]
+        }, 
+        "clientExtensions": {
+          "$ref": "#/definitions/ClientExtensions"
+        }, 
+        "takeProfitOnFill": {
+          "$ref": "#/definitions/TakeProfitDetails"
+        }, 
+        "stopLossOnFill": {
+          "$ref": "#/definitions/StopLossDetails"
+        }, 
+        "trailingStopLossOnFill": {
+          "$ref": "#/definitions/TrailingStopLossDetails"
+        }, 
+        "tradeClientExtensions": {
+          "$ref": "#/definitions/ClientExtensions"
         }
       }
     }, 
@@ -6928,6 +7510,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -6998,7 +7581,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -7087,6 +7670,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -7157,7 +7741,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -7215,6 +7799,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -7267,9 +7852,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -7375,6 +7982,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -7450,7 +8058,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -7539,6 +8147,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -7614,7 +8223,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -7672,6 +8281,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -7724,9 +8334,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -7832,6 +8464,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -7907,7 +8540,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -7996,6 +8629,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -8071,7 +8705,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -8129,6 +8763,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -8181,9 +8816,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -8290,6 +8947,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -8349,7 +9007,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -8432,6 +9090,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -8491,7 +9150,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -8543,6 +9202,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -8595,9 +9255,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -8704,6 +9386,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -8742,8 +9425,13 @@
         }, 
         "price": {
           "type": "string", 
-          "description": "The price threshold specified for the StopLoss Order. The associated Trade will be closed by a market price that is equal to or worse than this threshold.", 
+          "description": "The price threshold specified for the Stop Loss Order. If the guaranteed flag is false, the associated Trade will be closed by a market price that is equal to or worse than this threshold. If the flag is true the associated Trade will be closed at this price.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "distance": {
+          "type": "string", 
+          "description": "Specifies the distance (in price units) from the Account's current price to use as the Stop Loss Order price. If the Trade is short the Instrument's bid price is used, and for long Trades the ask is used.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -8763,7 +9451,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -8771,6 +9459,15 @@
             "ASK", 
             "MID"
           ]
+        }, 
+        "guaranteed": {
+          "type": "boolean", 
+          "description": "Flag indicating that the Stop Loss Order is guaranteed. The default value depends on the GuaranteedStopLossOrderMode of the account, if it is REQUIRED, the default will be true, for DISABLED or ENABLED the default is false."
+        }, 
+        "guaranteedExecutionPremium": {
+          "type": "string", 
+          "description": "The fee that will be charged if the Stop Loss Order is guaranteed and the Order is filled at the guaranteed price. The value is determined at Order creation time. It is in price units and is charged for each unit of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "reason": {
           "type": "string", 
@@ -8846,6 +9543,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -8884,8 +9582,13 @@
         }, 
         "price": {
           "type": "string", 
-          "description": "The price threshold specified for the StopLoss Order. The associated Trade will be closed by a market price that is equal to or worse than this threshold.", 
+          "description": "The price threshold specified for the Stop Loss Order. If the guaranteed flag is false, the associated Trade will be closed by a market price that is equal to or worse than this threshold. If the flag is true the associated Trade will be closed at this price.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "distance": {
+          "type": "string", 
+          "description": "Specifies the distance (in price units) from the Account's current price to use as the Stop Loss Order price. If the Trade is short the Instrument's bid price is used, and for long Trades the ask is used.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -8905,7 +9608,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -8913,6 +9616,10 @@
             "ASK", 
             "MID"
           ]
+        }, 
+        "guaranteed": {
+          "type": "boolean", 
+          "description": "Flag indicating that the Stop Loss Order is guaranteed. The default value depends on the GuaranteedStopLossOrderMode of the account, if it is REQUIRED, the default will be true, for DISABLED or ENABLED the default is false."
         }, 
         "reason": {
           "type": "string", 
@@ -8957,6 +9664,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -9009,9 +9717,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -9118,6 +9848,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -9156,8 +9887,8 @@
         }, 
         "distance": {
           "type": "string", 
-          "description": "The price distance specified for the TrailingStopLoss Order.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+          "description": "The price distance (in price units) specified for the TrailingStopLoss Order.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -9177,7 +9908,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -9260,6 +9991,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -9298,8 +10030,8 @@
         }, 
         "distance": {
           "type": "string", 
-          "description": "The price distance specified for the TrailingStopLoss Order.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+          "description": "The price distance (in price units) specified for the TrailingStopLoss Order.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -9319,7 +10051,7 @@
         }, 
         "triggerCondition": {
           "type": "string", 
-          "description": "Specification of what component of a price should be used for comparison when determining if the Order should be filled.", 
+          "description": "Specification of which price component should be used when determining if an Order should be triggered and filled. This allows Orders to be triggered based on the bid, ask, mid, default (ask for buy, bid for sell) or inverse (ask for sell, bid for buy) price depending on the desired behaviour. Orders are always filled using their default price component.\nThis feature is only provided through the REST API. Clients who choose to specify a non-default trigger condition will not see it reflected in any of OANDA's proprietary or partner trading platforms, their transaction history or their account statements. OANDA platforms always assume that an Order's trigger condition is set to the default value when indicating the distance from an Order's trigger price, and will always provide the default trigger condition when creating or modifying an Order.\nA special restriction applies when creating a guaranteed Stop Loss Order. In this case the TriggerCondition value must either be \"DEFAULT\", or the \"natural\" trigger side \"DEFAULT\" results in. So for a Stop Loss Order for a long trade valid values are \"DEFAULT\" and \"BID\", and for short trades \"DEFAULT\" and \"ASK\" are valid.", 
           "enum": [
             "DEFAULT", 
             "INVERSE", 
@@ -9371,6 +10103,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -9423,9 +10156,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -9540,6 +10295,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -9586,9 +10342,19 @@
           "description": "The number of units filled by the Order.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "gainQuoteHomeConversionFactor": {
+          "type": "string", 
+          "description": "This is the conversion factor in effect for the Account at the time of the OrderFill for converting any gains realized in Instrument quote units into units of the Account's home currency.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "lossQuoteHomeConversionFactor": {
+          "type": "string", 
+          "description": "This is the conversion factor in effect for the Account at the time of the OrderFill for converting any losses realized in Instrument quote units into units of the Account's home currency.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
         "price": {
           "type": "string", 
-          "description": "The average market price that the Order was filled at.", 
+          "description": "This field is now deprecated and should no longer be used. The individual tradesClosed, tradeReduced and tradeOpened fields contain the exact/official price each unit was filled at.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
         }, 
         "fullPrice": {
@@ -9626,6 +10392,11 @@
           "description": "The commission charged in the Account's home currency as a result of filling the Order. The commission is always represented as a positive quantity of the Account's home currency, however it reduces the balance in the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
+        "guaranteedExecutionFee": {
+          "type": "string", 
+          "description": "The total guaranteed execution fees charged for all Trades opened, closed or reduced with guaranteed Stop Loss Orders.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "accountBalance": {
           "type": "string", 
           "description": "The Account's balance after the Order was filled.", 
@@ -9643,6 +10414,11 @@
         }, 
         "tradeReduced": {
           "$ref": "#/definitions/TradeReduce"
+        }, 
+        "halfSpreadCost": {
+          "type": "string", 
+          "description": "The half spread cost for the OrderFill, which is the sum of the halfSpreadCost values in the tradeOpened, tradesClosed and tradeReduced fields. This can be a positive or negative value and is represented in the home currency of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
     }, 
@@ -9670,6 +10446,16 @@
         "LOSING_TAKE_PROFIT", 
         "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
         "STOP_LOSS_ON_FILL_LOSS", 
+        "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+        "STOP_LOSS_ON_FILL_REQUIRED", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_HEDGING_NOT_ALLOWED", 
+        "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
+        "STOP_LOSS_ON_FILL_TRIGGER_CONDITION_INVALID", 
+        "TAKE_PROFIT_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
         "TRAILING_STOP_LOSS_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
         "CLIENT_TRADE_ID_ALREADY_EXISTS", 
         "POSITION_CLOSEOUT_FAILED", 
@@ -9678,7 +10464,9 @@
         "TAKE_PROFIT_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
         "STOP_LOSS_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
         "TRAILING_STOP_LOSS_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
-        "POSITION_SIZE_EXCEEDED"
+        "POSITION_SIZE_EXCEEDED", 
+        "HEDGING_GSLO_VIOLATION", 
+        "ACCOUNT_POSITION_VALUE_LIMIT_EXCEEDED"
       ]
     }, 
     "OrderCancelTransaction": {
@@ -9726,6 +10514,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -9787,6 +10576,16 @@
             "LOSING_TAKE_PROFIT", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
             "STOP_LOSS_ON_FILL_LOSS", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_REQUIRED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
+            "STOP_LOSS_ON_FILL_TRIGGER_CONDITION_INVALID", 
+            "TAKE_PROFIT_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
             "TRAILING_STOP_LOSS_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
             "CLIENT_TRADE_ID_ALREADY_EXISTS", 
             "POSITION_CLOSEOUT_FAILED", 
@@ -9795,7 +10594,9 @@
             "TAKE_PROFIT_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
             "STOP_LOSS_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
             "TRAILING_STOP_LOSS_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
-            "POSITION_SIZE_EXCEEDED"
+            "POSITION_SIZE_EXCEEDED", 
+            "HEDGING_GSLO_VIOLATION", 
+            "ACCOUNT_POSITION_VALUE_LIMIT_EXCEEDED"
           ]
         }, 
         "replacedByOrderID": {
@@ -9850,6 +10651,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -9887,41 +10689,6 @@
           "description": "The client ID of the Order intended to be cancelled (only provided if the Order has a client Order ID).", 
           "format": "The string representation of the OANDA-assigned OrderID. OANDA-assigned OrderIDs are positive integers, and are derived from the TransactionID of the Transaction that created the Order."
         }, 
-        "reason": {
-          "type": "string", 
-          "description": "The reason that the Order was to be cancelled.", 
-          "enum": [
-            "INTERNAL_SERVER_ERROR", 
-            "ACCOUNT_LOCKED", 
-            "ACCOUNT_NEW_POSITIONS_LOCKED", 
-            "ACCOUNT_ORDER_CREATION_LOCKED", 
-            "ACCOUNT_ORDER_FILL_LOCKED", 
-            "CLIENT_REQUEST", 
-            "MIGRATION", 
-            "MARKET_HALTED", 
-            "LINKED_TRADE_CLOSED", 
-            "TIME_IN_FORCE_EXPIRED", 
-            "INSUFFICIENT_MARGIN", 
-            "FIFO_VIOLATION", 
-            "BOUNDS_VIOLATION", 
-            "CLIENT_REQUEST_REPLACED", 
-            "INSUFFICIENT_LIQUIDITY", 
-            "TAKE_PROFIT_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
-            "TAKE_PROFIT_ON_FILL_LOSS", 
-            "LOSING_TAKE_PROFIT", 
-            "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
-            "STOP_LOSS_ON_FILL_LOSS", 
-            "TRAILING_STOP_LOSS_ON_FILL_GTD_TIMESTAMP_IN_PAST", 
-            "CLIENT_TRADE_ID_ALREADY_EXISTS", 
-            "POSITION_CLOSEOUT_FAILED", 
-            "OPEN_TRADES_ALLOWED_EXCEEDED", 
-            "PENDING_ORDERS_ALLOWED_EXCEEDED", 
-            "TAKE_PROFIT_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
-            "STOP_LOSS_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
-            "TRAILING_STOP_LOSS_ON_FILL_CLIENT_ORDER_ID_ALREADY_EXISTS", 
-            "POSITION_SIZE_EXCEEDED"
-          ]
-        }, 
         "rejectReason": {
           "type": "string", 
           "description": "The reason that the Reject Transaction was created", 
@@ -9943,6 +10710,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -9995,9 +10763,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -10095,6 +10885,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10184,6 +10975,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10247,6 +11039,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -10299,9 +11092,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -10399,6 +11214,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10485,6 +11301,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10545,6 +11362,7 @@
             "TRADE_ID_UNSPECIFIED", 
             "TRADE_DOESNT_EXIST", 
             "TRADE_IDENTIFIER_INCONSISTENCY", 
+            "INSUFFICIENT_MARGIN", 
             "INSTRUMENT_MISSING", 
             "INSTRUMENT_UNKNOWN", 
             "UNITS_MISSING", 
@@ -10597,9 +11415,31 @@
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
             "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
             "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+            "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+            "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+            "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+            "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+            "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+            "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+            "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+            "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
             "STOP_LOSS_ON_FILL_PRICE_MISSING", 
             "STOP_LOSS_ON_FILL_PRICE_INVALID", 
             "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+            "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+            "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+            "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
             "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
             "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -10697,6 +11537,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10771,6 +11612,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10849,6 +11691,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -10923,6 +11766,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -11013,6 +11857,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -11113,6 +11958,7 @@
             "TRANSFER_FUNDS_REJECT", 
             "MARKET_ORDER", 
             "MARKET_ORDER_REJECT", 
+            "FIXED_PRICE_ORDER", 
             "LIMIT_ORDER", 
             "LIMIT_ORDER_REJECT", 
             "STOP_ORDER", 
@@ -11178,7 +12024,7 @@
       "properties": {
         "price": {
           "type": "string", 
-          "description": "The price that the Take Profit Order will be triggered at.", 
+          "description": "The price that the Take Profit Order will be triggered at. Only one of the price and distance fields may be specified.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
         }, 
         "timeInForce": {
@@ -11208,8 +12054,13 @@
       "properties": {
         "price": {
           "type": "string", 
-          "description": "The price that the Stop Loss Order will be triggered at.", 
+          "description": "The price that the Stop Loss Order will be triggered at. Only one of the price and distance fields may be specified.", 
           "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "distance": {
+          "type": "string", 
+          "description": "Specifies the distance (in price units) from the Trade's open price to use as the Stop Loss Order price. Only one of the distance and price fields may be specified.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -11229,6 +12080,10 @@
         }, 
         "clientExtensions": {
           "$ref": "#/definitions/ClientExtensions"
+        }, 
+        "guaranteed": {
+          "type": "boolean", 
+          "description": "Flag indicating that the price for the Stop Loss Order is guaranteed. The default value depends on the GuaranteedStopLossOrderMode of the account, if it is REQUIRED, the default will be true, for DISABLED or ENABLED the default is false."
         }
       }
     }, 
@@ -11239,7 +12094,7 @@
         "distance": {
           "type": "string", 
           "description": "The distance (in price units) from the Trade's fill price that the Trailing Stop Loss Order will be triggered at.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
         "timeInForce": {
           "type": "string", 
@@ -11276,8 +12131,28 @@
           "description": "The number of units opened by the Trade", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "price": {
+          "type": "string", 
+          "description": "The average price that the units were opened at.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
+        "guaranteedExecutionFee": {
+          "type": "string", 
+          "description": "This is the fee charged for opening the trade if it has a guaranteed Stop Loss Order attached to it.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "clientExtensions": {
           "$ref": "#/definitions/ClientExtensions"
+        }, 
+        "halfSpreadCost": {
+          "type": "string", 
+          "description": "The half spread cost for the trade open. This can be a positive or negative value and is represented in the home currency of the Account.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "initialMarginRequired": {
+          "type": "string", 
+          "description": "The margin required at the time the Trade was created. Note, this is the 'pure' margin required, it is not the 'effective' margin used that factors in the trade risk if a GSLO is attached to the trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
     }, 
@@ -11295,6 +12170,11 @@
           "description": "The number of units that the Trade was reduced by", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "price": {
+          "type": "string", 
+          "description": "The average price that the units were closed at. This price may be clamped for guaranteed Stop Loss Orders.", 
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+        }, 
         "realizedPL": {
           "type": "string", 
           "description": "The PL realized when reducing the Trade", 
@@ -11303,6 +12183,16 @@
         "financing": {
           "type": "string", 
           "description": "The financing paid/collected when reducing the Trade", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "guaranteedExecutionFee": {
+          "type": "string", 
+          "description": "This is the fee that is charged for closing the Trade if it has a guaranteed Stop Loss Order attached to it.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "halfSpreadCost": {
+          "type": "string", 
+          "description": "The half spread cost for the trade reduce/close. This can be a positive or negative value and is represented in the home currency of the Account.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
@@ -11381,22 +12271,6 @@
         "units": {
           "type": "string", 
           "description": "Indication of how much of the Position to close. Either \"ALL\", or a DecimalNumber reflection a partial close of the Trade. The DecimalNumber must always be positive, and represent a number that doesn't exceed the absolute size of the Position."
-        }
-      }
-    }, 
-    "VWAPReceipt": {
-      "type": "object", 
-      "description": "A VWAP Receipt provides a record of how the price for an Order fill is constructed. If the Order is filled with multiple buckets in a depth of market, each bucket will be represented with a VWAP Receipt.", 
-      "properties": {
-        "units": {
-          "type": "string", 
-          "description": "The number of units filled", 
-          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
-        "price": {
-          "type": "string", 
-          "description": "The price at which the units were filled", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
         }
       }
     }, 
@@ -11498,6 +12372,7 @@
         "TRADE_ID_UNSPECIFIED", 
         "TRADE_DOESNT_EXIST", 
         "TRADE_IDENTIFIER_INCONSISTENCY", 
+        "INSUFFICIENT_MARGIN", 
         "INSTRUMENT_MISSING", 
         "INSTRUMENT_UNKNOWN", 
         "UNITS_MISSING", 
@@ -11550,9 +12425,31 @@
         "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_MISSING", 
         "TAKE_PROFIT_ON_FILL_TRIGGER_CONDITION_INVALID", 
         "STOP_LOSS_ORDER_ALREADY_EXISTS", 
+        "STOP_LOSS_ORDER_GUARANTEED_REQUIRED", 
+        "STOP_LOSS_ORDER_GUARANTEED_PRICE_WITHIN_SPREAD", 
+        "STOP_LOSS_ORDER_GUARANTEED_NOT_ALLOWED", 
+        "STOP_LOSS_ORDER_GUARANTEED_HALTED_CREATE_VIOLATION", 
+        "STOP_LOSS_ORDER_GUARANTEED_HALTED_TIGHTEN_VIOLATION", 
+        "STOP_LOSS_ORDER_GUARANTEED_HEDGING_NOT_ALLOWED", 
+        "STOP_LOSS_ORDER_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+        "STOP_LOSS_ORDER_NOT_CANCELABLE", 
+        "STOP_LOSS_ORDER_NOT_REPLACEABLE", 
+        "STOP_LOSS_ORDER_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+        "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+        "STOP_LOSS_ORDER_PRICE_AND_DISTANCE_BOTH_MISSING", 
+        "STOP_LOSS_ON_FILL_REQUIRED_FOR_PENDING_ORDER", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_NOT_ALLOWED", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_REQUIRED", 
         "STOP_LOSS_ON_FILL_PRICE_MISSING", 
         "STOP_LOSS_ON_FILL_PRICE_INVALID", 
         "STOP_LOSS_ON_FILL_PRICE_PRECISION_EXCEEDED", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_MINIMUM_DISTANCE_NOT_MET", 
+        "STOP_LOSS_ON_FILL_GUARANTEED_LEVEL_RESTRICTION_EXCEEDED", 
+        "STOP_LOSS_ON_FILL_DISTANCE_INVALID", 
+        "STOP_LOSS_ON_FILL_PRICE_DISTANCE_MAXIMUM_EXCEEDED", 
+        "STOP_LOSS_ON_FILL_DISTANCE_PRECISION_EXCEEDED", 
+        "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_SPECIFIED", 
+        "STOP_LOSS_ON_FILL_PRICE_AND_DISTANCE_BOTH_MISSING", 
         "STOP_LOSS_ON_FILL_TIME_IN_FORCE_MISSING", 
         "STOP_LOSS_ON_FILL_TIME_IN_FORCE_INVALID", 
         "STOP_LOSS_ON_FILL_GTD_TIMESTAMP_MISSING", 
@@ -11777,6 +12674,32 @@
         }
       }
     }, 
+    "HomeConversions": {
+      "type": "object", 
+      "description": "HomeConversions represents the factors to use to convert quantities of a given currency into the Account's home currency. The conversion factor depends on the scenario the conversion is required for.", 
+      "properties": {
+        "currency": {
+          "type": "string", 
+          "description": "The currency to be converted into the home currency.", 
+          "format": "A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)"
+        }, 
+        "accountGain": {
+          "type": "string", 
+          "description": "The factor used to convert any gains for an Account in the specified currency into the Account's home currency. This would include positive realized P/L and positive financing amounts. Conversion is performed by multiplying the positive P/L by the conversion factor.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "accountLoss": {
+          "type": "string", 
+          "description": "The string representation of a decimal number.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "positionValue": {
+          "type": "string", 
+          "description": "The factor used to convert a Position or Trade Value in the specified currency into the Account's home currency. Conversion is performed by multiplying the Position or Trade Value by the conversion factor.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }
+      }
+    }, 
     "ClientPrice": {
       "type": "object", 
       "description": "Client price for an Account.", 
@@ -11942,11 +12865,6 @@
       "type": "object", 
       "description": "An InstrumentCommission represents an instrument-specific commission", 
       "properties": {
-        "instrument": {
-          "type": "string", 
-          "description": "The name of the instrument", 
-          "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-        }, 
         "commission": {
           "type": "string", 
           "description": "The commission amount (in the Account's home currency) charged per unitsTraded of the instrument", 
@@ -11961,6 +12879,45 @@
           "type": "string", 
           "description": "The minimum commission amount (in the Account's home currency) that is charged when an Order is filled for this instrument.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }
+      }
+    }, 
+    "GuaranteedStopLossOrderLevelRestriction": {
+      "type": "object", 
+      "description": "A GuaranteedStopLossOrderLevelRestriction represents the total position size that can exist within a given price window for Trades with guaranteed Stop Loss Orders attached for a specific Instrument.", 
+      "properties": {
+        "volume": {
+          "type": "string", 
+          "description": "Applies to Trades with a guaranteed Stop Loss Order attached for the specified Instrument. This is the total allowed Trade volume that can exist within the priceRange based on the trigger prices of the guaranteed Stop Loss Orders.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }, 
+        "priceRange": {
+          "type": "string", 
+          "description": "The price range the volume applies to. This value is in price units.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
+        }
+      }
+    }, 
+    "Direction": {
+      "type": "string", 
+      "description": "In the context of an Order or a Trade, defines whether the units are positive or negative.", 
+      "enum": [
+        "LONG", 
+        "SHORT"
+      ]
+    }, 
+    "MT4TransactionHeartbeat": {
+      "type": "object", 
+      "description": "A TransactionHeartbeat object is injected into the Transaction stream to ensure that the HTTP connection remains active.", 
+      "properties": {
+        "type": {
+          "type": "string", 
+          "description": "The string \"HEARTBEAT\""
+        }, 
+        "time": {
+          "type": "string", 
+          "description": "The date/time when the TransactionHeartbeat was created.", 
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
         }
       }
     }, 
@@ -12031,6 +12988,11 @@
           "description": "The initial size of the Trade. Negative values indicate a short Trade, and positive values indicate a long Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "initialMarginRequired": {
+          "type": "string", 
+          "description": "The margin required at the time the Trade was created. Note, this is the 'pure' margin required, it is not the 'effective' margin used that factors in the trade risk if a GSLO is attached to the trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "currentUnits": {
           "type": "string", 
           "description": "The number of units currently open for the Trade. This value is reduced to 0.0 as the Trade is closed.", 
@@ -12044,6 +13006,11 @@
         "unrealizedPL": {
           "type": "string", 
           "description": "The unrealized profit/loss on the open portion of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "averageClosePrice": {
@@ -12122,6 +13089,11 @@
           "description": "The initial size of the Trade. Negative values indicate a short Trade, and positive values indicate a long Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "initialMarginRequired": {
+          "type": "string", 
+          "description": "The margin required at the time the Trade was created. Note, this is the 'pure' margin required, it is not the 'effective' margin used that factors in the trade risk if a GSLO is attached to the trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "currentUnits": {
           "type": "string", 
           "description": "The number of units currently open for the Trade. This value is reduced to 0.0 as the Trade is closed.", 
@@ -12135,6 +13107,11 @@
         "unrealizedPL": {
           "type": "string", 
           "description": "The unrealized profit/loss on the open portion of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "averageClosePrice": {
@@ -12194,8 +13171,22 @@
           "type": "string", 
           "description": "The Trade's unrealized profit/loss.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
+    }, 
+    "TradePL": {
+      "type": "string", 
+      "description": "The classification of TradePLs.", 
+      "enum": [
+        "POSITIVE", 
+        "NEGATIVE", 
+        "ZERO"
+      ]
     }, 
     "CandlestickGranularity": {
       "type": "string", 
@@ -12409,6 +13400,13 @@
       "format": "String representation of the numerical OANDA-assigned TransactionID", 
       "required": true
     }, 
+    "statementYearPathParam": {
+      "name": "statementYear", 
+      "description": "The year that a Yearly Account Statement is generated for.", 
+      "in": "path", 
+      "type": "integer", 
+      "required": true
+    }, 
     "userSpecifierPathParam": {
       "name": "userSpecifier", 
       "description": "The User Specifier", 
@@ -12431,6 +13429,13 @@
       "in": "path", 
       "type": "string", 
       "format": "Either the Order's OANDA-assigned OrderID or the Order's client-provided ClientID prefixed by the \"@\" symbol", 
+      "required": true
+    }, 
+    "mt4ServerIDPathParam": {
+      "name": "mt4ServerID", 
+      "description": "MT4 Server ID", 
+      "in": "path", 
+      "type": "int", 
       "required": true
     }, 
     "acceptDatetimeFormatHeaderParam": {
@@ -12510,7 +13515,7 @@
       }
     }, 
     "403": {
-      "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by teh API endpoint.", 
+      "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by the API endpoint.", 
       "headers": {
         "RequestID": {
           "description": "The unique identifier generated for the request", 

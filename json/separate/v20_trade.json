@@ -12,7 +12,7 @@
       "name": "MIT", 
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
     }, 
-    "version": "3.0.18"
+    "version": "3.0.22"
   }, 
   "basePath": "/v3", 
   "produces": [
@@ -727,6 +727,11 @@
           "description": "The initial size of the Trade. Negative values indicate a short Trade, and positive values indicate a long Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "initialMarginRequired": {
+          "type": "string", 
+          "description": "The margin required at the time the Trade was created. Note, this is the 'pure' margin required, it is not the 'effective' margin used that factors in the trade risk if a GSLO is attached to the trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "currentUnits": {
           "type": "string", 
           "description": "The number of units currently open for the Trade. This value is reduced to 0.0 as the Trade is closed.", 
@@ -740,6 +745,11 @@
         "unrealizedPL": {
           "type": "string", 
           "description": "The unrealized profit/loss on the open portion of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "averageClosePrice": {
@@ -818,6 +828,11 @@
           "description": "The initial size of the Trade. Negative values indicate a short Trade, and positive values indicate a long Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }, 
+        "initialMarginRequired": {
+          "type": "string", 
+          "description": "The margin required at the time the Trade was created. Note, this is the 'pure' margin required, it is not the 'effective' margin used that factors in the trade risk if a GSLO is attached to the trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
         "currentUnits": {
           "type": "string", 
           "description": "The number of units currently open for the Trade. This value is reduced to 0.0 as the Trade is closed.", 
@@ -831,6 +846,11 @@
         "unrealizedPL": {
           "type": "string", 
           "description": "The unrealized profit/loss on the open portion of the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Trade.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }, 
         "averageClosePrice": {
@@ -890,8 +910,22 @@
           "type": "string", 
           "description": "The Trade's unrealized profit/loss.", 
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
+        }, 
+        "marginUsed": {
+          "type": "string", 
+          "description": "Margin currently used by the Trade.", 
+          "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
+    }, 
+    "TradePL": {
+      "type": "string", 
+      "description": "The classification of TradePLs.", 
+      "enum": [
+        "POSITIVE", 
+        "NEGATIVE", 
+        "ZERO"
+      ]
     }
   }, 
   "parameters": {
@@ -950,7 +984,7 @@
       }
     }, 
     "403": {
-      "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by teh API endpoint.", 
+      "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by the API endpoint.", 
       "headers": {
         "RequestID": {
           "description": "The unique identifier generated for the request", 

@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.18
+  version: 3.0.22
 basePath: /v3
 produces:
 - application/json
@@ -329,6 +329,12 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
+      marginUsed:
+        type: string
+        description: Margin currently used by the Position.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
       resettablePL:
         type: string
         description: >-
@@ -337,11 +343,27 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
+      financing:
+        type: string
+        description: >-
+          The total amount of financing paid/collected for this instrument
+          over the lifetime of the Account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
       commission:
         type: string
         description: >-
           The total amount of commission paid for this instrument over the
-          lifetime of the Account. Represented in the Account's home currency.
+          lifetime of the Account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      guaranteedExecutionFees:
+        type: string
+        description: >-
+          The total amount of fees charged over the lifetime of the Account
+          for the execution of guaranteed Stop Loss Orders for this instrument.
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
@@ -406,6 +428,23 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
+      financing:
+        type: string
+        description: >-
+          The total amount of financing paid/collected for this PositionSide
+          over the lifetime of the Account.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
+      guaranteedExecutionFees:
+        type: string
+        description: >-
+          The total amount of fees charged over the lifetime of the Account
+          for the execution of guaranteed Stop Loss Orders attached to Trades
+          for this PositionSide.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
   CalculatedPositionState:
     type: object
     description: The dynamic (calculated) state of a Position
@@ -436,14 +475,17 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
+      marginUsed:
+        type: string
+        description: Margin currently used by the Position.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on the Account's home currency.
 parameters:
-  orderSpecifierPathParam:
-    name: orderSpecifier
-    description: The Order Specifier
+  statementYearPathParam:
+    name: statementYear
+    description: The year that a Yearly Account Statement is generated for.
     in: path
-    type: string
-    format: >-
-      Either the Order's OANDA-assigned OrderID or the Order's client-provided
-      ClientID prefixed by the "@" symbol
+    type: integer
     required: true
 

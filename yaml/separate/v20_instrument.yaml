@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.18
+  version: 3.0.22
 basePath: /v3
 produces:
 - application/json
@@ -93,7 +93,8 @@ paths:
         description: >-
           The timezone to use for the dailyAlignment parameter. Candlesticks
           with daily alignment will be aligned to the dailyAlignment hour
-          within the alignmentTimezone.
+          within the alignmentTimezone.  Note that the returned times will
+          still be represented in UTC.
         in: query
         type: string
       - name: weeklyAlignment
@@ -159,7 +160,7 @@ paths:
   /instruments/{instrument}/orderBook:
     get:
       summary: Get Order Book
-      description: Fetch a gzip compressed order book for an instrument.
+      description: Fetch an order book for an instrument.
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
       - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
@@ -180,6 +181,11 @@ paths:
         '200':
           description: The order book has been successfully provided.
           headers:
+            Content-Encoding:
+              description: >-
+                Value will be "gzip" regardless of provided Accept-Encoding
+                header
+              type: string
             Link:
               description: A link to the next/previous order book snapshot.
               type: string
@@ -202,7 +208,7 @@ paths:
   /instruments/{instrument}/positionBook:
     get:
       summary: Get Position Book
-      description: Fetch a gzip compressed position book for an instrument.
+      description: Fetch a position book for an instrument.
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
       - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
@@ -223,6 +229,11 @@ paths:
         '200':
           description: The position book has been successfully provided.
           headers:
+            Content-Encoding:
+              description: >-
+                Value will be "gzip" regardless of provided Accept-Encoding
+                header
+              type: string
             Link:
               description: A link to the next/previous position book snapshot.
               type: string
@@ -547,7 +558,7 @@ responses:
   '403':
     description: >-
       Forbidden. The client has provided a token that does not authorize
-      them to perform the action implemented by teh API endpoint.
+      them to perform the action implemented by the API endpoint.
     headers:
       RequestID:
         description: The unique identifier generated for the request

@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.18
+  version: 3.0.22
 basePath: /v3
 produces:
 - application/json
@@ -690,6 +690,17 @@ definitions:
     - TAKE_PROFIT
     - STOP_LOSS
     - TRAILING_STOP_LOSS
+    - FIXED_PRICE
+  CancellableOrderType:
+    type: string
+    description: The type of the Order.
+    enum:
+    - LIMIT
+    - STOP
+    - MARKET_IF_TOUCHED
+    - TAKE_PROFIT
+    - STOP_LOSS
+    - TRAILING_STOP_LOSS
   OrderState:
     type: string
     description: The current state of the Order.
@@ -754,8 +765,27 @@ definitions:
   OrderTriggerCondition:
     type: string
     description: >-
-      Specification of what component of a price should be used for comparison
-      when determining if the Order should be filled.
+      Specification of which price component should be used when determining
+      if an Order should be triggered and filled. This allows Orders to
+      be triggered based on the bid, ask, mid, default (ask for buy, bid
+      for sell) or inverse (ask for sell, bid for buy) price depending on
+      the desired behaviour. Orders are always filled using their default
+      price component.
+
+      This feature is only provided through the REST API. Clients who choose
+      to specify a non-default trigger condition will not see it reflected
+      in any of OANDA's proprietary or partner trading platforms, their
+      transaction history or their account statements. OANDA platforms always
+      assume that an Order's trigger condition is set to the default value
+      when indicating the distance from an Order's trigger price, and will
+      always provide the default trigger condition when creating or modifying
+      an Order.
+
+      A special restriction applies when creating a guaranteed Stop Loss
+      Order. In this case the TriggerCondition value must either be "DEFAULT",
+      or the "natural" trigger side "DEFAULT" results in. So for a Stop
+      Loss Order for a long trade valid values are "DEFAULT" and "BID",
+      and for short trades "DEFAULT" and "ASK" are valid.
     enum:
     - DEFAULT
     - INVERSE
@@ -873,6 +903,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The Market Order's Instrument.
@@ -1005,6 +1036,168 @@ definitions:
           seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
           is a fractional number, where the fractional part represents a
           fraction of a second (up to nine decimal places).
+  FixedPriceOrder:
+    type: object
+    description: >-
+      A FixedPriceOrder is an order that is filled immediately upon creation
+      using a fixed price.
+    properties:
+      id:
+        type: string
+        description: The Order's identifier, unique within the Order's Account.
+        format: >-
+          The string representation of the OANDA-assigned OrderID. OANDA-assigned
+          OrderIDs are positive integers, and are derived from the TransactionID
+          of the Transaction that created the Order.
+      createTime:
+        type: string
+        description: The time when the Order was created.
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      state:
+        type: string
+        description: The current state of the Order.
+        enum:
+        - PENDING
+        - FILLED
+        - TRIGGERED
+        - CANCELLED
+      clientExtensions:
+        $ref: transaction.yaml#/definitions/ClientExtensions
+      type:
+        type: string
+        description: >-
+          The type of the Order. Always set to "FIXED_PRICE" for Fixed Price
+          Orders.
+        enum:
+        - MARKET
+        - LIMIT
+        - STOP
+        - MARKET_IF_TOUCHED
+        - TAKE_PROFIT
+        - STOP_LOSS
+        - TRAILING_STOP_LOSS
+        - FIXED_PRICE
+      instrument:
+        type: string
+        description: The Fixed Price Order's Instrument.
+        format: >-
+          A string containing the base currency and quote currency delimited
+          by a "_".
+      units:
+        type: string
+        description: >-
+          The quantity requested to be filled by the Fixed Price Order.
+          A posititive number of units results in a long Order, and a negative
+          number of units results in a short Order.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      price:
+        type: string
+        description: >-
+          The price specified for the Fixed Price Order. This price is the
+          exact price that the Fixed Price Order will be filled at.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Price's Instrument.
+      positionFill:
+        type: string
+        description: >-
+          Specification of how Positions in the Account are modified when
+          the Order is filled.
+        enum:
+        - OPEN_ONLY
+        - REDUCE_FIRST
+        - REDUCE_ONLY
+        - DEFAULT
+      tradeState:
+        type: string
+        description: >-
+          The state that the trade resulting from the Fixed Price Order
+          should be set to.
+      takeProfitOnFill:
+        $ref: transaction.yaml#/definitions/TakeProfitDetails
+      stopLossOnFill:
+        $ref: transaction.yaml#/definitions/StopLossDetails
+      trailingStopLossOnFill:
+        $ref: transaction.yaml#/definitions/TrailingStopLossDetails
+      tradeClientExtensions:
+        $ref: transaction.yaml#/definitions/ClientExtensions
+      fillingTransactionID:
+        type: string
+        description: >-
+          ID of the Transaction that filled this Order (only provided when
+          the Order's state is FILLED)
+        format: >-
+          String representation of the numerical OANDA-assigned TransactionID
+      filledTime:
+        type: string
+        description: >-
+          Date/time when the Order was filled (only provided when the Order's
+          state is FILLED)
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      tradeOpenedID:
+        type: string
+        description: >-
+          Trade ID of Trade opened when the Order was filled (only provided
+          when the Order's state is FILLED and a Trade was opened as a result
+          of the fill)
+        format: >-
+          The string representation of the OANDA-assigned TradeID. OANDA-assigned
+          TradeIDs are positive integers, and are derived from the TransactionID
+          of the Transaction that opened the Trade.
+      tradeReducedID:
+        type: string
+        description: >-
+          Trade ID of Trade reduced when the Order was filled (only provided
+          when the Order's state is FILLED and a Trade was reduced as a
+          result of the fill)
+        format: >-
+          The string representation of the OANDA-assigned TradeID. OANDA-assigned
+          TradeIDs are positive integers, and are derived from the TransactionID
+          of the Transaction that opened the Trade.
+      tradeClosedIDs:
+        type: array
+        description: >-
+          Trade IDs of Trades closed when the Order was filled (only provided
+          when the Order's state is FILLED and one or more Trades were closed
+          as a result of the fill)
+        items:
+          type: string
+          description: The Trade's identifier, unique within the Trade's
+            Account.
+          format: >-
+            The string representation of the OANDA-assigned TradeID. OANDA-assigned
+            TradeIDs are positive integers, and are derived from the TransactionID
+            of the Transaction that opened the Trade.
+      cancellingTransactionID:
+        type: string
+        description: >-
+          ID of the Transaction that cancelled the Order (only provided
+          when the Order's state is CANCELLED)
+        format: >-
+          String representation of the numerical OANDA-assigned TransactionID
+      cancelledTime:
+        type: string
+        description: >-
+          Date/time when the Order was cancelled (only provided when the
+          state of the Order is CANCELLED)
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
   LimitOrder:
     type: object
     description: >-
@@ -1050,6 +1243,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The Limit Order's Instrument.
@@ -1107,8 +1301,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -1256,6 +1470,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The Stop Order's Instrument.
@@ -1323,8 +1538,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -1473,6 +1708,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The MarketIfTouched Order's Instrument.
@@ -1543,8 +1779,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -1702,6 +1958,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       tradeID:
         type: string
         description: >-
@@ -1749,8 +2006,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -1892,6 +2169,16 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
+      guaranteedExecutionPremium:
+        type: string
+        description: >-
+          The premium that will be charged if the Stop Loss Order is guaranteed
+          and the Order is filled at the guaranteed price. It is in price
+          units and is charged for each unit of the Trade.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       tradeID:
         type: string
         description: >-
@@ -1908,12 +2195,24 @@ definitions:
       price:
         type: string
         description: >-
-          The price threshold specified for the StopLoss Order. The associated
-          Trade will be closed by a market price that is equal to or worse
-          than this threshold.
+          The price threshold specified for the Stop Loss Order. If the
+          guaranteed flag is false, the associated Trade will be closed
+          by a market price that is equal to or worse than this threshold.
+          If the flag is true the associated Trade will be closed at this
+          price.
         format: >-
           A decimal number encodes as a string. The amount of precision
           provided depends on the Price's Instrument.
+      distance:
+        type: string
+        description: >-
+          Specifies the distance (in price units) from the Account's current
+          price to use as the Stop Loss Order price. If the Trade is short
+          the Instrument's bid price is used, and for long Trades the ask
+          is used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       timeInForce:
         type: string
         description: >-
@@ -1939,14 +2238,41 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
         - BID
         - ASK
         - MID
+      guaranteed:
+        type: boolean
+        description: >-
+          Flag indicating that the Stop Loss Order is guaranteed. The default
+          value depends on the GuaranteedStopLossOrderMode of the account,
+          if it is REQUIRED, the default will be true, for DISABLED or ENABLED
+          the default is false.
       fillingTransactionID:
         type: string
         description: >-
@@ -2086,6 +2412,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       tradeID:
         type: string
         description: >-
@@ -2101,11 +2428,12 @@ definitions:
           is breached.
       distance:
         type: string
-        description: The price distance specified for the TrailingStopLoss
+        description: >-
+          The price distance (in price units) specified for the TrailingStopLoss
           Order.
         format: >-
-          A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       timeInForce:
         type: string
         description: >-
@@ -2131,8 +2459,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -2264,6 +2612,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The Market Order's Instrument.
@@ -2337,6 +2686,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The Limit Order's Instrument.
@@ -2394,8 +2744,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -2431,6 +2801,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The Stop Order's Instrument.
@@ -2498,8 +2869,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -2535,6 +2926,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       instrument:
         type: string
         description: The MarketIfTouched Order's Instrument.
@@ -2605,8 +2997,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -2627,7 +3039,8 @@ definitions:
     type: object
     description: >-
       A TakeProfitOrderRequest specifies the parameters that may be set
-      when creating a Take Profit Order.
+      when creating a Take Profit Order. Only one of the price and distance
+      fields may be specified.
     properties:
       type:
         type: string
@@ -2642,6 +3055,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       tradeID:
         type: string
         description: >-
@@ -2689,8 +3103,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -2703,7 +3137,8 @@ definitions:
     type: object
     description: >-
       A StopLossOrderRequest specifies the parameters that may be set when
-      creating a Stop Loss Order.
+      creating a Stop Loss Order. Only one of the price and distance fields
+      may be specified.
     properties:
       type:
         type: string
@@ -2718,6 +3153,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       tradeID:
         type: string
         description: >-
@@ -2734,12 +3170,24 @@ definitions:
       price:
         type: string
         description: >-
-          The price threshold specified for the StopLoss Order. The associated
-          Trade will be closed by a market price that is equal to or worse
-          than this threshold.
+          The price threshold specified for the Stop Loss Order. If the
+          guaranteed flag is false, the associated Trade will be closed
+          by a market price that is equal to or worse than this threshold.
+          If the flag is true the associated Trade will be closed at this
+          price.
         format: >-
           A decimal number encodes as a string. The amount of precision
           provided depends on the Price's Instrument.
+      distance:
+        type: string
+        description: >-
+          Specifies the distance (in price units) from the Account's current
+          price to use as the Stop Loss Order price. If the Trade is short
+          the Instrument's bid price is used, and for long Trades the ask
+          is used.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       timeInForce:
         type: string
         description: >-
@@ -2765,14 +3213,41 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
         - BID
         - ASK
         - MID
+      guaranteed:
+        type: boolean
+        description: >-
+          Flag indicating that the Stop Loss Order is guaranteed. The default
+          value depends on the GuaranteedStopLossOrderMode of the account,
+          if it is REQUIRED, the default will be true, for DISABLED or ENABLED
+          the default is false.
       clientExtensions:
         $ref: transaction.yaml#/definitions/ClientExtensions
   TrailingStopLossOrderRequest:
@@ -2794,6 +3269,7 @@ definitions:
         - TAKE_PROFIT
         - STOP_LOSS
         - TRAILING_STOP_LOSS
+        - FIXED_PRICE
       tradeID:
         type: string
         description: >-
@@ -2809,11 +3285,12 @@ definitions:
           is breached.
       distance:
         type: string
-        description: The price distance specified for the TrailingStopLoss
+        description: >-
+          The price distance (in price units) specified for the TrailingStopLoss
           Order.
         format: >-
-          A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
       timeInForce:
         type: string
         description: >-
@@ -2839,8 +3316,28 @@ definitions:
       triggerCondition:
         type: string
         description: >-
-          Specification of what component of a price should be used for
-          comparison when determining if the Order should be filled.
+          Specification of which price component should be used when determining
+          if an Order should be triggered and filled. This allows Orders
+          to be triggered based on the bid, ask, mid, default (ask for buy,
+          bid for sell) or inverse (ask for sell, bid for buy) price depending
+          on the desired behaviour. Orders are always filled using their
+          default price component.
+
+          This feature is only provided through the REST API. Clients who
+          choose to specify a non-default trigger condition will not see
+          it reflected in any of OANDA's proprietary or partner trading
+          platforms, their transaction history or their account statements.
+          OANDA platforms always assume that an Order's trigger condition
+          is set to the default value when indicating the distance from
+          an Order's trigger price, and will always provide the default
+          trigger condition when creating or modifying an Order.
+
+          A special restriction applies when creating a guaranteed Stop
+          Loss Order. In this case the TriggerCondition value must either
+          be "DEFAULT", or the "natural" trigger side "DEFAULT" results
+          in. So for a Stop Loss Order for a long trade valid values are
+          "DEFAULT" and "BID", and for short trades "DEFAULT" and "ASK"
+          are valid.
         enum:
         - DEFAULT
         - INVERSE
@@ -2881,6 +3378,32 @@ definitions:
         $ref: '#/definitions/UnitsAvailableDetails'
       openOnly:
         $ref: '#/definitions/UnitsAvailableDetails'
+  GuaranteedStopLossOrderEntryData:
+    type: object
+    description: >-
+      Details required by clients creating a Guaranteed Stop Loss Order
+    properties:
+      minimumDistance:
+        type: string
+        description: >-
+          The minimum distance allowed between the Trade's fill price and
+          the configured price for guaranteed Stop Loss Orders created for
+          this instrument. Specified in price units.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      premium:
+        type: string
+        description: >-
+          The amount that is charged to the account if a guaranteed Stop
+          Loss Order is triggered and filled. The value is in price units
+          and is charged for each unit of the Trade.
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      levelRestriction:
+        $ref: >-
+          primitives.yaml#/definitions/GuaranteedStopLossOrderLevelRestriction
 parameters:
   orderSpecifierPathParam:
     name: orderSpecifier

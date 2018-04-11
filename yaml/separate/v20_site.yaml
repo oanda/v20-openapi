@@ -1,9 +1,9 @@
 swagger: '2.0'
 info:
-  title: OANDA v20 Primitives
+  title: OANDA v20 Site API
   description: >-
-    Definitions of primitive building-blocks used throughout OANDA's v20
-    REST API.
+    Site-related definitions and endpoints. These endpoints are for internal,
+    administrative access to Site-level services.
   contact:
     name: OANDA API Support
     url: http://developer.oanda.com/rest-live-v20/introduction/
@@ -190,216 +190,31 @@ paths:
         '405':
           $ref: v20_primitives.json#/responses/405
 definitions:
-  DecimalNumber:
-    type: string
-    description: The string representation of a decimal number.
-    format: >-
-      A decimal number encoded as a string. The amount of precision provided
-      depends on what the number represents.
-  AccountUnits:
-    type: string
-    description: >-
-      The string representation of a quantity of an Account's home currency.
-    format: >-
-      A decimal number encoded as a string. The amount of precision provided
-      depends on the Account's home currency.
-  Currency:
-    type: string
-    description: >-
-      Currency name identifier. Used by clients to refer to currencies.
-    format: >-
-      A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)
-  InstrumentName:
-    type: string
-    description: >-
-      Instrument name identifier. Used by clients to refer to an Instrument.
-    format: >-
-      A string containing the base currency and quote currency delimited
-      by a "_".
-  InstrumentType:
-    type: string
-    description: The type of an Instrument.
-    enum:
-    - CURRENCY
-    - CFD
-    - METAL
-  Instrument:
+  MT4TransactionHeartbeat:
     type: object
-    description: Full specification of an Instrument.
+    description: >-
+      A TransactionHeartbeat object is injected into the Transaction stream
+      to ensure that the HTTP connection remains active.
     properties:
-      name:
-        type: string
-        description: The name of the Instrument
-        format: >-
-          A string containing the base currency and quote currency delimited
-          by a "_".
       type:
         type: string
-        description: The type of the Instrument
-        enum:
-        - CURRENCY
-        - CFD
-        - METAL
-      displayName:
+        description: The string "HEARTBEAT"
+      time:
         type: string
-        description: The display name of the Instrument
-      pipLocation:
-        type: integer
-        description: >-
-          The location of the "pip" for this instrument. The decimal position
-          of the pip in this Instrument's price can be found at 10 ^ pipLocation
-          (e.g. -4 pipLocation results in a decimal pip position of 10 ^
-          -4 = 0.0001).
-      displayPrecision:
-        type: integer
-        description: >-
-          The number of decimal places that should be used to display prices
-          for this instrument. (e.g. a displayPrecision of 5 would result
-          in a price of "1" being displayed as "1.00000")
-      tradeUnitsPrecision:
-        type: integer
-        description: >-
-          The amount of decimal places that may be provided when specifying
-          the number of units traded for this instrument.
-      minimumTradeSize:
-        type: string
-        description: >-
-          The smallest number of units allowed to be traded for this instrument.
+        description: The date/time when the TransactionHeartbeat was created.
         format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      maximumTrailingStopDistance:
-        type: string
-        description: >-
-          The maximum trailing stop distance allowed for a trailing stop
-          loss created for this instrument. Specified in price units.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      minimumTrailingStopDistance:
-        type: string
-        description: >-
-          The minimum trailing stop distance allowed for a trailing stop
-          loss created for this instrument. Specified in price units.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      maximumPositionSize:
-        type: string
-        description: >-
-          The maximum position size allowed for this instrument. Specified
-          in units.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      maximumOrderUnits:
-        type: string
-        description: >-
-          The maximum units allowed for an Order placed for this instrument.
-          Specified in units.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      marginRate:
-        type: string
-        description: The margin rate for this instrument.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      commission:
-        $ref: '#/definitions/InstrumentCommission'
-  DateTime:
-    type: string
-    description: >-
-      A date and time value using either RFC3339 or UNIX time representation.
-    format: >-
-      The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
-      The Unix representation is a string representing the number of seconds
-      since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional
-      number, where the fractional part represents a fraction of a second
-      (up to nine decimal places).
-  AcceptDatetimeFormat:
-    type: string
-    description: DateTime header
-    enum:
-    - UNIX
-    - RFC3339
-  InstrumentCommission:
-    type: object
-    description: >-
-      An InstrumentCommission represents an instrument-specific commission
-    properties:
-      commission:
-        type: string
-        description: >-
-          The commission amount (in the Account's home currency) charged
-          per unitsTraded of the instrument
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      unitsTraded:
-        type: string
-        description: >-
-          The number of units traded that the commission amount is based
-          on.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      minimumCommission:
-        type: string
-        description: >-
-          The minimum commission amount (in the Account's home currency)
-          that is charged when an Order is filled for this instrument.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-  GuaranteedStopLossOrderLevelRestriction:
-    type: object
-    description: >-
-      A GuaranteedStopLossOrderLevelRestriction represents the total position
-      size that can exist within a given price window for Trades with guaranteed
-      Stop Loss Orders attached for a specific Instrument.
-    properties:
-      volume:
-        type: string
-        description: >-
-          Applies to Trades with a guaranteed Stop Loss Order attached for
-          the specified Instrument. This is the total allowed Trade volume
-          that can exist within the priceRange based on the trigger prices
-          of the guaranteed Stop Loss Orders.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-      priceRange:
-        type: string
-        description: >-
-          The price range the volume applies to. This value is in price
-          units.
-        format: >-
-          A decimal number encoded as a string. The amount of precision
-          provided depends on what the number represents.
-  Direction:
-    type: string
-    description: >-
-      In the context of an Order or a Trade, defines whether the units are
-      positive or negative.
-    enum:
-    - LONG
-    - SHORT
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
 parameters:
-  authorizationHeaderParam:
-    name: Authorization
-    description: >-
-      The authorization bearer token previously obtained by the client
-    in: header
-    type: string
-    format: The string 'Bearer ' followed by the token.
+  mt4ServerIDPathParam:
+    name: mt4ServerID
+    description: MT4 Server ID
+    in: path
+    type: int
     required: true
-  acceptDatetimeFormatHeaderParam:
-    name: Accept-Datetime-Format
-    description: Format of DateTime fields in the request and response.
-    in: header
-    type: string
 responses:
   '400':
     description: >-
