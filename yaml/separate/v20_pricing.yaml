@@ -11,13 +11,120 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
 consumes:
 - application/json
 paths:
+  /pricing:
+    get:
+      summary: Get Base Prices
+      description: >-
+        Get pricing information for a specified instrument. Accounts are
+        not associated in any way with this endpoint.
+      operationId: basePrices
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - name: time
+        description: >-
+          The time at which the desired price for each instrument is in
+          effect. The current price for each instrument is returned if no
+          time is provided.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              prices:
+                type: array
+                description: The list of prices that satisfy the request.
+                items:
+                  $ref: pricing_common.yaml#/definitions/Price
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /pricing/range:
+    get:
+      summary: Get Price Range
+      description: >-
+        Get pricing information for a specified range of prices. Accounts
+        are not associated in any way with this endpoint.
+      operationId: getPriceRange
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: instrument.yaml#/parameters/instrumentNamePathParam
+      - name: from
+        description: The start of the time range to fetch prices for.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+        required: true
+      - name: to
+        description: >-
+          The end of the time range to fetch prices for. The current time
+          is used if this parameter is not provided.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+            Link:
+              description: >-
+                A link to the next page of results if the results were paginated
+              type: string
+          schema:
+            type: object
+            properties:
+              prices:
+                type: array
+                description: The list of prices that satisfy the request.
+                items:
+                  $ref: pricing_common.yaml#/definitions/Price
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
   /accounts/{accountID}/pricing:
     get:
       summary: Current Account Prices
@@ -82,7 +189,7 @@ paths:
                 type: array
                 description: The list of Price objects requested.
                 items:
-                  $ref: '#/definitions/Price'
+                  $ref: '#/definitions/ClientPrice'
               homeConversions:
                 type: array
                 description: >-
@@ -176,7 +283,7 @@ paths:
               Heartbeats are sent every 5 seconds.
             properties:
               price:
-                $ref: '#/definitions/Price'
+                $ref: '#/definitions/ClientPrice'
               heartbeat:
                 $ref: '#/definitions/PricingHeartbeat'
         '400':
@@ -187,8 +294,156 @@ paths:
           $ref: primitives.yaml#/responses/404
         '405':
           $ref: primitives.yaml#/responses/405
+  /accounts/{accountID}/instruments/{instrument}/candles:
+    get:
+      summary: Get Candlesticks
+      description: Fetch candlestick data for an instrument.
+      operationId: candles
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: instrument.yaml#/parameters/instrumentNamePathParam
+      - name: price
+        description: >-
+          The Price component(s) to get candlestick data for. Can contain
+          any combination of the characters "M" (midpoint candles) "B" (bid
+          candles) and "A" (ask candles).
+        in: query
+        type: string
+      - name: granularity
+        description: The granularity of the candlesticks to fetch
+        in: query
+        type: string
+      - name: count
+        description: >-
+          The number of candlesticks to return in the response. Count should
+          not be specified if both the start and end parameters are provided,
+          as the time range combined with the granularity will determine
+          the number of candlesticks to return.
+        in: query
+        type: integer
+      - name: from
+        description: The start of the time range to fetch candlesticks for.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      - name: to
+        description: The end of the time range to fetch candlesticks for.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      - name: smooth
+        description: >-
+          A flag that controls whether the candlestick is "smoothed" or
+          not.  A smoothed candlestick uses the previous candle's close
+          price as its open price, while an unsmoothed candlestick uses
+          the first price from its time range as its open price.
+        in: query
+        type: boolean
+      - name: includeFirst
+        description: >-
+          A flag that controls whether the candlestick that is covered by
+          the from time should be included in the results. This flag enables
+          clients to use the timestamp of the last completed candlestick
+          received to poll for future candlesticks but avoid receiving the
+          previous candlestick repeatedly.
+        in: query
+        type: boolean
+      - name: dailyAlignment
+        description: >-
+          The hour of the day (in the specified timezone) to use for granularities
+          that have daily alignments.
+        in: query
+        type: integer
+      - name: alignmentTimezone
+        description: >-
+          The timezone to use for the dailyAlignment parameter. Candlesticks
+          with daily alignment will be aligned to the dailyAlignment hour
+          within the alignmentTimezone.  Note that the returned times will
+          still be represented in UTC.
+        in: query
+        type: string
+      - name: weeklyAlignment
+        description: >-
+          The day of the week used for granularities that have weekly alignment.
+        in: query
+        type: string
+      - name: units
+        description: >-
+          The number of units used to calculate the volume-weighted average
+          bid and ask prices in the returned candles.
+        in: query
+        type: string
+        format: >-
+          A decimal number encoded as a string. The amount of precision
+          provided depends on what the number represents.
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              instrument:
+                type: string
+                description: >-
+                  The instrument whose Prices are represented by the candlesticks.
+                format: >-
+                  A string containing the base currency and quote currency
+                  delimited by a "_".
+              granularity:
+                type: string
+                description: The granularity of the candlesticks provided.
+                enum:
+                - S5
+                - S10
+                - S15
+                - S30
+                - M1
+                - M2
+                - M4
+                - M5
+                - M10
+                - M15
+                - M30
+                - H1
+                - H2
+                - H3
+                - H4
+                - H6
+                - H8
+                - H12
+                - D
+                - W
+                - M
+              candles:
+                type: array
+                description: The list of candlesticks that satisfy the request.
+                items:
+                  $ref: instrument.yaml#/definitions/Candlestick
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
 definitions:
-  Price:
+  ClientPrice:
     type: object
     description: The specification of an Account-specific Price.
     properties:
@@ -230,7 +485,7 @@ definitions:
           no bid liquidity currently available for the Instrument in the
           Account.
         items:
-          $ref: '#/definitions/PriceBucket'
+          $ref: pricing_common.yaml#/definitions/PriceBucket
       asks:
         type: array
         description: >-
@@ -239,7 +494,7 @@ definitions:
           no ask liquidity currently available for the Instrument in the
           Account.
         items:
-          $ref: '#/definitions/PriceBucket'
+          $ref: pricing_common.yaml#/definitions/PriceBucket
       closeoutBid:
         type: string
         description: >-
@@ -249,7 +504,7 @@ definitions:
           position.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       closeoutAsk:
         type: string
         description: >-
@@ -259,31 +514,11 @@ definitions:
           position.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       quoteHomeConversionFactors:
         $ref: '#/definitions/QuoteHomeConversionFactors'
       unitsAvailable:
         $ref: order.yaml#/definitions/UnitsAvailable
-  PriceValue:
-    type: string
-    description: The string representation of a Price for an Instrument.
-    format: >-
-      A decimal number encodes as a string. The amount of precision provided
-      depends on the Price's Instrument.
-  PriceBucket:
-    type: object
-    description: >-
-      A Price Bucket represents a price available for an amount of liquidity
-    properties:
-      price:
-        type: string
-        description: The Price offered by the PriceBucket
-        format: >-
-          A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
-      liquidity:
-        type: integer
-        description: The amount of liquidity offered by the PriceBucket
   PriceStatus:
     type: string
     description: The status of the Price.
@@ -356,57 +591,6 @@ definitions:
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.
-  ClientPrice:
-    type: object
-    description: Client price for an Account.
-    properties:
-      bids:
-        type: array
-        description: >-
-          The list of prices and liquidity available on the Instrument's
-          bid side. It is possible for this list to be empty if there is
-          no bid liquidity currently available for the Instrument in the
-          Account.
-        items:
-          $ref: '#/definitions/PriceBucket'
-      asks:
-        type: array
-        description: >-
-          The list of prices and liquidity available on the Instrument's
-          ask side. It is possible for this list to be empty if there is
-          no ask liquidity currently available for the Instrument in the
-          Account.
-        items:
-          $ref: '#/definitions/PriceBucket'
-      closeoutBid:
-        type: string
-        description: >-
-          The closeout bid Price. This Price is used when a bid is required
-          to closeout a Position (margin closeout or manual) yet there is
-          no bid liquidity. The closeout bid is never used to open a new
-          position.
-        format: >-
-          A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
-      closeoutAsk:
-        type: string
-        description: >-
-          The closeout ask Price. This Price is used when a ask is required
-          to closeout a Position (margin closeout or manual) yet there is
-          no ask liquidity. The closeout ask is never used to open a new
-          position.
-        format: >-
-          A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
-      timestamp:
-        type: string
-        description: The date/time when the Price was created.
-        format: >-
-          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
-          The Unix representation is a string representing the number of
-          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
-          is a fractional number, where the fractional part represents a
-          fraction of a second (up to nine decimal places).
   PricingHeartbeat:
     type: object
     description: >-
@@ -426,12 +610,137 @@ definitions:
           is a fractional number, where the fractional part represents a
           fraction of a second (up to nine decimal places).
 parameters:
-  transactionIDPathParam:
-    name: transactionID
-    description: A Transaction ID
+  userSpecifierPathParam:
+    name: userSpecifier
+    description: The User Specifier
     in: path
     type: string
     format: >-
-      String representation of the numerical OANDA-assigned TransactionID
+      A user specifier may have one of 3 formats: the OANDA-assigned User
+      ID (numerical), the client-provided username prefixed by the "@" symbol
+      (e.g. "@myusername"), or the "@" symbol. The "@" symbol on its own
+      acts as an alias for the username of the user accessing the endpoint
+      (as inferred from the token provided).
     required: true
+responses:
+  '400':
+    description: >-
+      Bad Request. The client has provided invalid data to be processed
+      by the server.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '401':
+    description: >-
+      Unauthorized. The endpoint being access required the client to authenticated,
+      however the the authentication token is invalid or has not been provided.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '403':
+    description: >-
+      Forbidden. The client has provided a token that does not authorize
+      them to perform the action implemented by the API endpoint.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '404':
+    description: >-
+      Not Found. The client has attempted to access an entity that does
+      not exist.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '405':
+    description: >-
+      Method Not Allowed. The client has attempted to access an endpoint
+      using an HTTP method that is not supported.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '416':
+    description: >-
+      Range Not Satisfiable. The client has specified a range that is invalid
+      or cannot be processed.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
 

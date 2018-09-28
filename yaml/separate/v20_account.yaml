@@ -9,7 +9,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
@@ -466,6 +466,16 @@ definitions:
       hedgingEnabled:
         type: boolean
         description: Flag indicating that the Account has hedging enabled.
+      lastOrderFillTimestamp:
+        type: string
+        description: >-
+          The date/time of the last order that was filled for this account.
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       unrealizedPL:
         type: string
         description: >-
@@ -870,6 +880,16 @@ definitions:
       hedgingEnabled:
         type: boolean
         description: Flag indicating that the Account has hedging enabled.
+      lastOrderFillTimestamp:
+        type: string
+        description: >-
+          The date/time of the last order that was filled for this account.
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
       unrealizedPL:
         type: string
         description: >-
@@ -1143,4 +1163,125 @@ parameters:
     format: >-
       "-"-delimited string with format "{siteID}-{divisionID}-{userID}-{accountNumber}"
     required: true
+responses:
+  '400':
+    description: >-
+      Bad Request. The client has provided invalid data to be processed
+      by the server.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '401':
+    description: >-
+      Unauthorized. The endpoint being access required the client to authenticated,
+      however the the authentication token is invalid or has not been provided.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '403':
+    description: >-
+      Forbidden. The client has provided a token that does not authorize
+      them to perform the action implemented by the API endpoint.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '404':
+    description: >-
+      Not Found. The client has attempted to access an entity that does
+      not exist.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '405':
+    description: >-
+      Method Not Allowed. The client has attempted to access an endpoint
+      using an HTTP method that is not supported.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '416':
+    description: >-
+      Range Not Satisfiable. The client has specified a range that is invalid
+      or cannot be processed.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
 

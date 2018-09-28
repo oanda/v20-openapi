@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
@@ -611,7 +611,7 @@ definitions:
         description: The execution price of the Trade.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       openTime:
         type: string
         description: The date/time when the Trade was opened.
@@ -681,7 +681,7 @@ definitions:
           has been closed or reduced at least once.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       closingTransactionIDs:
         type: array
         description: >-
@@ -741,7 +741,7 @@ definitions:
         description: The execution price of the Trade.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       openTime:
         type: string
         description: The date/time when the Trade was opened.
@@ -811,7 +811,7 @@ definitions:
           has been closed or reduced at least once.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       closingTransactionIDs:
         type: array
         description: >-
@@ -908,125 +908,4 @@ parameters:
       Either the Trade's OANDA-assigned TradeID or the Trade's client-provided
       ClientID prefixed by the "@" symbol
     required: true
-responses:
-  '400':
-    description: >-
-      Bad Request. The client has provided invalid data to be processed
-      by the server.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '401':
-    description: >-
-      Unauthorized. The endpoint being access required the client to authenticated,
-      however the the authentication token is invalid or has not been provided.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '403':
-    description: >-
-      Forbidden. The client has provided a token that does not authorize
-      them to perform the action implemented by the API endpoint.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '404':
-    description: >-
-      Not Found. The client has attempted to access an entity that does
-      not exist.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '405':
-    description: >-
-      Method Not Allowed. The client has attempted to access an endpoint
-      using an HTTP method that is not supported.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '416':
-    description: >-
-      Range Not Satisfiable. The client has specified a range that is invalid
-      or cannot be processed.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
 

@@ -9,37 +9,66 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
 consumes:
 - application/json
 paths:
-  /accounts/{accountID}/orders:
-    post:
-      summary: Create Order
-      description: Create an Order for an Account
-      operationId: create
+  /accounts/{accountID}/trades:
+    get:
+      summary: List Trades
+      description: Get a list of Trades for an Account
+      operationId: list
       parameters:
       - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
       - $ref: >-
           v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: v20_account.json#/parameters/accountIDPathParam
-      - name: createOrderBody
-        in: body
-        schema:
-          type: object
-          properties:
-            order:
-              $ref: '#/definitions/OrderRequest'
-        required: true
+      - name: ids
+        description: List of Trade IDs to retrieve.
+        in: query
+        type: array
+        items:
+          type: string
+          format: >-
+            The string representation of the OANDA-assigned TradeID. OANDA-assigned
+            TradeIDs are positive integers, and are derived from the TransactionID
+            of the Transaction that opened the Trade.
+        collectionFormat: csv
+      - name: state
+        description: The state to filter the requested Trades by.
+        in: query
+        type: string
+      - name: instrument
+        description: The instrument to filter the requested Trades by.
+        in: query
+        type: string
+        format: >-
+          A string containing the base currency and quote currency delimited
+          by a "_".
+      - name: count
+        description: The maximum number of Trades to return.
+        in: query
+        type: integer
+      - name: beforeID
+        description: >-
+          The maximum Trade ID to return. If not provided the most recent
+          Trades in the Account are returned.
+        in: query
+        type: string
+        format: >-
+          The string representation of the OANDA-assigned TradeID. OANDA-assigned
+          TradeIDs are positive integers, and are derived from the TransactionID
+          of the Transaction that opened the Trade.
       responses:
-        '201':
-          description: The Order was created as specified
+        '200':
+          description: The list of Trades requested
           headers:
-            Location:
-              description: A link to the Order that was just created
+            Link:
+              description: >-
+                A link to the next page of Trades if the results were paginated
               type: string
             RequestID:
               description: The unique identifier generated for the request
@@ -47,16 +76,146 @@ paths:
           schema:
             type: object
             properties:
+              trades:
+                type: array
+                description: The list of Trade detail objects
+                items:
+                  $ref: '#/definitions/Trade'
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '401':
+          $ref: v20_primitives.json#/responses/401
+        '404':
+          $ref: v20_primitives.json#/responses/404
+        '405':
+          $ref: v20_primitives.json#/responses/405
+  /accounts/{accountID}/openTrades:
+    get:
+      summary: List Open Trades
+      description: Get the list of open Trades for an Account
+      operationId: listOpen
+      parameters:
+      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: >-
+          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: v20_account.json#/parameters/accountIDPathParam
+      responses:
+        '200':
+          description: The Account's list of open Trades is provided
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              trades:
+                type: array
+                description: The Account's list of open Trades
+                items:
+                  $ref: '#/definitions/Trade'
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '401':
+          $ref: v20_primitives.json#/responses/401
+        '404':
+          $ref: v20_primitives.json#/responses/404
+        '405':
+          $ref: v20_primitives.json#/responses/405
+  /accounts/{accountID}/trades/{tradeSpecifier}:
+    get:
+      summary: Trade Details
+      description: Get the details of a specific Trade in an Account
+      operationId: get
+      parameters:
+      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: >-
+          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: v20_account.json#/parameters/accountIDPathParam
+      - $ref: '#/parameters/tradeSpecifierPathParam'
+      responses:
+        '200':
+          description: The details for the requested Trade is provided
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              trade:
+                $ref: '#/definitions/Trade'
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '401':
+          $ref: v20_primitives.json#/responses/401
+        '404':
+          $ref: v20_primitives.json#/responses/404
+        '405':
+          $ref: v20_primitives.json#/responses/405
+  /accounts/{accountID}/trades/{tradeSpecifier}/close:
+    put:
+      summary: Close Trade
+      description: >-
+        Close (partially or fully) a specific open Trade in an Account
+      operationId: close
+      parameters:
+      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
+      - $ref: >-
+          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: v20_account.json#/parameters/accountIDPathParam
+      - $ref: '#/parameters/tradeSpecifierPathParam'
+      - name: closeTradeBody
+        description: Details of how much of the open Trade to close.
+        in: body
+        schema:
+          type: object
+          properties:
+            units:
+              type: string
+              description: >-
+                Indication of how much of the Trade to close. Either the
+                string "ALL" (indicating that all of the Trade should be
+                closed), or a DecimalNumber representing the number of units
+                of the open Trade to Close using a TradeClose MarketOrder.
+                The units specified must always be positive, and the magnitude
+                of the value cannot exceed the magnitude of the Trade's
+                open units.
+        required: true
+      responses:
+        '200':
+          description: The Trade has been closed as requested
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
               orderCreateTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
+                $ref: v20_transaction.json#/definitions/MarketOrderTransaction
               orderFillTransaction:
                 $ref: v20_transaction.json#/definitions/OrderFillTransaction
               orderCancelTransaction:
                 $ref: v20_transaction.json#/definitions/OrderCancelTransaction
-              orderReissueTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              orderReissueRejectTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -78,32 +237,13 @@ paths:
                   String representation of the numerical OANDA-assigned
                   TransactionID
         '400':
-          description: The Order specification was invalid
+          description: The Trade cannot be closed as requested.
           schema:
             type: object
             properties:
               orderRejectTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              relatedTransactionIDs:
-                type: array
-                description: >-
-                  The IDs of all Transactions that were created while satisfying
-                  the request.
-                items:
-                  type: string
-                  description: The unique Transaction identifier within
-                    each Account.
-                  format: >-
-                    String representation of the numerical OANDA-assigned
-                    TransactionID
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
+                $ref: >-
+                  v20_transaction.json#/definitions/MarketOrderRejectTransaction
               errorCode:
                 type: string
                 description: >-
@@ -115,15 +255,22 @@ paths:
                   The human-readable description of the error that has occurred.
         '401':
           $ref: v20_primitives.json#/responses/401
-        '403':
-          $ref: v20_primitives.json#/responses/403
         '404':
-          description: The Order or Account specified does not exist.
+          description: The Account or Trade specified does not exist.
           schema:
             type: object
             properties:
               orderRejectTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
+                $ref: >-
+                  v20_transaction.json#/definitions/MarketOrderRejectTransaction
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account. Only present if the Account exists.
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -136,14 +283,6 @@ paths:
                   format: >-
                     String representation of the numerical OANDA-assigned
                     TransactionID
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account. Only present if the Account exists.
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
               errorCode:
                 type: string
                 description: >-
@@ -155,212 +294,43 @@ paths:
                   The human-readable description of the error that has occurred.
         '405':
           $ref: v20_primitives.json#/responses/405
-    get:
-      summary: List Orders
-      description: Get a list of Orders for an Account
-      operationId: list
-      parameters:
-      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
-      - $ref: >-
-          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
-      - $ref: v20_account.json#/parameters/accountIDPathParam
-      - name: ids
-        description: List of Order IDs to retrieve
-        in: query
-        type: array
-        items:
-          type: string
-          format: >-
-            The string representation of the OANDA-assigned OrderID. OANDA-assigned
-            OrderIDs are positive integers, and are derived from the TransactionID
-            of the Transaction that created the Order.
-        collectionFormat: csv
-      - name: state
-        description: The state to filter the requested Orders by
-        in: query
-        type: string
-      - name: instrument
-        description: The instrument to filter the requested orders by
-        in: query
-        type: string
-        format: >-
-          A string containing the base currency and quote currency delimited
-          by a "_".
-      - name: count
-        description: The maximum number of Orders to return
-        in: query
-        type: integer
-      - name: beforeID
-        description: >-
-          The maximum Order ID to return. If not provided the most recent
-          Orders in the Account are returned
-        in: query
-        type: string
-        format: >-
-          The string representation of the OANDA-assigned OrderID. OANDA-assigned
-          OrderIDs are positive integers, and are derived from the TransactionID
-          of the Transaction that created the Order.
-      responses:
-        '200':
-          description: The list of Orders requested
-          headers:
-            Link:
-              description: >-
-                A link to the next page of results if the results were paginated
-              type: string
-            RequestID:
-              description: The unique identifier generated for the request
-              type: string
-          schema:
-            type: object
-            properties:
-              orders:
-                type: array
-                description: The list of Order detail objects
-                items:
-                  $ref: '#/definitions/Order'
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
-        '400':
-          $ref: v20_primitives.json#/responses/400
-        '404':
-          $ref: v20_primitives.json#/responses/404
-        '405':
-          $ref: v20_primitives.json#/responses/405
-  /accounts/{accountID}/pendingOrders:
-    get:
-      summary: Pending Orders
-      description: List all pending Orders in an Account
-      operationId: listPending
-      parameters:
-      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
-      - $ref: >-
-          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
-      - $ref: v20_account.json#/parameters/accountIDPathParam
-      responses:
-        '200':
-          description: List of pending Orders for the Account
-          headers:
-            RequestID:
-              description: The unique identifier generated for the request
-              type: string
-          schema:
-            type: object
-            properties:
-              orders:
-                type: array
-                description: The list of pending Order details
-                items:
-                  $ref: '#/definitions/Order'
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
-        '401':
-          $ref: v20_primitives.json#/responses/401
-        '404':
-          $ref: v20_primitives.json#/responses/404
-        '405':
-          $ref: v20_primitives.json#/responses/405
-  /accounts/{accountID}/orders/{orderSpecifier}:
-    get:
-      summary: Get Order
-      description: Get details for a single Order in an Account
-      operationId: get
-      parameters:
-      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
-      - $ref: >-
-          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
-      - $ref: v20_account.json#/parameters/accountIDPathParam
-      - $ref: '#/parameters/orderSpecifierPathParam'
-      responses:
-        '200':
-          description: The details of the Order requested
-          headers:
-            Link:
-              description: >-
-                A link to the next page of results if the results were paginated
-              type: string
-            RequestID:
-              description: The unique identifier generated for the request
-              type: string
-          schema:
-            type: object
-            properties:
-              order:
-                $ref: '#/definitions/Order'
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
-        '401':
-          $ref: v20_primitives.json#/responses/401
-        '404':
-          $ref: v20_primitives.json#/responses/404
-        '405':
-          $ref: v20_primitives.json#/responses/405
+  "/accounts/{accountID}/trades/{tradeSpecifier}/clientExtensions":
     put:
-      summary: Replace Order
+      summary: Set Trade Client Extensions
       description: >-
-        Replace an Order in an Account by simultaneously cancelling it and
-        creating a replacement Order
-      operationId: replace
+        Update the Client Extensions for a Trade. Do not add, update, or
+        delete the Client Extensions if your account is associated with
+        MT4.
+      operationId: setClientExtensions
       parameters:
       - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
       - $ref: >-
           v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: v20_account.json#/parameters/accountIDPathParam
-      - $ref: '#/parameters/orderSpecifierPathParam'
-      - name: replaceOrderBody
-        description: >-
-          Specification of the replacing Order. The replacing order must
-          have the same type as the replaced Order.
+      - $ref: '#/parameters/tradeSpecifierPathParam'
+      - name: setTradeClientExtensionsBody
+        description: Details of how to modify the Trade's Client Extensions.
         in: body
         schema:
           type: object
           properties:
-            order:
-              $ref: '#/definitions/OrderRequest'
+            clientExtensions:
+              $ref: v20_transaction.json#/definitions/ClientExtensions
         required: true
       responses:
-        '201':
-          description: The Order was successfully cancelled and replaced
+        '200':
+          description: >-
+            The Trade's Client Extensions have been updated as requested.
           headers:
-            Location:
-              description: A link to the replacing Order
-              type: string
             RequestID:
               description: The unique identifier generated for the request
               type: string
           schema:
             type: object
             properties:
-              orderCancelTransaction:
-                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
-              orderCreateTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              orderFillTransaction:
-                $ref: v20_transaction.json#/definitions/OrderFillTransaction
-              orderReissueTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              orderReissueRejectTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              replacingOrderCancelTransaction:
-                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
+              tradeClientExtensionsModifyTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/TradeClientExtensionsModifyTransaction
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -382,24 +352,14 @@ paths:
                   String representation of the numerical OANDA-assigned
                   TransactionID
         '400':
-          description: The Order specification was invalid
+          description: >-
+            The Trade's Client Extensions cannot be modified as requested.
           schema:
             type: object
             properties:
-              orderRejectTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              relatedTransactionIDs:
-                type: array
-                description: >-
-                  The IDs of all Transactions that were created while satisfying
-                  the request.
-                items:
-                  type: string
-                  description: The unique Transaction identifier within
-                    each Account.
-                  format: >-
-                    String representation of the numerical OANDA-assigned
-                    TransactionID
+              tradeClientExtensionsModifyRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/TradeClientExtensionsModifyRejectTransaction
               lastTransactionID:
                 type: string
                 description: >-
@@ -408,78 +368,6 @@ paths:
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
-              errorCode:
-                type: string
-                description: >-
-                  The code of the error that has occurred. This field may
-                  not be returned for some errors.
-              errorMessage:
-                type: string
-                description: >-
-                  The human-readable description of the error that has occurred.
-        '401':
-          $ref: v20_primitives.json#/responses/401
-        '404':
-          description: The Account or Order specified does not exist.
-          schema:
-            type: object
-            properties:
-              orderCancelRejectTransaction:
-                $ref: v20_transaction.json#/definitions/Transaction
-              relatedTransactionIDs:
-                type: array
-                description: >-
-                  The IDs of all Transactions that were created while satisfying
-                  the request. Only present if the Account exists.
-                items:
-                  type: string
-                  description: The unique Transaction identifier within
-                    each Account.
-                  format: >-
-                    String representation of the numerical OANDA-assigned
-                    TransactionID
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account. Only present if the Account exists.
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
-              errorCode:
-                type: string
-                description: >-
-                  The code of the error that has occurred. This field may
-                  not be returned for some errors.
-              errorMessage:
-                type: string
-                description: >-
-                  The human-readable description of the error that has occurred.
-        '405':
-          $ref: v20_primitives.json#/responses/405
-  /accounts/{accountID}/orders/{orderSpecifier}/cancel:
-    put:
-      summary: Cancel Order
-      description: Cancel a pending Order in an Account
-      operationId: cancel
-      parameters:
-      - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
-      - $ref: >-
-          v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
-      - $ref: v20_account.json#/parameters/accountIDPathParam
-      - $ref: '#/parameters/orderSpecifierPathParam'
-      responses:
-        '200':
-          description: The Order was cancelled as specified
-          headers:
-            RequestID:
-              description: The unique identifier generated for the request
-              type: string
-          schema:
-            type: object
-            properties:
-              orderCancelTransaction:
-                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -492,24 +380,33 @@ paths:
                   format: >-
                     String representation of the numerical OANDA-assigned
                     TransactionID
+              errorCode:
+                type: string
+                description: >-
+                  The code of the error that has occurred. This field may
+                  not be returned for some errors.
+              errorMessage:
+                type: string
+                description: >-
+                  The human-readable description of the error that has occurred.
+        '401':
+          $ref: v20_primitives.json#/responses/401
+        '404':
+          description: The Account or Trade specified does not exist.
+          schema:
+            type: object
+            properties:
+              tradeClientExtensionsModifyRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/TradeClientExtensionsModifyRejectTransaction
               lastTransactionID:
                 type: string
                 description: >-
                   The ID of the most recent Transaction created for the
-                  Account
+                  Account. Only present if the Account exists.
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
-        '401':
-          $ref: v20_primitives.json#/responses/401
-        '404':
-          description: The Account or Order specified does not exist.
-          schema:
-            type: object
-            properties:
-              orderCancelRejectTransaction:
-                $ref: >-
-                  v20_transaction.json#/definitions/OrderCancelRejectTransaction
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -522,14 +419,6 @@ paths:
                   format: >-
                     String representation of the numerical OANDA-assigned
                     TransactionID
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account. Only present if the Account exists.
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
               errorCode:
                 type: string
                 description: >-
@@ -541,34 +430,36 @@ paths:
                   The human-readable description of the error that has occurred.
         '405':
           $ref: v20_primitives.json#/responses/405
-  "/accounts/{accountID}/orders/{orderSpecifier}/clientExtensions":
+  /accounts/{accountID}/trades/{tradeSpecifier}/orders:
     put:
-      summary: Set Order Extensions
+      summary: Set Dependent Orders
       description: >-
-        Update the Client Extensions for an Order in an Account. Do not
-        set, modify, or delete clientExtensions if your account is associated
-        with MT4.
-      operationId: setClientExtensions
+        Create, replace and cancel a Trade's dependent Orders (Take Profit,
+        Stop Loss and Trailing Stop Loss) through the Trade itself
+      operationId: setDependentOrders
       parameters:
       - $ref: v20_primitives.json#/parameters/authorizationHeaderParam
       - $ref: >-
           v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam
       - $ref: v20_account.json#/parameters/accountIDPathParam
-      - $ref: '#/parameters/orderSpecifierPathParam'
-      - name: setOrderClientExtensionsBody
-        description: Representation of the replacing Order
+      - $ref: '#/parameters/tradeSpecifierPathParam'
+      - name: setTradeDependentOrdersBody
+        description: Details of how to modify the Trade's dependent Orders.
         in: body
         schema:
           type: object
           properties:
-            clientExtensions:
-              $ref: v20_transaction.json#/definitions/ClientExtensions
-            tradeClientExtensions:
-              $ref: v20_transaction.json#/definitions/ClientExtensions
+            takeProfit:
+              $ref: v20_transaction.json#/definitions/TakeProfitDetails
+            stopLoss:
+              $ref: v20_transaction.json#/definitions/StopLossDetails
+            trailingStopLoss:
+              $ref: v20_transaction.json#/definitions/TrailingStopLossDetails
         required: true
       responses:
         '200':
-          description: The Order's Client Extensions were successfully modified
+          description: >-
+            The Trade's dependent Orders have been modified as requested.
           headers:
             RequestID:
               description: The unique identifier generated for the request
@@ -576,17 +467,27 @@ paths:
           schema:
             type: object
             properties:
-              orderClientExtensionsModifyTransaction:
+              takeProfitOrderCancelTransaction:
+                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
+              takeProfitOrderTransaction:
+                $ref: v20_transaction.json#/definitions/TakeProfitOrderTransaction
+              takeProfitOrderFillTransaction:
+                $ref: v20_transaction.json#/definitions/OrderFillTransaction
+              takeProfitOrderCreatedCancelTransaction:
+                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
+              stopLossOrderCancelTransaction:
+                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
+              stopLossOrderTransaction:
+                $ref: v20_transaction.json#/definitions/StopLossOrderTransaction
+              stopLossOrderFillTransaction:
+                $ref: v20_transaction.json#/definitions/OrderFillTransaction
+              stopLossOrderCreatedCancelTransaction:
+                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
+              trailingStopLossOrderCancelTransaction:
+                $ref: v20_transaction.json#/definitions/OrderCancelTransaction
+              trailingStopLossOrderTransaction:
                 $ref: >-
-                  v20_transaction.json#/definitions/OrderClientExtensionsModifyTransaction
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
+                  v20_transaction.json#/definitions/TrailingStopLossOrderTransaction
               relatedTransactionIDs:
                 type: array
                 description: >-
@@ -599,19 +500,43 @@ paths:
                   format: >-
                     String representation of the numerical OANDA-assigned
                     TransactionID
-        '400':
-          description: The Order Client Extensions specification was invalid
-          schema:
-            type: object
-            properties:
-              orderClientExtensionsModifyRejectTransaction:
-                $ref: >-
-                  v20_transaction.json#/definitions/OrderClientExtensionsModifyRejectTransaction
               lastTransactionID:
                 type: string
                 description: >-
                   The ID of the most recent Transaction created for the
                   Account
+                format: >-
+                  String representation of the numerical OANDA-assigned
+                  TransactionID
+        '400':
+          description: >-
+            The Trade's dependent Orders cannot be modified as requested.
+          schema:
+            type: object
+            properties:
+              takeProfitOrderCancelRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/OrderCancelRejectTransaction
+              takeProfitOrderRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/TakeProfitOrderRejectTransaction
+              stopLossOrderCancelRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/OrderCancelRejectTransaction
+              stopLossOrderRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/StopLossOrderRejectTransaction
+              trailingStopLossOrderCancelRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/OrderCancelRejectTransaction
+              trailingStopLossOrderRejectTransaction:
+                $ref: >-
+                  v20_transaction.json#/definitions/TrailingStopLossOrderRejectTransaction
+              lastTransactionID:
+                type: string
+                description: >-
+                  The ID of the most recent Transaction created for the
+                  Account.
                 format: >-
                   String representation of the numerical OANDA-assigned
                   TransactionID
@@ -639,42 +564,7 @@ paths:
         '401':
           $ref: v20_primitives.json#/responses/401
         '404':
-          description: The Account or Order specified does not exist.
-          schema:
-            type: object
-            properties:
-              orderClientExtensionsModifyRejectTransaction:
-                $ref: >-
-                  v20_transaction.json#/definitions/OrderClientExtensionsModifyRejectTransaction
-              lastTransactionID:
-                type: string
-                description: >-
-                  The ID of the most recent Transaction created for the
-                  Account. Only present if the Account exists.
-                format: >-
-                  String representation of the numerical OANDA-assigned
-                  TransactionID
-              relatedTransactionIDs:
-                type: array
-                description: >-
-                  The IDs of all Transactions that were created while satisfying
-                  the request. Only present if the Account exists.
-                items:
-                  type: string
-                  description: The unique Transaction identifier within
-                    each Account.
-                  format: >-
-                    String representation of the numerical OANDA-assigned
-                    TransactionID
-              errorCode:
-                type: string
-                description: >-
-                  The code of the error that has occurred. This field may
-                  not be returned for some errors.
-              errorMessage:
-                type: string
-                description: >-
-                  The human-readable description of the error that has occurred.
+          $ref: v20_primitives.json#/responses/404
         '405':
           $ref: v20_primitives.json#/responses/405
 definitions:

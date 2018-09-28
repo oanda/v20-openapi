@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
@@ -157,10 +157,115 @@ paths:
           $ref: primitives.yaml#/responses/404
         '405':
           $ref: primitives.yaml#/responses/405
+  /instruments/{instrument}/price:
+    get:
+      summary: Price
+      description: >-
+        Fetch a price for an instrument. Accounts are not associated in
+        any way with this endpoint.
+      operationId: price
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: '#/parameters/instrumentNamePathParam'
+      - name: time
+        description: >-
+          The time at which the desired price is in effect. The current
+          price is returned if no time is provided.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+          schema:
+            type: object
+            properties:
+              price:
+                $ref: pricing_common.yaml#/definitions/Price
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
+  /instruments/{instrument}/price/range:
+    get:
+      summary: Get Prices
+      description: >-
+        Fetch a range of prices for an instrument. Accounts are not associated
+        in any way with this endpoint.
+      operationId: prices
+      parameters:
+      - $ref: primitives.yaml#/parameters/authorizationHeaderParam
+      - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
+      - $ref: '#/parameters/instrumentNamePathParam'
+      - name: from
+        description: The start of the time range to fetch prices for.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+        required: true
+      - name: to
+        description: >-
+          The end of the time range to fetch prices for. The current time
+          is used if this parameter is not provided.
+        in: query
+        type: string
+        format: >-
+          The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt.
+          The Unix representation is a string representing the number of
+          seconds since the Unix Epoch (January 1st, 1970 at UTC). The value
+          is a fractional number, where the fractional part represents a
+          fraction of a second (up to nine decimal places).
+      responses:
+        '200':
+          description: Pricing information has been successfully provided.
+          headers:
+            RequestID:
+              description: The unique identifier generated for the request
+              type: string
+            Link:
+              description: >-
+                A link to the next page of results if the results were paginated
+              type: string
+          schema:
+            type: object
+            properties:
+              prices:
+                type: array
+                description: The list of prices that satisfy the request.
+                items:
+                  $ref: pricing_common.yaml#/definitions/Price
+        '400':
+          $ref: primitives.yaml#/responses/400
+        '401':
+          $ref: primitives.yaml#/responses/401
+        '404':
+          $ref: primitives.yaml#/responses/404
+        '405':
+          $ref: primitives.yaml#/responses/405
   /instruments/{instrument}/orderBook:
     get:
       summary: Get Order Book
       description: Fetch an order book for an instrument.
+      operationId: orderBook
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
       - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
@@ -209,6 +314,7 @@ paths:
     get:
       summary: Get Position Book
       description: Fetch a position book for an instrument.
+      operationId: positionBook
       parameters:
       - $ref: primitives.yaml#/parameters/authorizationHeaderParam
       - $ref: primitives.yaml#/parameters/acceptDatetimeFormatHeaderParam
@@ -332,21 +438,21 @@ definitions:
           The first (open) price in the time-range represented by the candlestick.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       h:
         type: string
         description: >-
           The highest price in the time-range represented by the candlestick.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       l:
         type: string
         description: >-
           The lowest price in the time-range represented by the candlestick.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       c:
         type: string
         description: >-
@@ -354,7 +460,7 @@ definitions:
           candlestick.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
   OrderBook:
     type: object
     description: >-
@@ -382,7 +488,7 @@ definitions:
           of the order book snapshot
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       bucketWidth:
         type: string
         description: >-
@@ -390,7 +496,7 @@ definitions:
           range from the bucket's price to the bucket's price + bucketWidth.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       buckets:
         type: array
         description: >-
@@ -412,7 +518,7 @@ definitions:
           bucketWidth.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       longCountPercent:
         type: string
         description: >-
@@ -457,7 +563,7 @@ definitions:
           time of the position book snapshot
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       bucketWidth:
         type: string
         description: >-
@@ -465,7 +571,7 @@ definitions:
           range from the bucket's price to the bucket's price + bucketWidth.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       buckets:
         type: array
         description: >-
@@ -487,7 +593,7 @@ definitions:
           book's bucketWidth.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       longCountPercent:
         type: string
         description: >-
@@ -514,125 +620,4 @@ parameters:
       A string containing the base currency and quote currency delimited
       by a "_".
     required: true
-responses:
-  '400':
-    description: >-
-      Bad Request. The client has provided invalid data to be processed
-      by the server.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '401':
-    description: >-
-      Unauthorized. The endpoint being access required the client to authenticated,
-      however the the authentication token is invalid or has not been provided.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '403':
-    description: >-
-      Forbidden. The client has provided a token that does not authorize
-      them to perform the action implemented by the API endpoint.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '404':
-    description: >-
-      Not Found. The client has attempted to access an entity that does
-      not exist.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '405':
-    description: >-
-      Method Not Allowed. The client has attempted to access an endpoint
-      using an HTTP method that is not supported.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
-  '416':
-    description: >-
-      Range Not Satisfiable. The client has specified a range that is invalid
-      or cannot be processed.
-    headers:
-      RequestID:
-        description: The unique identifier generated for the request
-        type: string
-    schema:
-      type: object
-      properties:
-        errorCode:
-          type: string
-          description: >-
-            The code of the error that has occurred. This field may not
-            be returned for some errors.
-        errorMessage:
-          type: string
-          description: >-
-            The human-readable description of the error that has occurred.
 

@@ -1,1089 +1,1233 @@
 {
-  "swagger": "2.0", 
+  "swagger": "2.0",
   "info": {
-    "title": "OANDA v20 Account REST API", 
-    "description": "v20 Account-related Definitions and Endpoints", 
+    "title": "OANDA v20 Account REST API",
+    "description": "v20 Account-related Definitions and Endpoints",
     "contact": {
-      "name": "OANDA API Support", 
-      "url": "http://developer.oanda.com/rest-live-v20/introduction/", 
+      "name": "OANDA API Support",
+      "url": "http://developer.oanda.com/rest-live-v20/introduction/",
       "email": "api@oanda.com"
-    }, 
+    },
     "license": {
-      "name": "MIT", 
+      "name": "MIT",
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
-    }, 
-    "version": "3.0.22"
-  }, 
-  "basePath": "/v3", 
+    },
+    "version": "3.0.25"
+  },
+  "basePath": "/v3",
   "produces": [
     "application/json"
-  ], 
+  ],
   "consumes": [
     "application/json"
-  ], 
+  ],
   "paths": {
     "/accounts": {
       "get": {
-        "summary": "List Accounts", 
-        "description": "Get a list of all Accounts authorized for the provided token.", 
-        "operationId": "list", 
+        "summary": "List Accounts",
+        "description": "Get a list of all Accounts authorized for the provided token.",
+        "operationId": "list",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The list of authorized Accounts has been provided.", 
+            "description": "The list of authorized Accounts has been provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "accounts": {
-                  "type": "array", 
-                  "description": "The list of Accounts the client is authorized to access and their associated properties.", 
+                  "type": "array",
+                  "description": "The list of Accounts the client is authorized to access and their associated properties.",
                   "items": {
                     "$ref": "#/definitions/AccountProperties"
                   }
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}": {
       "get": {
-        "summary": "Account Details", 
-        "description": "Get the full details for a single Account that a client has access to. Full pending Order, open Trade and open Position representations are provided.", 
-        "operationId": "get", 
+        "summary": "Account Details",
+        "description": "Get the full details for a single Account that a client has access to. Full pending Order, open Trade and open Position representations are provided.",
+        "operationId": "get",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/accountIDPathParam"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The full Account details are provided", 
+            "description": "The full Account details are provided",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "account": {
                   "$ref": "#/definitions/Account"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account.", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "400": {
             "$ref": "v20_primitives.json#/responses/400"
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/summary": {
       "get": {
-        "summary": "Account Summary", 
-        "description": "Get a summary for a single Account that a client has access to.", 
-        "operationId": "summary", 
+        "summary": "Account Summary",
+        "description": "Get a summary for a single Account that a client has access to.",
+        "operationId": "summary",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/accountIDPathParam"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Account summary  are provided", 
+            "description": "The Account summary  are provided",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "account": {
                   "$ref": "#/definitions/AccountSummary"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account.", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "400": {
             "$ref": "v20_primitives.json#/responses/400"
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/instruments": {
       "get": {
-        "summary": "Account Instruments", 
-        "description": "Get the list of tradeable instruments for the given Account. The list of tradeable instruments is dependent on the regulatory division that the Account is located in, thus should be the same for all Accounts owned by a single user.", 
-        "operationId": "instruments", 
+        "summary": "Account Instruments",
+        "description": "Get the list of tradeable instruments for the given Account. The list of tradeable instruments is dependent on the regulatory division that the Account is located in, thus should be the same for all Accounts owned by a single user.",
+        "operationId": "instruments",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/accountIDPathParam"
-          }, 
+          },
           {
-            "name": "instruments", 
-            "description": "List of instruments to query specifically.", 
-            "in": "query", 
-            "type": "array", 
+            "name": "instruments",
+            "description": "List of instruments to query specifically.",
+            "in": "query",
+            "type": "array",
             "items": {
-              "type": "string", 
+              "type": "string",
               "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-            }, 
+            },
             "collectionFormat": "csv"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The list of tradeable instruments for the Account has been provided.", 
+            "description": "The list of tradeable instruments for the Account has been provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "instruments": {
-                  "type": "array", 
-                  "description": "The requested list of instruments.", 
+                  "type": "array",
+                  "description": "The requested list of instruments.",
                   "items": {
                     "$ref": "v20_primitives.json#/definitions/Instrument"
                   }
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account.", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "400": {
             "$ref": "v20_primitives.json#/responses/400"
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/configuration": {
       "patch": {
-        "summary": "Configure Account", 
-        "description": "Set the client-configurable portions of an Account.", 
-        "operationId": "configure", 
+        "summary": "Configure Account",
+        "description": "Set the client-configurable portions of an Account.",
+        "operationId": "configure",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/accountIDPathParam"
-          }, 
+          },
           {
-            "name": "configureAccountBody", 
-            "description": "Representation of the Account configuration to set", 
-            "in": "body", 
+            "name": "configureAccountBody",
+            "description": "Representation of the Account configuration to set",
+            "in": "body",
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "alias": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "Client-defined alias (name) for the Account"
-                }, 
+                },
                 "marginRate": {
-                  "type": "string", 
-                  "description": "The string representation of a decimal number.", 
+                  "type": "string",
+                  "description": "The string representation of a decimal number.",
                   "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
                 }
               }
             }
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Account was configured successfully.", 
+            "description": "The Account was configured successfully.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "clientConfigureTransaction": {
                   "$ref": "v20_transaction.json#/definitions/ClientConfigureTransaction"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the last Transaction created for the Account.", 
+                  "type": "string",
+                  "description": "The ID of the last Transaction created for the Account.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "400": {
-            "description": "The configuration specification was invalid.", 
+            "description": "The configuration specification was invalid.",
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "clientConfigureRejectTransaction": {
                   "$ref": "v20_transaction.json#/definitions/ClientConfigureRejectTransaction"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the last Transaction created for the Account.", 
+                  "type": "string",
+                  "description": "The ID of the last Transaction created for the Account.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
-                }, 
+                },
                 "errorCode": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The code of the error that has occurred. This field may not be returned for some errors."
-                }, 
+                },
                 "errorMessage": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
-          }, 
+          },
           "403": {
-            "description": "The configuration operation was forbidden on the Account.", 
+            "description": "The configuration operation was forbidden on the Account.",
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "clientConfigureRejectTransaction": {
                   "$ref": "v20_transaction.json#/definitions/ClientConfigureRejectTransaction"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the last Transaction created for the Account.", 
+                  "type": "string",
+                  "description": "The ID of the last Transaction created for the Account.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
-                }, 
+                },
                 "errorCode": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The code of the error that has occurred. This field may not be returned for some errors."
-                }, 
+                },
                 "errorMessage": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/changes": {
       "get": {
-        "summary": "Poll Account Updates", 
-        "description": "Endpoint used to poll an Account for its current state and changes since a specified TransactionID.", 
-        "operationId": "changes", 
+        "summary": "Poll Account Updates",
+        "description": "Endpoint used to poll an Account for its current state and changes since a specified TransactionID.",
+        "operationId": "changes",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/accountIDPathParam"
-          }, 
+          },
           {
-            "name": "sinceTransactionID", 
-            "description": "ID of the Transaction to get Account changes since.", 
-            "in": "query", 
-            "type": "string", 
+            "name": "sinceTransactionID",
+            "description": "ID of the Transaction to get Account changes since.",
+            "in": "query",
+            "type": "string",
             "format": "String representation of the numerical OANDA-assigned TransactionID"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Account state and changes are provided.", 
+            "description": "The Account state and changes are provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "changes": {
                   "$ref": "#/definitions/AccountChanges"
-                }, 
+                },
                 "state": {
                   "$ref": "#/definitions/AccountChangesState"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the last Transaction created for the Account.  This Transaction ID should be used for future poll requests, as the client has already observed all changes up to and including it.", 
+                  "type": "string",
+                  "description": "The ID of the last Transaction created for the Account.  This Transaction ID should be used for future poll requests, as the client has already observed all changes up to and including it.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
-          }, 
+          },
           "416": {
             "$ref": "v20_primitives.json#/responses/416"
           }
         }
       }
     }
-  }, 
+  },
   "definitions": {
     "AccountID": {
-      "type": "string", 
-      "description": "The string representation of an Account Identifier.", 
+      "type": "string",
+      "description": "The string representation of an Account Identifier.",
       "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
-    }, 
+    },
     "Account": {
-      "type": "object", 
-      "description": "The full details of a client's Account. This includes full open Trade, open Position and pending Order representation.", 
+      "type": "object",
+      "description": "The full details of a client's Account. This includes full open Trade, open Position and pending Order representation.",
       "properties": {
         "id": {
-          "type": "string", 
-          "description": "The Account's identifier", 
+          "type": "string",
+          "description": "The Account's identifier",
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
-        }, 
+        },
         "alias": {
-          "type": "string", 
+          "type": "string",
           "description": "Client-assigned alias for the Account. Only provided if the Account has an alias set"
-        }, 
+        },
         "currency": {
-          "type": "string", 
-          "description": "The home currency of the Account", 
+          "type": "string",
+          "description": "The home currency of the Account",
           "format": "A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)"
-        }, 
+        },
         "balance": {
-          "type": "string", 
-          "description": "The current balance of the Account.", 
+          "type": "string",
+          "description": "The current balance of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "createdByUserID": {
-          "type": "integer", 
+          "type": "integer",
           "description": "ID of the user that created the Account."
-        }, 
+        },
         "createdTime": {
-          "type": "string", 
-          "description": "The date/time when the Account was created.", 
+          "type": "string",
+          "description": "The date/time when the Account was created.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "guaranteedStopLossOrderMode": {
-          "type": "string", 
-          "description": "The current guaranteed Stop Loss Order mode of the Account.", 
+          "type": "string",
+          "description": "The current guaranteed Stop Loss Order mode of the Account.",
           "enum": [
-            "DISABLED", 
-            "ALLOWED", 
+            "DISABLED",
+            "ALLOWED",
             "REQUIRED"
           ]
-        }, 
+        },
         "pl": {
-          "type": "string", 
-          "description": "The total profit/loss realized over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total profit/loss realized over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "resettablePL": {
-          "type": "string", 
-          "description": "The total realized profit/loss for the Account since it was last reset by the client.", 
+          "type": "string",
+          "description": "The total realized profit/loss for the Account since it was last reset by the client.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "resettablePLTime": {
-          "type": "string", 
-          "description": "The date/time that the Account's resettablePL was last reset.", 
+          "type": "string",
+          "description": "The date/time that the Account's resettablePL was last reset.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "financing": {
-          "type": "string", 
-          "description": "The total amount of financing paid/collected over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of financing paid/collected over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "commission": {
-          "type": "string", 
-          "description": "The total amount of commission paid over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of commission paid over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "guaranteedExecutionFees": {
-          "type": "string", 
-          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders.", 
+          "type": "string",
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginRate": {
-          "type": "string", 
-          "description": "Client-provided margin rate override for the Account. The effective margin rate of the Account is the lesser of this value and the OANDA margin rate for the Account's division. This value is only provided if a margin rate override exists for the Account.", 
+          "type": "string",
+          "description": "Client-provided margin rate override for the Account. The effective margin rate of the Account is the lesser of this value and the OANDA margin rate for the Account's division. This value is only provided if a margin rate override exists for the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "marginCallEnterTime": {
-          "type": "string", 
-          "description": "The date/time when the Account entered a margin call state. Only provided if the Account is in a margin call.", 
+          "type": "string",
+          "description": "The date/time when the Account entered a margin call state. Only provided if the Account is in a margin call.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "marginCallExtensionCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of times that the Account's current margin call was extended."
-        }, 
+        },
         "lastMarginCallExtensionTime": {
-          "type": "string", 
-          "description": "The date/time of the Account's last margin call extension.", 
+          "type": "string",
+          "description": "The date/time of the Account's last margin call extension.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "openTradeCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of Trades currently open in the Account."
-        }, 
+        },
         "openPositionCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of Positions currently open in the Account."
-        }, 
+        },
         "pendingOrderCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of Orders currently pending in the Account."
-        }, 
+        },
         "hedgingEnabled": {
-          "type": "boolean", 
+          "type": "boolean",
           "description": "Flag indicating that the Account has hedging enabled."
-        }, 
+        },
+        "lastOrderFillTimestamp": {
+          "type": "string",
+          "description": "The date/time of the last order that was filled for this account.",
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        },
         "unrealizedPL": {
-          "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
+          "type": "string",
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "NAV": {
-          "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
+          "type": "string",
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginUsed": {
-          "type": "string", 
-          "description": "Margin currently used for the Account.", 
+          "type": "string",
+          "description": "Margin currently used for the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginAvailable": {
-          "type": "string", 
-          "description": "Margin available for Account currency.", 
+          "type": "string",
+          "description": "Margin available for Account currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "positionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutUnrealizedPL": {
-          "type": "string", 
-          "description": "The Account's margin closeout unrealized PL.", 
+          "type": "string",
+          "description": "The Account's margin closeout unrealized PL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutNAV": {
-          "type": "string", 
-          "description": "The Account's margin closeout NAV.", 
+          "type": "string",
+          "description": "The Account's margin closeout NAV.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin closeout margin used.", 
+          "type": "string",
+          "description": "The Account's margin closeout margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutPercent": {
-          "type": "string", 
-          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.", 
+          "type": "string",
+          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "marginCloseoutPositionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "withdrawalLimit": {
-          "type": "string", 
-          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.", 
+          "type": "string",
+          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin call margin used.", 
+          "type": "string",
+          "description": "The Account's margin call margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallPercent": {
-          "type": "string", 
-          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.", 
+          "type": "string",
+          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "lastTransactionID": {
-          "type": "string", 
-          "description": "The ID of the last Transaction created for the Account.", 
+          "type": "string",
+          "description": "The ID of the last Transaction created for the Account.",
           "format": "String representation of the numerical OANDA-assigned TransactionID"
-        }, 
+        },
         "trades": {
-          "type": "array", 
-          "description": "The details of the Trades currently open in the Account.", 
+          "type": "array",
+          "description": "The details of the Trades currently open in the Account.",
           "items": {
             "$ref": "v20_trade.json#/definitions/TradeSummary"
           }
-        }, 
+        },
         "positions": {
-          "type": "array", 
-          "description": "The details all Account Positions.", 
+          "type": "array",
+          "description": "The details all Account Positions.",
           "items": {
             "$ref": "v20_position.json#/definitions/Position"
           }
-        }, 
+        },
         "orders": {
-          "type": "array", 
-          "description": "The details of the Orders currently pending in the Account.", 
+          "type": "array",
+          "description": "The details of the Orders currently pending in the Account.",
           "items": {
             "$ref": "v20_order.json#/definitions/Order"
           }
         }
       }
-    }, 
+    },
     "AccountChangesState": {
-      "type": "object", 
-      "description": "An AccountState Object is used to represent an Account's current price-dependent state. Price-dependent Account state is dependent on OANDA's current Prices, and includes things like unrealized PL, NAV and Trailing Stop Loss Order state.", 
+      "type": "object",
+      "description": "An AccountState Object is used to represent an Account's current price-dependent state. Price-dependent Account state is dependent on OANDA's current Prices, and includes things like unrealized PL, NAV and Trailing Stop Loss Order state.",
       "properties": {
         "unrealizedPL": {
-          "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
+          "type": "string",
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "NAV": {
-          "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
+          "type": "string",
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginUsed": {
-          "type": "string", 
-          "description": "Margin currently used for the Account.", 
+          "type": "string",
+          "description": "Margin currently used for the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginAvailable": {
-          "type": "string", 
-          "description": "Margin available for Account currency.", 
+          "type": "string",
+          "description": "Margin available for Account currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "positionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutUnrealizedPL": {
-          "type": "string", 
-          "description": "The Account's margin closeout unrealized PL.", 
+          "type": "string",
+          "description": "The Account's margin closeout unrealized PL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutNAV": {
-          "type": "string", 
-          "description": "The Account's margin closeout NAV.", 
+          "type": "string",
+          "description": "The Account's margin closeout NAV.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin closeout margin used.", 
+          "type": "string",
+          "description": "The Account's margin closeout margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutPercent": {
-          "type": "string", 
-          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.", 
+          "type": "string",
+          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "marginCloseoutPositionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "withdrawalLimit": {
-          "type": "string", 
-          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.", 
+          "type": "string",
+          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin call margin used.", 
+          "type": "string",
+          "description": "The Account's margin call margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallPercent": {
-          "type": "string", 
-          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.", 
+          "type": "string",
+          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "orders": {
-          "type": "array", 
-          "description": "The price-dependent state of each pending Order in the Account.", 
+          "type": "array",
+          "description": "The price-dependent state of each pending Order in the Account.",
           "items": {
             "$ref": "v20_order.json#/definitions/DynamicOrderState"
           }
-        }, 
+        },
         "trades": {
-          "type": "array", 
-          "description": "The price-dependent state for each open Trade in the Account.", 
+          "type": "array",
+          "description": "The price-dependent state for each open Trade in the Account.",
           "items": {
             "$ref": "v20_trade.json#/definitions/CalculatedTradeState"
           }
-        }, 
+        },
         "positions": {
-          "type": "array", 
-          "description": "The price-dependent state for each open Position in the Account.", 
+          "type": "array",
+          "description": "The price-dependent state for each open Position in the Account.",
           "items": {
             "$ref": "v20_position.json#/definitions/CalculatedPositionState"
           }
         }
       }
-    }, 
+    },
     "AccountProperties": {
-      "type": "object", 
-      "description": "Properties related to an Account.", 
+      "type": "object",
+      "description": "Properties related to an Account.",
       "properties": {
         "id": {
-          "type": "string", 
-          "description": "The Account's identifier", 
+          "type": "string",
+          "description": "The Account's identifier",
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
-        }, 
+        },
         "mt4AccountID": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The Account's associated MT4 Account ID. This field will not be present if the Account is not an MT4 account."
-        }, 
+        },
         "tags": {
-          "type": "array", 
-          "description": "The Account's tags", 
+          "type": "array",
+          "description": "The Account's tags",
           "items": {
             "type": "string"
           }
         }
       }
-    }, 
+    },
     "GuaranteedStopLossOrderMode": {
-      "type": "string", 
-      "description": "The overall behaviour of the Account regarding guaranteed Stop Loss Orders.", 
+      "type": "string",
+      "description": "The overall behaviour of the Account regarding guaranteed Stop Loss Orders.",
       "enum": [
-        "DISABLED", 
-        "ALLOWED", 
+        "DISABLED",
+        "ALLOWED",
         "REQUIRED"
       ]
-    }, 
+    },
     "AccountSummary": {
-      "type": "object", 
-      "description": "A summary representation of a client's Account. The AccountSummary does not provide to full specification of pending Orders, open Trades and Positions.", 
+      "type": "object",
+      "description": "A summary representation of a client's Account. The AccountSummary does not provide to full specification of pending Orders, open Trades and Positions.",
       "properties": {
         "id": {
-          "type": "string", 
-          "description": "The Account's identifier", 
+          "type": "string",
+          "description": "The Account's identifier",
           "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\""
-        }, 
+        },
         "alias": {
-          "type": "string", 
+          "type": "string",
           "description": "Client-assigned alias for the Account. Only provided if the Account has an alias set"
-        }, 
+        },
         "currency": {
-          "type": "string", 
-          "description": "The home currency of the Account", 
+          "type": "string",
+          "description": "The home currency of the Account",
           "format": "A string containing an ISO 4217 currency (http://en.wikipedia.org/wiki/ISO_4217)"
-        }, 
+        },
         "balance": {
-          "type": "string", 
-          "description": "The current balance of the Account.", 
+          "type": "string",
+          "description": "The current balance of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "createdByUserID": {
-          "type": "integer", 
+          "type": "integer",
           "description": "ID of the user that created the Account."
-        }, 
+        },
         "createdTime": {
-          "type": "string", 
-          "description": "The date/time when the Account was created.", 
+          "type": "string",
+          "description": "The date/time when the Account was created.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "guaranteedStopLossOrderMode": {
-          "type": "string", 
-          "description": "The current guaranteed Stop Loss Order mode of the Account.", 
+          "type": "string",
+          "description": "The current guaranteed Stop Loss Order mode of the Account.",
           "enum": [
-            "DISABLED", 
-            "ALLOWED", 
+            "DISABLED",
+            "ALLOWED",
             "REQUIRED"
           ]
-        }, 
+        },
         "pl": {
-          "type": "string", 
-          "description": "The total profit/loss realized over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total profit/loss realized over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "resettablePL": {
-          "type": "string", 
-          "description": "The total realized profit/loss for the Account since it was last reset by the client.", 
+          "type": "string",
+          "description": "The total realized profit/loss for the Account since it was last reset by the client.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "resettablePLTime": {
-          "type": "string", 
-          "description": "The date/time that the Account's resettablePL was last reset.", 
+          "type": "string",
+          "description": "The date/time that the Account's resettablePL was last reset.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "financing": {
-          "type": "string", 
-          "description": "The total amount of financing paid/collected over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of financing paid/collected over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "commission": {
-          "type": "string", 
-          "description": "The total amount of commission paid over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of commission paid over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "guaranteedExecutionFees": {
-          "type": "string", 
-          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders.", 
+          "type": "string",
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginRate": {
-          "type": "string", 
-          "description": "Client-provided margin rate override for the Account. The effective margin rate of the Account is the lesser of this value and the OANDA margin rate for the Account's division. This value is only provided if a margin rate override exists for the Account.", 
+          "type": "string",
+          "description": "Client-provided margin rate override for the Account. The effective margin rate of the Account is the lesser of this value and the OANDA margin rate for the Account's division. This value is only provided if a margin rate override exists for the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "marginCallEnterTime": {
-          "type": "string", 
-          "description": "The date/time when the Account entered a margin call state. Only provided if the Account is in a margin call.", 
+          "type": "string",
+          "description": "The date/time when the Account entered a margin call state. Only provided if the Account is in a margin call.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "marginCallExtensionCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of times that the Account's current margin call was extended."
-        }, 
+        },
         "lastMarginCallExtensionTime": {
-          "type": "string", 
-          "description": "The date/time of the Account's last margin call extension.", 
+          "type": "string",
+          "description": "The date/time of the Account's last margin call extension.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "openTradeCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of Trades currently open in the Account."
-        }, 
+        },
         "openPositionCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of Positions currently open in the Account."
-        }, 
+        },
         "pendingOrderCount": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of Orders currently pending in the Account."
-        }, 
+        },
         "hedgingEnabled": {
-          "type": "boolean", 
+          "type": "boolean",
           "description": "Flag indicating that the Account has hedging enabled."
-        }, 
+        },
+        "lastOrderFillTimestamp": {
+          "type": "string",
+          "description": "The date/time of the last order that was filled for this account.",
+          "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+        },
         "unrealizedPL": {
-          "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
+          "type": "string",
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "NAV": {
-          "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
+          "type": "string",
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginUsed": {
-          "type": "string", 
-          "description": "Margin currently used for the Account.", 
+          "type": "string",
+          "description": "Margin currently used for the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginAvailable": {
-          "type": "string", 
-          "description": "Margin available for Account currency.", 
+          "type": "string",
+          "description": "Margin available for Account currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "positionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutUnrealizedPL": {
-          "type": "string", 
-          "description": "The Account's margin closeout unrealized PL.", 
+          "type": "string",
+          "description": "The Account's margin closeout unrealized PL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutNAV": {
-          "type": "string", 
-          "description": "The Account's margin closeout NAV.", 
+          "type": "string",
+          "description": "The Account's margin closeout NAV.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin closeout margin used.", 
+          "type": "string",
+          "description": "The Account's margin closeout margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutPercent": {
-          "type": "string", 
-          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.", 
+          "type": "string",
+          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "marginCloseoutPositionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "withdrawalLimit": {
-          "type": "string", 
-          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.", 
+          "type": "string",
+          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin call margin used.", 
+          "type": "string",
+          "description": "The Account's margin call margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallPercent": {
-          "type": "string", 
-          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.", 
+          "type": "string",
+          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "lastTransactionID": {
-          "type": "string", 
-          "description": "The ID of the last Transaction created for the Account.", 
+          "type": "string",
+          "description": "The ID of the last Transaction created for the Account.",
           "format": "String representation of the numerical OANDA-assigned TransactionID"
         }
       }
-    }, 
+    },
     "CalculatedAccountState": {
-      "type": "object", 
-      "description": "The dynamically calculated state of a client's Account.", 
+      "type": "object",
+      "description": "The dynamically calculated state of a client's Account.",
       "properties": {
         "unrealizedPL": {
-          "type": "string", 
-          "description": "The total unrealized profit/loss for all Trades currently open in the Account.", 
+          "type": "string",
+          "description": "The total unrealized profit/loss for all Trades currently open in the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "NAV": {
-          "type": "string", 
-          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.", 
+          "type": "string",
+          "description": "The net asset value of the Account. Equal to Account balance + unrealizedPL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginUsed": {
-          "type": "string", 
-          "description": "Margin currently used for the Account.", 
+          "type": "string",
+          "description": "Margin currently used for the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginAvailable": {
-          "type": "string", 
-          "description": "Margin available for Account currency.", 
+          "type": "string",
+          "description": "Margin available for Account currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "positionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutUnrealizedPL": {
-          "type": "string", 
-          "description": "The Account's margin closeout unrealized PL.", 
+          "type": "string",
+          "description": "The Account's margin closeout unrealized PL.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutNAV": {
-          "type": "string", 
-          "description": "The Account's margin closeout NAV.", 
+          "type": "string",
+          "description": "The Account's margin closeout NAV.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin closeout margin used.", 
+          "type": "string",
+          "description": "The Account's margin closeout margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCloseoutPercent": {
-          "type": "string", 
-          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.", 
+          "type": "string",
+          "description": "The Account's margin closeout percentage. When this value is 1.0 or above the Account is in a margin closeout situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "marginCloseoutPositionValue": {
-          "type": "string", 
-          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.", 
+          "type": "string",
+          "description": "The value of the Account's open positions as used for margin closeout calculations represented in the Account's home currency.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "withdrawalLimit": {
-          "type": "string", 
-          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.", 
+          "type": "string",
+          "description": "The current WithdrawalLimit for the account which will be zero or a positive value indicating how much can be withdrawn from the account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallMarginUsed": {
-          "type": "string", 
-          "description": "The Account's margin call margin used.", 
+          "type": "string",
+          "description": "The Account's margin call margin used.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginCallPercent": {
-          "type": "string", 
-          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.", 
+          "type": "string",
+          "description": "The Account's margin call percentage. When this value is 1.0 or above the Account is in a margin call situation.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }
       }
-    }, 
+    },
     "AccountChanges": {
-      "type": "object", 
-      "description": "An AccountChanges Object is used to represent the changes to an Account's Orders, Trades and Positions since a specified Account TransactionID in the past.", 
+      "type": "object",
+      "description": "An AccountChanges Object is used to represent the changes to an Account's Orders, Trades and Positions since a specified Account TransactionID in the past.",
       "properties": {
         "ordersCreated": {
-          "type": "array", 
-          "description": "The Orders created. These Orders may have been filled, cancelled or triggered in the same period.", 
+          "type": "array",
+          "description": "The Orders created. These Orders may have been filled, cancelled or triggered in the same period.",
           "items": {
             "$ref": "v20_order.json#/definitions/Order"
           }
-        }, 
+        },
         "ordersCancelled": {
-          "type": "array", 
-          "description": "The Orders cancelled.", 
+          "type": "array",
+          "description": "The Orders cancelled.",
           "items": {
             "$ref": "v20_order.json#/definitions/Order"
           }
-        }, 
+        },
         "ordersFilled": {
-          "type": "array", 
-          "description": "The Orders filled.", 
+          "type": "array",
+          "description": "The Orders filled.",
           "items": {
             "$ref": "v20_order.json#/definitions/Order"
           }
-        }, 
+        },
         "ordersTriggered": {
-          "type": "array", 
-          "description": "The Orders triggered.", 
+          "type": "array",
+          "description": "The Orders triggered.",
           "items": {
             "$ref": "v20_order.json#/definitions/Order"
           }
-        }, 
+        },
         "tradesOpened": {
-          "type": "array", 
-          "description": "The Trades opened.", 
+          "type": "array",
+          "description": "The Trades opened.",
           "items": {
             "$ref": "v20_trade.json#/definitions/TradeSummary"
           }
-        }, 
+        },
         "tradesReduced": {
-          "type": "array", 
-          "description": "The Trades reduced.", 
+          "type": "array",
+          "description": "The Trades reduced.",
           "items": {
             "$ref": "v20_trade.json#/definitions/TradeSummary"
           }
-        }, 
+        },
         "tradesClosed": {
-          "type": "array", 
-          "description": "The Trades closed.", 
+          "type": "array",
+          "description": "The Trades closed.",
           "items": {
             "$ref": "v20_trade.json#/definitions/TradeSummary"
           }
-        }, 
+        },
         "positions": {
-          "type": "array", 
-          "description": "The Positions changed.", 
+          "type": "array",
+          "description": "The Positions changed.",
           "items": {
             "$ref": "v20_position.json#/definitions/Position"
           }
-        }, 
+        },
         "transactions": {
-          "type": "array", 
-          "description": "The Transactions that have been generated.", 
+          "type": "array",
+          "description": "The Transactions that have been generated.",
           "items": {
             "$ref": "v20_transaction.json#/definitions/Transaction"
           }
         }
       }
-    }, 
+    },
     "AccountFinancingMode": {
-      "type": "string", 
-      "description": "The financing mode of an Account", 
+      "type": "string",
+      "description": "The financing mode of an Account",
       "enum": [
-        "NO_FINANCING", 
-        "SECOND_BY_SECOND", 
+        "NO_FINANCING",
+        "SECOND_BY_SECOND",
         "DAILY"
       ]
-    }, 
+    },
     "PositionAggregationMode": {
-      "type": "string", 
-      "description": "The way that position values for an Account are calculated and aggregated.", 
+      "type": "string",
+      "description": "The way that position values for an Account are calculated and aggregated.",
       "enum": [
-        "ABSOLUTE_SUM", 
-        "MAXIMAL_SIDE", 
+        "ABSOLUTE_SUM",
+        "MAXIMAL_SIDE",
         "NET_SUM"
       ]
     }
-  }, 
+  },
   "parameters": {
     "accountIDPathParam": {
-      "name": "accountID", 
-      "description": "Account Identifier", 
-      "in": "path", 
-      "type": "string", 
-      "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\"", 
+      "name": "accountID",
+      "description": "Account Identifier",
+      "in": "path",
+      "type": "string",
+      "format": "\"-\"-delimited string with format \"{siteID}-{divisionID}-{userID}-{accountNumber}\"",
       "required": true
+    }
+  },
+  "responses": {
+    "400": {
+      "description": "Bad Request. The client has provided invalid data to be processed by the server.",
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request",
+          "type": "string"
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The human-readable description of the error that has occurred."
+          }
+        }
+      }
+    },
+    "401": {
+      "description": "Unauthorized. The endpoint being access required the client to authenticated, however the the authentication token is invalid or has not been provided.",
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request",
+          "type": "string"
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The human-readable description of the error that has occurred."
+          }
+        }
+      }
+    },
+    "403": {
+      "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by the API endpoint.",
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request",
+          "type": "string"
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The human-readable description of the error that has occurred."
+          }
+        }
+      }
+    },
+    "404": {
+      "description": "Not Found. The client has attempted to access an entity that does not exist.",
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request",
+          "type": "string"
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The human-readable description of the error that has occurred."
+          }
+        }
+      }
+    },
+    "405": {
+      "description": "Method Not Allowed. The client has attempted to access an endpoint using an HTTP method that is not supported.",
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request",
+          "type": "string"
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The human-readable description of the error that has occurred."
+          }
+        }
+      }
+    },
+    "416": {
+      "description": "Range Not Satisfiable. The client has specified a range that is invalid or cannot be processed.",
+      "headers": {
+        "RequestID": {
+          "description": "The unique identifier generated for the request",
+          "type": "string"
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "The code of the error that has occurred. This field may not be returned for some errors."
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "The human-readable description of the error that has occurred."
+          }
+        }
+      }
     }
   }
 }

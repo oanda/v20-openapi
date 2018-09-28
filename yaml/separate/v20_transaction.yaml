@@ -10,7 +10,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
@@ -1541,7 +1541,7 @@ definitions:
           Order filled at.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       positionFill:
         type: string
         description: >-
@@ -1695,7 +1695,7 @@ definitions:
           Order filled at.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       positionFill:
         type: string
         description: >-
@@ -1986,7 +1986,7 @@ definitions:
           exact price that the Fixed Price Order will be filled at.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       positionFill:
         type: string
         description: >-
@@ -2127,7 +2127,7 @@ definitions:
           than this price.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: The time-in-force requested for the Limit Order.
@@ -2325,7 +2325,7 @@ definitions:
           than this price.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: The time-in-force requested for the Limit Order.
@@ -2668,7 +2668,7 @@ definitions:
           than this price.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       priceBound:
         type: string
         description: >-
@@ -2678,7 +2678,7 @@ definitions:
           filled.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: The time-in-force requested for the Stop Order.
@@ -2876,7 +2876,7 @@ definitions:
           than this price.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       priceBound:
         type: string
         description: >-
@@ -2886,7 +2886,7 @@ definitions:
           filled.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: The time-in-force requested for the Stop Order.
@@ -3233,7 +3233,7 @@ definitions:
           MarketIfTouchedOrder will behave like a Limit or a Stop Order.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       priceBound:
         type: string
         description: >-
@@ -3241,7 +3241,7 @@ definitions:
           Order.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: >-
@@ -3444,7 +3444,7 @@ definitions:
           MarketIfTouchedOrder will behave like a Limit or a Stop Order.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       priceBound:
         type: string
         description: >-
@@ -3452,7 +3452,7 @@ definitions:
           Order.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: >-
@@ -3797,7 +3797,7 @@ definitions:
           than this threshold.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: >-
@@ -3986,7 +3986,7 @@ definitions:
           than this threshold.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: >-
@@ -4324,7 +4324,7 @@ definitions:
           price.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       distance:
         type: string
         description: >-
@@ -4542,7 +4542,7 @@ definitions:
           price.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       distance:
         type: string
         description: >-
@@ -5425,7 +5425,7 @@ definitions:
           by a "_".
       units:
         type: string
-        description: The number of units filled by the Order.
+        description: The number of units filled by the OrderFill.
         format: >-
           A decimal number encoded as a string. The amount of precision
           provided depends on what the number represents.
@@ -5455,7 +5455,20 @@ definitions:
           the exact/official price each unit was filled at.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
+      fullVWAP:
+        type: string
+        description: >-
+          The price that all of the units of the OrderFill should have been
+          filled at, in the absence of guaranteed price execution. This
+          factors in the Account's current ClientPrice, used liquidity and
+          the units of the OrderFill only. If no Trades were closed with
+          their price clamped for guaranteed stop loss enforcement, then
+          this value will match the price fields of each Trade opened, closed,
+          and reduced, and they will all be the exact same.
+        format: >-
+          A decimal number encodes as a string. The amount of precision
+          provided depends on the Instrument.
       fullPrice:
         $ref: pricing.yaml#/definitions/ClientPrice
       reason:
@@ -5576,6 +5589,12 @@ definitions:
     - POSITION_SIZE_EXCEEDED
     - HEDGING_GSLO_VIOLATION
     - ACCOUNT_POSITION_VALUE_LIMIT_EXCEEDED
+    - INSTRUMENT_BID_REDUCE_ONLY
+    - INSTRUMENT_ASK_REDUCE_ONLY
+    - INSTRUMENT_BID_HALTED
+    - INSTRUMENT_ASK_HALTED
+    - STOP_LOSS_ON_FILL_GUARANTEED_BID_HALTED
+    - STOP_LOSS_ON_FILL_GUARANTEED_ASK_HALTED
   OrderCancelTransaction:
     type: object
     description: >-
@@ -5718,6 +5737,12 @@ definitions:
         - POSITION_SIZE_EXCEEDED
         - HEDGING_GSLO_VIOLATION
         - ACCOUNT_POSITION_VALUE_LIMIT_EXCEEDED
+        - INSTRUMENT_BID_REDUCE_ONLY
+        - INSTRUMENT_ASK_REDUCE_ONLY
+        - INSTRUMENT_BID_HALTED
+        - INSTRUMENT_ASK_HALTED
+        - STOP_LOSS_ON_FILL_GUARANTEED_BID_HALTED
+        - STOP_LOSS_ON_FILL_GUARANTEED_ASK_HALTED
       replacedByOrderID:
         type: string
         description: >-
@@ -7240,7 +7265,7 @@ definitions:
           one of the price and distance fields may be specified.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       timeInForce:
         type: string
         description: >-
@@ -7280,7 +7305,7 @@ definitions:
           one of the price and distance fields may be specified.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       distance:
         type: string
         description: >-
@@ -7388,7 +7413,7 @@ definitions:
         description: The average price that the units were opened at.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       guaranteedExecutionFee:
         type: string
         description: >-
@@ -7446,7 +7471,7 @@ definitions:
           be clamped for guaranteed Stop Loss Orders.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       realizedPL:
         type: string
         description: The PL realized when reducing the Trade
@@ -7511,6 +7536,7 @@ definitions:
         enum:
         - MARGIN_CHECK_VIOLATION
         - REGULATORY_MARGIN_CALL_VIOLATION
+        - REGULATORY_MARGIN_CHECK_VIOLATION
   MarketOrderMarginCloseoutReason:
     type: string
     description: >-
@@ -7518,6 +7544,7 @@ definitions:
     enum:
     - MARGIN_CHECK_VIOLATION
     - REGULATORY_MARGIN_CALL_VIOLATION
+    - REGULATORY_MARGIN_CHECK_VIOLATION
   MarketOrderDelayedTradeClose:
     type: object
     description: >-
@@ -7659,6 +7686,9 @@ definitions:
   RequestID:
     type: string
     description: The request identifier.
+  ClientRequestID:
+    type: string
+    description: A client provided request identifier.
   TransactionRejectReason:
     type: string
     description: The reason that a Transaction was rejected.
@@ -7883,4 +7913,125 @@ parameters:
     format: >-
       String representation of the numerical OANDA-assigned TransactionID
     required: true
+responses:
+  '400':
+    description: >-
+      Bad Request. The client has provided invalid data to be processed
+      by the server.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '401':
+    description: >-
+      Unauthorized. The endpoint being access required the client to authenticated,
+      however the the authentication token is invalid or has not been provided.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '403':
+    description: >-
+      Forbidden. The client has provided a token that does not authorize
+      them to perform the action implemented by the API endpoint.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '404':
+    description: >-
+      Not Found. The client has attempted to access an entity that does
+      not exist.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '405':
+    description: >-
+      Method Not Allowed. The client has attempted to access an endpoint
+      using an HTTP method that is not supported.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
+  '416':
+    description: >-
+      Range Not Satisfiable. The client has specified a range that is invalid
+      or cannot be processed.
+    headers:
+      RequestID:
+        description: The unique identifier generated for the request
+        type: string
+    schema:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            The code of the error that has occurred. This field may not
+            be returned for some errors.
+        errorMessage:
+          type: string
+          description: >-
+            The human-readable description of the error that has occurred.
 

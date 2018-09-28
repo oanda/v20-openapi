@@ -1,500 +1,501 @@
 {
-  "swagger": "2.0", 
+  "swagger": "2.0",
   "info": {
-    "title": "OANDA v20 Positions API", 
-    "description": "v20 Position-related definitions and endpoints used to manage Positions within an Account.", 
+    "title": "OANDA v20 Positions API",
+    "description": "v20 Position-related definitions and endpoints used to manage Positions within an Account.",
     "contact": {
-      "name": "OANDA API Support", 
-      "url": "http://developer.oanda.com/rest-live-v20/introduction/", 
+      "name": "OANDA API Support",
+      "url": "http://developer.oanda.com/rest-live-v20/introduction/",
       "email": "api@oanda.com"
-    }, 
+    },
     "license": {
-      "name": "MIT", 
+      "name": "MIT",
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
-    }, 
-    "version": "3.0.22"
-  }, 
-  "basePath": "/v3", 
+    },
+    "version": "3.0.25"
+  },
+  "basePath": "/v3",
   "produces": [
     "application/json"
-  ], 
+  ],
   "consumes": [
     "application/json"
-  ], 
+  ],
   "paths": {
     "/accounts/{accountID}/positions": {
       "get": {
-        "summary": "List Positions", 
-        "description": "List all Positions for an Account. The Positions returned are for every instrument that has had a position during the lifetime of an the Account.", 
-        "operationId": "list", 
+        "summary": "List Positions",
+        "description": "List all Positions for an Account. The Positions returned are for every instrument that has had a position during the lifetime of an the Account.",
+        "operationId": "list",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Account's Positions are provided.", 
+            "description": "The Account's Positions are provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "positions": {
-                  "type": "array", 
-                  "description": "The list of Account Positions.", 
+                  "type": "array",
+                  "description": "The list of Account Positions.",
                   "items": {
                     "$ref": "#/definitions/Position"
                   }
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/openPositions": {
       "get": {
-        "summary": "Open Positions", 
-        "description": "List all open Positions for an Account. An open Position is a Position in an Account that currently has a Trade opened for it.", 
-        "operationId": "listOpen", 
+        "summary": "Open Positions",
+        "description": "List all open Positions for an Account. An open Position is a Position in an Account that currently has a Trade opened for it.",
+        "operationId": "listOpen",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Account's open Positions are provided.", 
+            "description": "The Account's open Positions are provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "positions": {
-                  "type": "array", 
-                  "description": "The list of open Positions in the Account.", 
+                  "type": "array",
+                  "description": "The list of open Positions in the Account.",
                   "items": {
                     "$ref": "#/definitions/Position"
                   }
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/positions/{instrument}": {
       "get": {
-        "summary": "Instrument Position", 
-        "description": "Get the details of a single Instrument's Position in an Account. The Position may by open or not.", 
-        "operationId": "get", 
+        "summary": "Instrument Position",
+        "description": "Get the details of a single Instrument's Position in an Account. The Position may by open or not.",
+        "operationId": "get",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
-          }, 
+          },
           {
             "$ref": "v20_instrument.json#/parameters/instrumentNamePathParam"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Position is provided.", 
+            "description": "The Position is provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "position": {
                   "$ref": "#/definitions/Position"
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/accounts/{accountID}/positions/{instrument}/close": {
       "put": {
-        "summary": "Close Position", 
-        "description": "Closeout the open Position for a specific instrument in an Account.", 
-        "operationId": "close", 
+        "summary": "Close Position",
+        "description": "Closeout the open Position for a specific instrument in an Account.",
+        "operationId": "close",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_account.json#/parameters/accountIDPathParam"
-          }, 
+          },
           {
             "$ref": "v20_instrument.json#/parameters/instrumentNamePathParam"
-          }, 
+          },
           {
-            "name": "closePositionBody", 
-            "description": "Representation of how to close the position", 
-            "in": "body", 
+            "name": "closePositionBody",
+            "description": "Representation of how to close the position",
+            "in": "body",
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "longUnits": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "Indication of how much of the long Position to closeout. Either the string \"ALL\", the string \"NONE\", or a DecimalNumber representing how many units of the long position to close using a PositionCloseout MarketOrder. The units specified must always be positive."
-                }, 
+                },
                 "longClientExtensions": {
                   "$ref": "v20_transaction.json#/definitions/ClientExtensions"
-                }, 
+                },
                 "shortUnits": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "Indication of how much of the short Position to closeout. Either the string \"ALL\", the string \"NONE\", or a DecimalNumber representing how many units of the short position to close using a PositionCloseout MarketOrder. The units specified must always be positive."
-                }, 
+                },
                 "shortClientExtensions": {
                   "$ref": "v20_transaction.json#/definitions/ClientExtensions"
                 }
               }
-            }, 
+            },
             "required": true
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The Position closeout request has been successfully processed.", 
+            "description": "The Position closeout request has been successfully processed.",
             "headers": {
               "Location": {
-                "description": "A link to the Position that was just closed out", 
+                "description": "A link to the Position that was just closed out",
                 "type": "string"
-              }, 
+              },
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "longOrderCreateTransaction": {
                   "$ref": "v20_transaction.json#/definitions/MarketOrderTransaction"
-                }, 
+                },
                 "longOrderFillTransaction": {
                   "$ref": "v20_transaction.json#/definitions/OrderFillTransaction"
-                }, 
+                },
                 "longOrderCancelTransaction": {
                   "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
-                }, 
+                },
                 "shortOrderCreateTransaction": {
                   "$ref": "v20_transaction.json#/definitions/MarketOrderTransaction"
-                }, 
+                },
                 "shortOrderFillTransaction": {
                   "$ref": "v20_transaction.json#/definitions/OrderFillTransaction"
-                }, 
+                },
                 "shortOrderCancelTransaction": {
                   "$ref": "v20_transaction.json#/definitions/OrderCancelTransaction"
-                }, 
+                },
                 "relatedTransactionIDs": {
-                  "type": "array", 
-                  "description": "The IDs of all Transactions that were created while satisfying the request.", 
+                  "type": "array",
+                  "description": "The IDs of all Transactions that were created while satisfying the request.",
                   "items": {
-                    "type": "string", 
-                    "description": "The unique Transaction identifier within each Account.", 
+                    "type": "string",
+                    "description": "The unique Transaction identifier within each Account.",
                     "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
                 }
               }
             }
-          }, 
+          },
           "400": {
-            "description": "The Parameters provided that describe the Position closeout are invalid.", 
+            "description": "The Parameters provided that describe the Position closeout are invalid.",
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "longOrderRejectTransaction": {
                   "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction"
-                }, 
+                },
                 "shortOrderRejectTransaction": {
                   "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction"
-                }, 
+                },
                 "relatedTransactionIDs": {
-                  "type": "array", 
-                  "description": "The IDs of all Transactions that were created while satisfying the request.", 
+                  "type": "array",
+                  "description": "The IDs of all Transactions that were created while satisfying the request.",
                   "items": {
-                    "type": "string", 
-                    "description": "The unique Transaction identifier within each Account.", 
+                    "type": "string",
+                    "description": "The unique Transaction identifier within each Account.",
                     "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
-                }, 
+                },
                 "errorCode": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The code of the error that has occurred. This field may not be returned for some errors."
-                }, 
+                },
                 "errorMessage": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
-            "description": "The Account or one or more of the Positions specified does not exist.", 
+            "description": "The Account or one or more of the Positions specified does not exist.",
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "longOrderRejectTransaction": {
                   "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction"
-                }, 
+                },
                 "shortOrderRejectTransaction": {
                   "$ref": "v20_transaction.json#/definitions/MarketOrderRejectTransaction"
-                }, 
+                },
                 "relatedTransactionIDs": {
-                  "type": "array", 
-                  "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.", 
+                  "type": "array",
+                  "description": "The IDs of all Transactions that were created while satisfying the request. Only present if the Account exists.",
                   "items": {
-                    "type": "string", 
-                    "description": "The unique Transaction identifier within each Account.", 
+                    "type": "string",
+                    "description": "The unique Transaction identifier within each Account.",
                     "format": "String representation of the numerical OANDA-assigned TransactionID"
                   }
-                }, 
+                },
                 "lastTransactionID": {
-                  "type": "string", 
-                  "description": "The ID of the most recent Transaction created for the Account. Only present if the Account exists.", 
+                  "type": "string",
+                  "description": "The ID of the most recent Transaction created for the Account. Only present if the Account exists.",
                   "format": "String representation of the numerical OANDA-assigned TransactionID"
-                }, 
+                },
                 "errorCode": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The code of the error that has occurred. This field may not be returned for some errors."
-                }, 
+                },
                 "errorMessage": {
-                  "type": "string", 
+                  "type": "string",
                   "description": "The human-readable description of the error that has occurred."
                 }
               }
             }
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
     }
-  }, 
+  },
   "definitions": {
     "Position": {
-      "type": "object", 
-      "description": "The specification of a Position within an Account.", 
+      "type": "object",
+      "description": "The specification of a Position within an Account.",
       "properties": {
         "instrument": {
-          "type": "string", 
-          "description": "The Position's Instrument.", 
+          "type": "string",
+          "description": "The Position's Instrument.",
           "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-        }, 
+        },
         "pl": {
-          "type": "string", 
-          "description": "Profit/loss realized by the Position over the lifetime of the Account.", 
+          "type": "string",
+          "description": "Profit/loss realized by the Position over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "unrealizedPL": {
-          "type": "string", 
-          "description": "The unrealized profit/loss of all open Trades that contribute to this Position.", 
+          "type": "string",
+          "description": "The unrealized profit/loss of all open Trades that contribute to this Position.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginUsed": {
-          "type": "string", 
-          "description": "Margin currently used by the Position.", 
+          "type": "string",
+          "description": "Margin currently used by the Position.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "resettablePL": {
-          "type": "string", 
-          "description": "Profit/loss realized by the Position since the Account's resettablePL was last reset by the client.", 
+          "type": "string",
+          "description": "Profit/loss realized by the Position since the Account's resettablePL was last reset by the client.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "financing": {
-          "type": "string", 
-          "description": "The total amount of financing paid/collected for this instrument over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of financing paid/collected for this instrument over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "commission": {
-          "type": "string", 
-          "description": "The total amount of commission paid for this instrument over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of commission paid for this instrument over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "guaranteedExecutionFees": {
-          "type": "string", 
-          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders for this instrument.", 
+          "type": "string",
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders for this instrument.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "long": {
           "$ref": "#/definitions/PositionSide"
-        }, 
+        },
         "short": {
           "$ref": "#/definitions/PositionSide"
         }
       }
-    }, 
+    },
     "PositionSide": {
-      "type": "object", 
-      "description": "The representation of a Position for a single direction (long or short).", 
+      "type": "object",
+      "description": "The representation of a Position for a single direction (long or short).",
       "properties": {
         "units": {
-          "type": "string", 
-          "description": "Number of units in the position (negative value indicates short position, positive indicates long position).", 
+          "type": "string",
+          "description": "Number of units in the position (negative value indicates short position, positive indicates long position).",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "averagePrice": {
-          "type": "string", 
-          "description": "Volume-weighted average of the underlying Trade open prices for the Position.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "Volume-weighted average of the underlying Trade open prices for the Position.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "tradeIDs": {
-          "type": "array", 
-          "description": "List of the open Trade IDs which contribute to the open Position.", 
+          "type": "array",
+          "description": "List of the open Trade IDs which contribute to the open Position.",
           "items": {
-            "type": "string", 
-            "description": "The Trade's identifier, unique within the Trade's Account.", 
+            "type": "string",
+            "description": "The Trade's identifier, unique within the Trade's Account.",
             "format": "The string representation of the OANDA-assigned TradeID. OANDA-assigned TradeIDs are positive integers, and are derived from the TransactionID of the Transaction that opened the Trade."
           }
-        }, 
+        },
         "pl": {
-          "type": "string", 
-          "description": "Profit/loss realized by the PositionSide over the lifetime of the Account.", 
+          "type": "string",
+          "description": "Profit/loss realized by the PositionSide over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "unrealizedPL": {
-          "type": "string", 
-          "description": "The unrealized profit/loss of all open Trades that contribute to this PositionSide.", 
+          "type": "string",
+          "description": "The unrealized profit/loss of all open Trades that contribute to this PositionSide.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "resettablePL": {
-          "type": "string", 
-          "description": "Profit/loss realized by the PositionSide since the Account's resettablePL was last reset by the client.", 
+          "type": "string",
+          "description": "Profit/loss realized by the PositionSide since the Account's resettablePL was last reset by the client.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "financing": {
-          "type": "string", 
-          "description": "The total amount of financing paid/collected for this PositionSide over the lifetime of the Account.", 
+          "type": "string",
+          "description": "The total amount of financing paid/collected for this PositionSide over the lifetime of the Account.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "guaranteedExecutionFees": {
-          "type": "string", 
-          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders attached to Trades for this PositionSide.", 
+          "type": "string",
+          "description": "The total amount of fees charged over the lifetime of the Account for the execution of guaranteed Stop Loss Orders attached to Trades for this PositionSide.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
-    }, 
+    },
     "CalculatedPositionState": {
-      "type": "object", 
-      "description": "The dynamic (calculated) state of a Position", 
+      "type": "object",
+      "description": "The dynamic (calculated) state of a Position",
       "properties": {
         "instrument": {
-          "type": "string", 
-          "description": "The Position's Instrument.", 
+          "type": "string",
+          "description": "The Position's Instrument.",
           "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-        }, 
+        },
         "netUnrealizedPL": {
-          "type": "string", 
-          "description": "The Position's net unrealized profit/loss", 
+          "type": "string",
+          "description": "The Position's net unrealized profit/loss",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "longUnrealizedPL": {
-          "type": "string", 
-          "description": "The unrealized profit/loss of the Position's long open Trades", 
+          "type": "string",
+          "description": "The unrealized profit/loss of the Position's long open Trades",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "shortUnrealizedPL": {
-          "type": "string", 
-          "description": "The unrealized profit/loss of the Position's short open Trades", 
+          "type": "string",
+          "description": "The unrealized profit/loss of the Position's short open Trades",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
-        }, 
+        },
         "marginUsed": {
-          "type": "string", 
-          "description": "Margin currently used by the Position.", 
+          "type": "string",
+          "description": "Margin currently used by the Position.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on the Account's home currency."
         }
       }
     }
-  }, 
+  },
   "parameters": {
-    "statementYearPathParam": {
-      "name": "statementYear", 
-      "description": "The year that a Yearly Account Statement is generated for.", 
-      "in": "path", 
-      "type": "integer", 
+    "instrumentNamePathParam": {
+      "name": "instrument",
+      "description": "Name of the Instrument",
+      "in": "path",
+      "type": "string",
+      "format": "A string containing the base currency and quote currency delimited by a \"_\".",
       "required": true
     }
   }

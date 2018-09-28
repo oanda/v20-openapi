@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt
-  version: 3.0.22
+  version: 3.0.25
 basePath: /v3
 produces:
 - application/json
@@ -391,7 +391,7 @@ definitions:
           the Position.
         format: >-
           A decimal number encodes as a string. The amount of precision
-          provided depends on the Price's Instrument.
+          provided depends on the Instrument.
       tradeIDs:
         type: array
         description: >-
@@ -482,10 +482,13 @@ definitions:
           A decimal number encoded as a string. The amount of precision
           provided depends on the Account's home currency.
 parameters:
-  statementYearPathParam:
-    name: statementYear
-    description: The year that a Yearly Account Statement is generated for.
+  instrumentNamePathParam:
+    name: instrument
+    description: Name of the Instrument
     in: path
-    type: integer
+    type: string
+    format: >-
+      A string containing the base currency and quote currency delimited
+      by a "_".
     required: true
 

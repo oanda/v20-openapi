@@ -1,647 +1,643 @@
 {
-  "swagger": "2.0", 
+  "swagger": "2.0",
   "info": {
-    "title": "OANDA v20 Instrument API", 
-    "description": "Instrument-related definitions and endpoints made available to clients through the v20 REST API.", 
+    "title": "OANDA v20 Instrument API",
+    "description": "Instrument-related definitions and endpoints made available to clients through the v20 REST API.",
     "contact": {
-      "name": "OANDA API Support", 
-      "url": "http://developer.oanda.com/rest-live-v20/introduction/", 
+      "name": "OANDA API Support",
+      "url": "http://developer.oanda.com/rest-live-v20/introduction/",
       "email": "api@oanda.com"
-    }, 
+    },
     "license": {
-      "name": "MIT", 
+      "name": "MIT",
       "url": "https://github.com/oanda/v20-openapi/blob/master/LICENSE.txt"
-    }, 
-    "version": "3.0.22"
-  }, 
-  "basePath": "/v3", 
+    },
+    "version": "3.0.25"
+  },
+  "basePath": "/v3",
   "produces": [
     "application/json"
-  ], 
+  ],
   "consumes": [
     "application/json"
-  ], 
+  ],
   "paths": {
     "/instruments/{instrument}/candles": {
       "get": {
-        "summary": "Get Candlesticks", 
-        "description": "Fetch candlestick data for an instrument.", 
-        "operationId": "candles", 
+        "summary": "Get Candlesticks",
+        "description": "Fetch candlestick data for an instrument.",
+        "operationId": "candles",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/instrumentNamePathParam"
-          }, 
+          },
           {
-            "name": "price", 
-            "description": "The Price component(s) to get candlestick data for. Can contain any combination of the characters \"M\" (midpoint candles) \"B\" (bid candles) and \"A\" (ask candles).", 
-            "in": "query", 
+            "name": "price",
+            "description": "The Price component(s) to get candlestick data for. Can contain any combination of the characters \"M\" (midpoint candles) \"B\" (bid candles) and \"A\" (ask candles).",
+            "in": "query",
             "type": "string"
-          }, 
+          },
           {
-            "name": "granularity", 
-            "description": "The granularity of the candlesticks to fetch", 
-            "in": "query", 
+            "name": "granularity",
+            "description": "The granularity of the candlesticks to fetch",
+            "in": "query",
             "type": "string"
-          }, 
+          },
           {
-            "name": "count", 
-            "description": "The number of candlesticks to return in the reponse. Count should not be specified if both the start and end parameters are provided, as the time range combined with the graularity will determine the number of candlesticks to return.", 
-            "in": "query", 
+            "name": "count",
+            "description": "The number of candlesticks to return in the reponse. Count should not be specified if both the start and end parameters are provided, as the time range combined with the graularity will determine the number of candlesticks to return.",
+            "in": "query",
             "type": "integer"
-          }, 
+          },
           {
-            "name": "from", 
-            "description": "The start of the time range to fetch candlesticks for.", 
-            "in": "query", 
-            "type": "string", 
+            "name": "from",
+            "description": "The start of the time range to fetch candlesticks for.",
+            "in": "query",
+            "type": "string",
             "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-          }, 
+          },
           {
-            "name": "to", 
-            "description": "The end of the time range to fetch candlesticks for.", 
-            "in": "query", 
-            "type": "string", 
+            "name": "to",
+            "description": "The end of the time range to fetch candlesticks for.",
+            "in": "query",
+            "type": "string",
             "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-          }, 
+          },
           {
-            "name": "smooth", 
-            "description": "A flag that controls whether the candlestick is \"smoothed\" or not.  A smoothed candlestick uses the previous candle's close price as its open price, while an unsmoothed candlestick uses the first price from its time range as its open price.", 
-            "in": "query", 
+            "name": "smooth",
+            "description": "A flag that controls whether the candlestick is \"smoothed\" or not.  A smoothed candlestick uses the previous candle's close price as its open price, while an unsmoothed candlestick uses the first price from its time range as its open price.",
+            "in": "query",
             "type": "boolean"
-          }, 
+          },
           {
-            "name": "includeFirst", 
-            "description": "A flag that controls whether the candlestick that is covered by the from time should be included in the results. This flag enables clients to use the timestamp of the last completed candlestick received to poll for future candlesticks but avoid receiving the previous candlestick repeatedly.", 
-            "in": "query", 
+            "name": "includeFirst",
+            "description": "A flag that controls whether the candlestick that is covered by the from time should be included in the results. This flag enables clients to use the timestamp of the last completed candlestick received to poll for future candlesticks but avoid receiving the previous candlestick repeatedly.",
+            "in": "query",
             "type": "boolean"
-          }, 
+          },
           {
-            "name": "dailyAlignment", 
-            "description": "The hour of the day (in the specified timezone) to use for granularities that have daily alignments.", 
-            "in": "query", 
+            "name": "dailyAlignment",
+            "description": "The hour of the day (in the specified timezone) to use for granularities that have daily alignments.",
+            "in": "query",
             "type": "integer"
-          }, 
+          },
           {
-            "name": "alignmentTimezone", 
-            "description": "The timezone to use for the dailyAlignment parameter. Candlesticks with daily alignment will be aligned to the dailyAlignment hour within the alignmentTimezone.  Note that the returned times will still be represented in UTC.", 
-            "in": "query", 
+            "name": "alignmentTimezone",
+            "description": "The timezone to use for the dailyAlignment parameter. Candlesticks with daily alignment will be aligned to the dailyAlignment hour within the alignmentTimezone.  Note that the returned times will still be represented in UTC.",
+            "in": "query",
             "type": "string"
-          }, 
+          },
           {
-            "name": "weeklyAlignment", 
-            "description": "The day of the week used for granularities that have weekly alignment.", 
-            "in": "query", 
+            "name": "weeklyAlignment",
+            "description": "The day of the week used for granularities that have weekly alignment.",
+            "in": "query",
             "type": "string"
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "Pricing information has been successfully provided.", 
+            "description": "Pricing information has been successfully provided.",
             "headers": {
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "instrument": {
-                  "type": "string", 
-                  "description": "The instrument whose Prices are represented by the candlesticks.", 
+                  "type": "string",
+                  "description": "The instrument whose Prices are represented by the candlesticks.",
                   "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-                }, 
+                },
                 "granularity": {
-                  "type": "string", 
-                  "description": "The granularity of the candlesticks provided.", 
+                  "type": "string",
+                  "description": "The granularity of the candlesticks provided.",
                   "enum": [
-                    "S5", 
-                    "S10", 
-                    "S15", 
-                    "S30", 
-                    "M1", 
-                    "M2", 
-                    "M4", 
-                    "M5", 
-                    "M10", 
-                    "M15", 
-                    "M30", 
-                    "H1", 
-                    "H2", 
-                    "H3", 
-                    "H4", 
-                    "H6", 
-                    "H8", 
-                    "H12", 
-                    "D", 
-                    "W", 
+                    "S5",
+                    "S10",
+                    "S15",
+                    "S30",
+                    "M1",
+                    "M2",
+                    "M4",
+                    "M5",
+                    "M10",
+                    "M15",
+                    "M30",
+                    "H1",
+                    "H2",
+                    "H3",
+                    "H4",
+                    "H6",
+                    "H8",
+                    "H12",
+                    "D",
+                    "W",
                     "M"
                   ]
-                }, 
+                },
                 "candles": {
-                  "type": "array", 
-                  "description": "The list of candlesticks that satisfy the request.", 
+                  "type": "array",
+                  "description": "The list of candlesticks that satisfy the request.",
                   "items": {
                     "$ref": "#/definitions/Candlestick"
                   }
                 }
               }
             }
-          }, 
+          },
           "400": {
             "$ref": "v20_primitives.json#/responses/400"
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
-    "/instruments/{instrument}/orderBook": {
+    },
+    "/instruments/{instrument}/price": {
       "get": {
-        "summary": "Get Order Book", 
-        "description": "Fetch an order book for an instrument.", 
+        "summary": "Price",
+        "description": "Fetch a price for an instrument. Accounts are not associated in any way with this endpoint.",
+        "operationId": "price",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/instrumentNamePathParam"
-          }, 
+          },
           {
-            "name": "time", 
-            "description": "The time of the snapshot to fetch. If not specified, then the most recent snapshot is fetched.", 
-            "in": "query", 
-            "type": "string", 
+            "name": "time",
+            "description": "The time at which the desired price is in effect. The current price is returned if no time is provided.",
+            "in": "query",
+            "type": "string",
             "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The order book has been successfully provided.", 
+            "description": "Pricing information has been successfully provided.",
             "headers": {
-              "Content-Encoding": {
-                "description": "Value will be \"gzip\" regardless of provided Accept-Encoding header", 
-                "type": "string"
-              }, 
-              "Link": {
-                "description": "A link to the next/previous order book snapshot.", 
-                "type": "string"
-              }, 
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
+              "properties": {
+                "price": {
+                  "$ref": "v20_pricing_common.json#/definitions/Price"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "v20_primitives.json#/responses/400"
+          },
+          "401": {
+            "$ref": "v20_primitives.json#/responses/401"
+          },
+          "404": {
+            "$ref": "v20_primitives.json#/responses/404"
+          },
+          "405": {
+            "$ref": "v20_primitives.json#/responses/405"
+          }
+        }
+      }
+    },
+    "/instruments/{instrument}/price/range": {
+      "get": {
+        "summary": "Get Prices",
+        "description": "Fetch a range of prices for an instrument. Accounts are not associated in any way with this endpoint.",
+        "operationId": "prices",
+        "parameters": [
+          {
+            "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
+          },
+          {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          },
+          {
+            "$ref": "#/parameters/instrumentNamePathParam"
+          },
+          {
+            "name": "from",
+            "description": "The start of the time range to fetch prices for.",
+            "in": "query",
+            "type": "string",
+            "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places).",
+            "required": true
+          },
+          {
+            "name": "to",
+            "description": "The end of the time range to fetch prices for. The current time is used if this parameter is not provided.",
+            "in": "query",
+            "type": "string",
+            "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pricing information has been successfully provided.",
+            "headers": {
+              "RequestID": {
+                "description": "The unique identifier generated for the request",
+                "type": "string"
+              },
+              "Link": {
+                "description": "A link to the next page of results if the results were paginated",
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "prices": {
+                  "type": "array",
+                  "description": "The list of prices that satisfy the request.",
+                  "items": {
+                    "$ref": "v20_pricing_common.json#/definitions/Price"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "v20_primitives.json#/responses/400"
+          },
+          "401": {
+            "$ref": "v20_primitives.json#/responses/401"
+          },
+          "404": {
+            "$ref": "v20_primitives.json#/responses/404"
+          },
+          "405": {
+            "$ref": "v20_primitives.json#/responses/405"
+          }
+        }
+      }
+    },
+    "/instruments/{instrument}/orderBook": {
+      "get": {
+        "summary": "Get Order Book",
+        "description": "Fetch an order book for an instrument.",
+        "operationId": "orderBook",
+        "parameters": [
+          {
+            "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
+          },
+          {
+            "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
+          },
+          {
+            "$ref": "#/parameters/instrumentNamePathParam"
+          },
+          {
+            "name": "time",
+            "description": "The time of the snapshot to fetch. If not specified, then the most recent snapshot is fetched.",
+            "in": "query",
+            "type": "string",
+            "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The order book has been successfully provided.",
+            "headers": {
+              "Content-Encoding": {
+                "description": "Value will be \"gzip\" regardless of provided Accept-Encoding header",
+                "type": "string"
+              },
+              "Link": {
+                "description": "A link to the next/previous order book snapshot.",
+                "type": "string"
+              },
+              "RequestID": {
+                "description": "The unique identifier generated for the request",
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "object",
               "properties": {
                 "orderBook": {
                   "$ref": "#/definitions/OrderBook"
                 }
               }
             }
-          }, 
+          },
           "400": {
             "$ref": "v20_primitives.json#/responses/400"
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
-    }, 
+    },
     "/instruments/{instrument}/positionBook": {
       "get": {
-        "summary": "Get Position Book", 
-        "description": "Fetch a position book for an instrument.", 
+        "summary": "Get Position Book",
+        "description": "Fetch a position book for an instrument.",
+        "operationId": "positionBook",
         "parameters": [
           {
             "$ref": "v20_primitives.json#/parameters/authorizationHeaderParam"
-          }, 
+          },
           {
             "$ref": "v20_primitives.json#/parameters/acceptDatetimeFormatHeaderParam"
-          }, 
+          },
           {
             "$ref": "#/parameters/instrumentNamePathParam"
-          }, 
+          },
           {
-            "name": "time", 
-            "description": "The time of the snapshot to fetch. If not specified, then the most recent snapshot is fetched.", 
-            "in": "query", 
-            "type": "string", 
+            "name": "time",
+            "description": "The time of the snapshot to fetch. If not specified, then the most recent snapshot is fetched.",
+            "in": "query",
+            "type": "string",
             "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
           }
-        ], 
+        ],
         "responses": {
           "200": {
-            "description": "The position book has been successfully provided.", 
+            "description": "The position book has been successfully provided.",
             "headers": {
               "Content-Encoding": {
-                "description": "Value will be \"gzip\" regardless of provided Accept-Encoding header", 
+                "description": "Value will be \"gzip\" regardless of provided Accept-Encoding header",
                 "type": "string"
-              }, 
+              },
               "Link": {
-                "description": "A link to the next/previous position book snapshot.", 
+                "description": "A link to the next/previous position book snapshot.",
                 "type": "string"
-              }, 
+              },
               "RequestID": {
-                "description": "The unique identifier generated for the request", 
+                "description": "The unique identifier generated for the request",
                 "type": "string"
               }
-            }, 
+            },
             "schema": {
-              "type": "object", 
+              "type": "object",
               "properties": {
                 "positionBook": {
                   "$ref": "#/definitions/PositionBook"
                 }
               }
             }
-          }, 
+          },
           "400": {
             "$ref": "v20_primitives.json#/responses/400"
-          }, 
+          },
           "401": {
             "$ref": "v20_primitives.json#/responses/401"
-          }, 
+          },
           "404": {
             "$ref": "v20_primitives.json#/responses/404"
-          }, 
+          },
           "405": {
             "$ref": "v20_primitives.json#/responses/405"
           }
         }
       }
     }
-  }, 
+  },
   "definitions": {
     "CandlestickGranularity": {
-      "type": "string", 
-      "description": "The granularity of a candlestick", 
+      "type": "string",
+      "description": "The granularity of a candlestick",
       "enum": [
-        "S5", 
-        "S10", 
-        "S15", 
-        "S30", 
-        "M1", 
-        "M2", 
-        "M4", 
-        "M5", 
-        "M10", 
-        "M15", 
-        "M30", 
-        "H1", 
-        "H2", 
-        "H3", 
-        "H4", 
-        "H6", 
-        "H8", 
-        "H12", 
-        "D", 
-        "W", 
+        "S5",
+        "S10",
+        "S15",
+        "S30",
+        "M1",
+        "M2",
+        "M4",
+        "M5",
+        "M10",
+        "M15",
+        "M30",
+        "H1",
+        "H2",
+        "H3",
+        "H4",
+        "H6",
+        "H8",
+        "H12",
+        "D",
+        "W",
         "M"
       ]
-    }, 
+    },
     "WeeklyAlignment": {
-      "type": "string", 
-      "description": "The day of the week to use for candlestick granularities with weekly alignment.", 
+      "type": "string",
+      "description": "The day of the week to use for candlestick granularities with weekly alignment.",
       "enum": [
-        "Monday", 
-        "Tuesday", 
-        "Wednesday", 
-        "Thursday", 
-        "Friday", 
-        "Saturday", 
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
         "Sunday"
       ]
-    }, 
+    },
     "Candlestick": {
-      "type": "object", 
-      "description": "The Candlestick representation", 
+      "type": "object",
+      "description": "The Candlestick representation",
       "properties": {
         "time": {
-          "type": "string", 
-          "description": "The start time of the candlestick", 
+          "type": "string",
+          "description": "The start time of the candlestick",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "bid": {
           "$ref": "#/definitions/CandlestickData"
-        }, 
+        },
         "ask": {
           "$ref": "#/definitions/CandlestickData"
-        }, 
+        },
         "mid": {
           "$ref": "#/definitions/CandlestickData"
-        }, 
+        },
         "volume": {
-          "type": "integer", 
+          "type": "integer",
           "description": "The number of prices created during the time-range represented by the candlestick."
-        }, 
+        },
         "complete": {
-          "type": "boolean", 
+          "type": "boolean",
           "description": "A flag indicating if the candlestick is complete. A complete candlestick is one whose ending time is not in the future."
         }
       }
-    }, 
+    },
     "CandlestickData": {
-      "type": "object", 
-      "description": "The price data (open, high, low, close) for the Candlestick representation.", 
+      "type": "object",
+      "description": "The price data (open, high, low, close) for the Candlestick representation.",
       "properties": {
         "o": {
-          "type": "string", 
-          "description": "The first (open) price in the time-range represented by the candlestick.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The first (open) price in the time-range represented by the candlestick.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "h": {
-          "type": "string", 
-          "description": "The highest price in the time-range represented by the candlestick.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The highest price in the time-range represented by the candlestick.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "l": {
-          "type": "string", 
-          "description": "The lowest price in the time-range represented by the candlestick.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The lowest price in the time-range represented by the candlestick.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "c": {
-          "type": "string", 
-          "description": "The last (closing) price in the time-range represented by the candlestick.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
+          "type": "string",
+          "description": "The last (closing) price in the time-range represented by the candlestick.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
         }
       }
-    }, 
+    },
     "OrderBook": {
-      "type": "object", 
-      "description": "The representation of an instrument's order book at a point in time", 
+      "type": "object",
+      "description": "The representation of an instrument's order book at a point in time",
       "properties": {
         "instrument": {
-          "type": "string", 
-          "description": "The order book's instrument", 
+          "type": "string",
+          "description": "The order book's instrument",
           "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-        }, 
+        },
         "time": {
-          "type": "string", 
-          "description": "The time when the order book snapshot was created.", 
+          "type": "string",
+          "description": "The time when the order book snapshot was created.",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "price": {
-          "type": "string", 
-          "description": "The price (midpoint) for the order book's instrument at the time of the order book snapshot", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The price (midpoint) for the order book's instrument at the time of the order book snapshot",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "bucketWidth": {
-          "type": "string", 
-          "description": "The price width for each bucket. Each bucket covers the price range from the bucket's price to the bucket's price + bucketWidth.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The price width for each bucket. Each bucket covers the price range from the bucket's price to the bucket's price + bucketWidth.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "buckets": {
-          "type": "array", 
-          "description": "The partitioned order book, divided into buckets using a default bucket width. These buckets are only provided for price ranges which actually contain order or position data.", 
+          "type": "array",
+          "description": "The partitioned order book, divided into buckets using a default bucket width. These buckets are only provided for price ranges which actually contain order or position data.",
           "items": {
             "$ref": "#/definitions/OrderBookBucket"
           }
         }
       }
-    }, 
+    },
     "OrderBookBucket": {
-      "type": "object", 
-      "description": "The order book data for a partition of the instrument's prices.", 
+      "type": "object",
+      "description": "The order book data for a partition of the instrument's prices.",
       "properties": {
         "price": {
-          "type": "string", 
-          "description": "The lowest price (inclusive) covered by the bucket. The bucket covers the price range from the price to price + the order book's bucketWidth.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The lowest price (inclusive) covered by the bucket. The bucket covers the price range from the price to price + the order book's bucketWidth.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "longCountPercent": {
-          "type": "string", 
-          "description": "The percentage of the total number of orders represented by the long orders found in this bucket.", 
+          "type": "string",
+          "description": "The percentage of the total number of orders represented by the long orders found in this bucket.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "shortCountPercent": {
-          "type": "string", 
-          "description": "The percentage of the total number of orders represented by the short orders found in this bucket.", 
+          "type": "string",
+          "description": "The percentage of the total number of orders represented by the short orders found in this bucket.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }
       }
-    }, 
+    },
     "PositionBook": {
-      "type": "object", 
-      "description": "The representation of an instrument's position book at a point in time", 
+      "type": "object",
+      "description": "The representation of an instrument's position book at a point in time",
       "properties": {
         "instrument": {
-          "type": "string", 
-          "description": "The position book's instrument", 
+          "type": "string",
+          "description": "The position book's instrument",
           "format": "A string containing the base currency and quote currency delimited by a \"_\"."
-        }, 
+        },
         "time": {
-          "type": "string", 
-          "description": "The time when the position book snapshot was created", 
+          "type": "string",
+          "description": "The time when the position book snapshot was created",
           "format": "The RFC 3339 representation is a string conforming to https://tools.ietf.org/rfc/rfc3339.txt. The Unix representation is a string representing the number of seconds since the Unix Epoch (January 1st, 1970 at UTC). The value is a fractional number, where the fractional part represents a fraction of a second (up to nine decimal places)."
-        }, 
+        },
         "price": {
-          "type": "string", 
-          "description": "The price (midpoint) for the position book's instrument at the time of the position book snapshot", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The price (midpoint) for the position book's instrument at the time of the position book snapshot",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "bucketWidth": {
-          "type": "string", 
-          "description": "The price width for each bucket. Each bucket covers the price range from the bucket's price to the bucket's price + bucketWidth.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The price width for each bucket. Each bucket covers the price range from the bucket's price to the bucket's price + bucketWidth.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "buckets": {
-          "type": "array", 
-          "description": "The partitioned position book, divided into buckets using a default bucket width. These buckets are only provided for price ranges which actually contain order or position data.", 
+          "type": "array",
+          "description": "The partitioned position book, divided into buckets using a default bucket width. These buckets are only provided for price ranges which actually contain order or position data.",
           "items": {
             "$ref": "#/definitions/PositionBookBucket"
           }
         }
       }
-    }, 
+    },
     "PositionBookBucket": {
-      "type": "object", 
-      "description": "The position book data for a partition of the instrument's prices.", 
+      "type": "object",
+      "description": "The position book data for a partition of the instrument's prices.",
       "properties": {
         "price": {
-          "type": "string", 
-          "description": "The lowest price (inclusive) covered by the bucket. The bucket covers the price range from the price to price + the position book's bucketWidth.", 
-          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Price's Instrument."
-        }, 
+          "type": "string",
+          "description": "The lowest price (inclusive) covered by the bucket. The bucket covers the price range from the price to price + the position book's bucketWidth.",
+          "format": "A decimal number encodes as a string. The amount of precision provided depends on the Instrument."
+        },
         "longCountPercent": {
-          "type": "string", 
-          "description": "The percentage of the total number of positions represented by the long positions found in this bucket.", 
+          "type": "string",
+          "description": "The percentage of the total number of positions represented by the long positions found in this bucket.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
-        }, 
+        },
         "shortCountPercent": {
-          "type": "string", 
-          "description": "The percentage of the total number of positions represented by the short positions found in this bucket.", 
+          "type": "string",
+          "description": "The percentage of the total number of positions represented by the short positions found in this bucket.",
           "format": "A decimal number encoded as a string. The amount of precision provided depends on what the number represents."
         }
       }
     }
-  }, 
+  },
   "parameters": {
     "instrumentNamePathParam": {
-      "name": "instrument", 
-      "description": "Name of the Instrument", 
-      "in": "path", 
-      "type": "string", 
-      "format": "A string containing the base currency and quote currency delimited by a \"_\".", 
+      "name": "instrument",
+      "description": "Name of the Instrument",
+      "in": "path",
+      "type": "string",
+      "format": "A string containing the base currency and quote currency delimited by a \"_\".",
       "required": true
-    }
-  }, 
-  "responses": {
-    "400": {
-      "description": "Bad Request. The client has provided invalid data to be processed by the server.", 
-      "headers": {
-        "RequestID": {
-          "description": "The unique identifier generated for the request", 
-          "type": "string"
-        }
-      }, 
-      "schema": {
-        "type": "object", 
-        "properties": {
-          "errorCode": {
-            "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors."
-          }, 
-          "errorMessage": {
-            "type": "string", 
-            "description": "The human-readable description of the error that has occurred."
-          }
-        }
-      }
-    }, 
-    "401": {
-      "description": "Unauthorized. The endpoint being access required the client to authenticated, however the the authentication token is invalid or has not been provided.", 
-      "headers": {
-        "RequestID": {
-          "description": "The unique identifier generated for the request", 
-          "type": "string"
-        }
-      }, 
-      "schema": {
-        "type": "object", 
-        "properties": {
-          "errorCode": {
-            "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors."
-          }, 
-          "errorMessage": {
-            "type": "string", 
-            "description": "The human-readable description of the error that has occurred."
-          }
-        }
-      }
-    }, 
-    "403": {
-      "description": "Forbidden. The client has provided a token that does not authorize them to perform the action implemented by the API endpoint.", 
-      "headers": {
-        "RequestID": {
-          "description": "The unique identifier generated for the request", 
-          "type": "string"
-        }
-      }, 
-      "schema": {
-        "type": "object", 
-        "properties": {
-          "errorCode": {
-            "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors."
-          }, 
-          "errorMessage": {
-            "type": "string", 
-            "description": "The human-readable description of the error that has occurred."
-          }
-        }
-      }
-    }, 
-    "404": {
-      "description": "Not Found. The client has attempted to access an entity that does not exist.", 
-      "headers": {
-        "RequestID": {
-          "description": "The unique identifier generated for the request", 
-          "type": "string"
-        }
-      }, 
-      "schema": {
-        "type": "object", 
-        "properties": {
-          "errorCode": {
-            "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors."
-          }, 
-          "errorMessage": {
-            "type": "string", 
-            "description": "The human-readable description of the error that has occurred."
-          }
-        }
-      }
-    }, 
-    "405": {
-      "description": "Method Not Allowed. The client has attempted to access an endpoint using an HTTP method that is not supported.", 
-      "headers": {
-        "RequestID": {
-          "description": "The unique identifier generated for the request", 
-          "type": "string"
-        }
-      }, 
-      "schema": {
-        "type": "object", 
-        "properties": {
-          "errorCode": {
-            "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors."
-          }, 
-          "errorMessage": {
-            "type": "string", 
-            "description": "The human-readable description of the error that has occurred."
-          }
-        }
-      }
-    }, 
-    "416": {
-      "description": "Range Not Satisfiable. The client has specified a range that is invalid or cannot be processed.", 
-      "headers": {
-        "RequestID": {
-          "description": "The unique identifier generated for the request", 
-          "type": "string"
-        }
-      }, 
-      "schema": {
-        "type": "object", 
-        "properties": {
-          "errorCode": {
-            "type": "string", 
-            "description": "The code of the error that has occurred. This field may not be returned for some errors."
-          }, 
-          "errorMessage": {
-            "type": "string", 
-            "description": "The human-readable description of the error that has occurred."
-          }
-        }
-      }
     }
   }
 }
